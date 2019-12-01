@@ -21,9 +21,8 @@ for line in masses_fh:
 total_fuel = 0;
 
 for mass in masses:
-    fuel = int(mass / 3) - 2#div by 3, round down, subtract 2
-
-    # calculate fuel required to carry this fuel, and repeat iteratively until 0 or negative required
-
+    while ((int(mass / 3) - 2) > 0): #div by 3, round down, subtract 2
+        mass = int(mass / 3) - 2
+        total_fuel += mass
 
 print('Total fuel required: ' + str(total_fuel))
