@@ -35,13 +35,12 @@ for line in instr_fh:
         # Decide operation based of value in first field
         if (instr[i] == 1):
             # Add values
-            instr[instr[i+3]] = instr[i+1] + instr[i+2]
+            instr[instr[i+3]] = instr[instr[i+1]] + instr[instr[i+2]]
         elif (instr[i] == 2):
-            instr[instr[i+3]] = instr[i+1] * instr[i+2]
+            # Multiply values
+            instr[instr[i+3]] = instr[instr[i+1]] * instr[instr[i+2]]
         else:
             sys.exit("Invalid operator in position " + str(i) + ": " + instr[i])
-        print("putting " + str(instr[instr[i+3]]) + " into " + str(instr[i+3]))
-        print("Update: " + str(instr))
         i += 4
 
     print("Output: " + str(instr))
