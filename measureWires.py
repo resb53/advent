@@ -22,6 +22,7 @@ def main():
         cmd = line.rsplit()[0]
         wires.append({})
         pos = [0, 0] # [x, y]
+        d = 0 # distance travelled to this point
 
         # Split command string into list of instructions
         instr = cmd.split(',')
@@ -36,10 +37,14 @@ def main():
         for mvmt in move:
             j = calculatePos(pos, mvmt)
             for i in j:
+                # 1 more distance travelled
+                d += 1
                 #create new y dict if x not seen before
                 if i[0] not in wires[w]:
                     wires[w][i[0]] = {}
-                wires[w][i[0]][i[1]] = 1
+                # if not travelled here before
+                if i[1] not in wires[w][i[0]]:
+                    wires[w][i[0]][i[1]] = d
                 #print(str(wires[w]))
             pos = [i[0],i[1]]
 
