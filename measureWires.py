@@ -34,21 +34,19 @@ def main():
             move.append([a, int(b)])
 
         for mvmt in move:
-            #print("Pos: " + str(pos) + "; Move: " + str(mvmt))
             j = calculatePos(pos, mvmt)
             for i in j:
                 #create new y dict if x not seen before
-                if i[1] not in wires[w]:
+                if i[0] not in wires[w]:
                     wires[w][i[0]] = {}
                 wires[w][i[0]][i[1]] = 1
-                print(str(wires[w]))
+                #print(str(wires[w]))
             pos = [i[0],i[1]]
 
         w += 1
 
-    #print(str(wires))
-    #cross = findCrossings(wires)
-    #print(str(cross))
+    cross = findCrossings(wires)
+    print(str(cross))
 
 def calculatePos(start, repos):
     journey = []
@@ -79,10 +77,11 @@ def calculatePos(start, repos):
 
 def findCrossings(wirelist): # ASSUMES ONLY 2 WIRES AT THE MOMENT
     crossings = [];
-    for a in wirelist[0]:
-        for b in wirelist[1]:
-            if ( (a[0] == b[0]) and (a[1] == b[1]) ):
-                crossings.append([a[0],a[1]])
+    for x in wirelist[0]:
+        for y in wirelist[0][x]:
+            if x in wirelist[1]:
+                if y in wirelist[1][x]:
+                    crossings.append([x,y])
     return crossings
 
 main()
