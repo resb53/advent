@@ -48,6 +48,14 @@ def main():
     cross = findCrossings(wires)
     print(str(cross))
 
+    minman = manhattan(cross.pop(0))
+    print("minman: " + str(minman))
+    for locn in cross:
+        manh = manhattan(locn)
+        if manh < minman:
+            minman = manh
+    print("Min Manhattan: " + str(minman))
+
 def calculatePos(start, repos):
     journey = []
     #print("Start: " + str(start) + "; Repos: " + str(repos))
@@ -83,5 +91,13 @@ def findCrossings(wirelist): # ASSUMES ONLY 2 WIRES AT THE MOMENT
                 if y in wirelist[1][x]:
                     crossings.append([x,y])
     return crossings
+
+def manhattan(coords): # Calculate Manhattan distance of coordinate from origin
+    [x,y] = coords
+    if (x < 0):
+        x *= -1
+    if (y < 1):
+        y *= -1
+    return x + y
 
 main()
