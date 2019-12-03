@@ -14,18 +14,18 @@ except IOError:
 
 def main():
 
-    wires = [] # List of list of positions for each wire [x, y],
+    wires = [] # List of wires {x: {y: 1}} for all locations crossed by wire,
     w = 0 # wire number
 
     # Parse instructions in file. Allow for multiline just in case future need.
     for line in instr_fh:
         cmd = line.rsplit()[0]
-        wires.append([])
+        wires.append({})
         pos = [0, 0] # [x, y]
-        move = []
 
         # Split command string into list of instructions
         instr = cmd.split(',')
+        move = []
 
         # Parse movements
         for x in instr:
@@ -37,15 +37,18 @@ def main():
             #print("Pos: " + str(pos) + "; Move: " + str(mvmt))
             j = calculatePos(pos, mvmt)
             for i in j:
-                wires[w].append([i[0],i[1]])
-                pos = [i[0],i[1]]
-                #print(str(wires[w]))
+                #create new y dict if x not seen before
+                if i[1] not in wires[w]:
+                    wires[w][i[0]] = {}
+                wires[w][i[0]][i[1]] = 1
+                print(str(wires[w]))
+            pos = [i[0],i[1]]
 
         w += 1
 
     #print(str(wires))
-    cross = findCrossings(wires)
-    print(str(cross))
+    #cross = findCrossings(wires)
+    #print(str(cross))
 
 def calculatePos(start, repos):
     journey = []
