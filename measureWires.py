@@ -51,10 +51,19 @@ def main():
         w += 1
 
     cross = findCrossings(wires)
-    print(str(cross))
+
+    # print distances to reach points too
+    z = 100000
+    for goal in cross:
+        [x, y] = goal
+        a = wires[0][x][y]
+        b = wires[1][x][y]
+        #print(str(goal) + ": " + str(a) + " + " + str(b) + " = " + str(a+b))
+        if (a+b) < z:
+            z = (a+b)
+    print("Min Fuse: " + str(z))
 
     minman = manhattan(cross.pop(0))
-    print("minman: " + str(minman))
     for locn in cross:
         manh = manhattan(locn)
         if manh < minman:
