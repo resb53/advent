@@ -34,26 +34,45 @@ def main():
             move.append([a, int(b)])
 
         for mvmt in move:
-            calculatePos(pos, mvmt)
-            wires[w].append([pos[0],pos[1]])
+            #print("Pos: " + str(pos) + "; Move: " + str(mvmt))
+            j = calculatePos(pos, mvmt)
+            for i in j:
+                wires[w].append([i[0],i[1]])
+                pos = [i[0],i[1]]
+                #print(str(wires[w]))
 
         w += 1
 
+    #print(str(wires))
     cross = findCrossings(wires)
     print(str(cross))
 
 def calculatePos(start, repos):
+    journey = []
+    #print("Start: " + str(start) + "; Repos: " + str(repos))
     if (repos[0] == 'R'):
-        start[0] += repos[1]
+        end = start[0] + repos[1]
+        while (start[0] != end):
+            start[0] += 1
+            journey.append([start[0],start[1]])
     elif (repos[0] == 'U'):
-        start[1] += repos[1]
+        end = start[1] + repos[1]
+        while (start[1] != end):
+            start[1] += 1
+            journey.append([start[0],start[1]])
     elif (repos[0] == 'L'):
-        start[0] -= repos[1]
+        end = start[0] - repos[1]
+        while (start[0] != end):
+            start[0] -= 1
+            journey.append([start[0],start[1]])
     elif (repos[0] == 'D'):
-        start[1] -= repos[1]
+        end = start[1] - repos[1]
+        while (start[1] != end):
+            start[1] -= 1
+            journey.append([start[0],start[1]])
     else:
         sys.exit("Unable to parse direction parameter: " + str(repos[0]))
-    return start
+    return journey
 
 def findCrossings(wirelist): # ASSUMES ONLY 2 WIRES AT THE MOMENT
     crossings = [];
