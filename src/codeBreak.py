@@ -31,23 +31,30 @@ def countOccurences(a,b):
         # Boolean checks
         twoSame = 0 # set true if right
         nevDec = 1 #set false if wrong
+        onlyTwo = 0 # at least one set of digits must only occur twice
 
         # Parse digits
         digits = list(str(i))
+        countDig = {}
 
         for x in range(1,len(digits)):
             if (digits[x] == digits[x-1]):
                 twoSame = 1
-                # Check not part of larger group
-                if (x > 1):
-                    if (digits[x] == digits[x-2]):
-                        twoSame = 0
-
             if (digits[x] < digits[x-1]):
                 nevDec = 0
+            # number of occurences, (at least) one digit must occur only twice (due to increasing or same only rule)
+            if digits[x] in countDig:
+                countDig[digits[x]] += 1
+            else:
+                countDig[digits[x]] = 1
 
         # Check
-        if twoSame and nevDec:
+        for c in countDig:
+            if countDig[c] == 2:
+                onlyTwo = 1
+        
+
+        if twoSame and nevDec and onlyTwo:
             print(i)
             count += 1
 
