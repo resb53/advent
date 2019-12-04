@@ -26,9 +26,26 @@ def main():
 
 def countOccurences(a,b):
     count = 0;
+
     for i in range(a,b+1):
-        print(i)
-        count += 1
+        # Boolean checks
+        twoSame = 0 # set true if right
+        nevDec = 1 #set false if wrong
+
+        # Parse digits
+        digits = list(str(i))
+
+        for x in range(1,len(digits)):
+            if (digits[x] == digits[x-1]):
+                twoSame = 1
+
+            if (digits[x] < digits[x-1]):
+                nevDec = 0
+
+        # Check
+        if twoSame and nevDec:
+            print(i)
+            count += 1
 
     return count
 
