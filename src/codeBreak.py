@@ -35,9 +35,7 @@ def countOccurences(a,b):
 
         # Parse digits
         digits = list(str(i))
-        countDig = {}
-
-        print(i)
+        countDig = {digits[0]: 1} # count first digit
 
         for x in range(1,len(digits)):
             if (digits[x] == digits[x-1]):
@@ -49,8 +47,6 @@ def countOccurences(a,b):
                 countDig[digits[x]] += 1
             else:
                 countDig[digits[x]] = 1
-
-        print(str(countDig))
 
         # Check
         for c in countDig:
