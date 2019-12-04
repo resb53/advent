@@ -31,7 +31,7 @@ def countOccurences(a,b):
         # Boolean checks
         twoSame = 0 # set true if right
         nevDec = 1 #set false if wrong
-        onlyTwo = 0 # one set of digits must only occur twice
+        onlyTwo = 0 # (at least) one set of digits must only occur twice
 
         # Parse digits
         digits = list(str(i))
@@ -42,7 +42,7 @@ def countOccurences(a,b):
                 twoSame = 1
             if (digits[x] < digits[x-1]):
                 nevDec = 0
-            # number of occurences, one digit must occur only twice (due to increasing or same only rule)
+            # number of occurences, (at least) one digit must occur only twice (due to increasing or same only rule)
             if digits[x] in countDig:
                 countDig[digits[x]] += 1
             else:
@@ -52,9 +52,6 @@ def countOccurences(a,b):
         for c in countDig:
             if countDig[c] == 2:
                 onlyTwo += 1
-        if onlyTwo > 1: # precisely one pair
-            onlyTwo = 0
-        
 
         if twoSame and nevDec and onlyTwo:
             print(i)
