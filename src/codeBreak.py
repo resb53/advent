@@ -38,6 +38,10 @@ def countOccurences(a,b):
         for x in range(1,len(digits)):
             if (digits[x] == digits[x-1]):
                 twoSame = 1
+                # Check not part of larger group
+                if (x > 1):
+                    if (digits[x] == digits[x-2]):
+                        twoSame = 0
 
             if (digits[x] < digits[x-1]):
                 nevDec = 0
