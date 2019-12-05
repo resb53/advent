@@ -43,8 +43,8 @@ def run(opc,mem,i,prm):
     # Check parameter mode for this opcode and use values appropriately
     params = []
 
-    print(str(mem))
-    print("i:" + str(i) + "; prm:" + str(prm))
+    #print(str(mem))
+    #print("i:" + str(i) + "; prm:" + str(prm))
 
     j = 1
     for j in range(1,len(prm)+1):
@@ -58,34 +58,64 @@ def run(opc,mem,i,prm):
             params.append(mem[i+j])
         j += 1
 
-    print("opcode:" + str(opc) + "; params:" + str(params))
+    #print("opcode:" + str(opc) + "; params:" + str(params))
 
     return op[opc][0](mem,i,params)
 
-def op1(mem,i,param): # Add 2 parameters, place in 3rd
+def op01(mem,i,param): # Add 2 parameters, place in 3rd
     mem[param[2]] = param[0] + param[1] 
     return i+4
 
-def op2(mem,i,param): # Multiply 2 parameters, place in 3rd
+def op02(mem,i,param): # Multiply 2 parameters, place in 3rd
     mem[param[2]] = param[0] * param[1]
     return i+4
 
-def op3(mem,i,param): # Take input, place in parameter
+def op03(mem,i,param): # Take input, place in parameter
     print('Provide input: ', end='', flush=True)
     inp = int(sys.stdin.readline().rsplit()[0])
     mem[param[0]] = inp
     return i+2
 
-def op4(mem,i,param): # Output parameter
+def op04(mem,i,param): # Output parameter
     print(param[0], end=' ')
     return i+2
 
+def op05(mem,i,param): # Jump to 2nd parameter if first is non-zero else do nothing
+    if param[0] == 0:
+        return i+3
+    else:
+        return param[1]
+
+def op06(mem,i,param): # Jump to 2nd parameter if first is zero else do nothing
+    if param[0] == 0:
+        return param[1]
+    else:
+        return i+3
+
+def op07(mem,i,param): # If 1st param less than 2nd, store 1 in position given by 3rd, else store 0
+    if param[0] < param[1]:
+        mem[param[2]] = 1
+    else:
+        mem[param[2]] = 0
+    return i+4
+
+def op08(mem,i,param): # If 1st param equals 2nd, store 1 in position given by 3rd, else store 0
+    if param[0] == param[1]:
+        mem[param[2]] = 1
+    else:
+        mem[param[2]] = 0
+    return i+4
+
 # Declare opcodes, and how many parameters they take
 op = {
-        1: [op1,3,['r','r','w']],
-        2: [op2,3,['r','r','w']],
-        3: [op3,1,['w']],
-        4: [op4,1,['r']]
+        1: [op01,3,['r','r','w']],
+        2: [op02,3,['r','r','w']],
+        3: [op03,1,['w']],
+        4: [op04,1,['r']],
+        5: [op05,2,['r','r']],
+        6: [op06,2,['r','r']],
+        7: [op07,3,['r','r','w']],
+        8: [op08,3,['r','r','w']]
 }
 
 if __name__ == "__main__":
