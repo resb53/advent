@@ -43,22 +43,22 @@ def run(opc,mem,i,prm):
     # Check parameter mode for this opcode and use values appropriately
     params = []
 
-    #print(str(mem))
-    #print("i:" + str(i) + "; prm:" + str(prm))
+    print(str(mem))
+    print("i:" + str(i) + "; prm:" + str(prm))
 
-    j = i + 1
-    for k in range(0,len(prm))[::-1]:
+    j = 1
+    for j in range(1,len(prm)+1):
         # write to the field specified
-        if op[opc][2][j-i-1] == 'w':
-            params.append(mem[j])
+        if op[opc][2][j-1] == 'w':
+            params.append(mem[i+j])
         # else pull correct value
-        elif prm[k] == '0':
-            params.append(mem[mem[j]])
-        elif prm[k] == '1':
-            params.append(mem[j])
+        elif prm[len(prm)-j] == '0':
+            params.append(mem[mem[i+j]])
+        elif prm[len(prm)-j] == '1':
+            params.append(mem[i+j])
         j += 1
 
-    #print("opcode:" + str(opc) + "; params:" + str(params))
+    print("opcode:" + str(opc) + "; params:" + str(params))
 
     return op[opc][0](mem,i,params)
 
