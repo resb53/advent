@@ -21,84 +21,73 @@ def main():
         initmem = cmd.split(',')
         initmem = [int(x) for x in initmem]
 
-        # Reset after alarm
-        #noun = 12
-        #verb = 2
+        # Iterate through memory
+        pnt = 0
 
-        # Set inputs and run
-        #for noun in range(100):
-        #    for verb in range(100):
-        #        mem = initmem.copy() #reinitisalise
-        #        mem[1] = noun
-        #        mem[2] = verb
-        #        operate(mem)
-        #        print("Noun: " + str(noun) + ", Verb: " + str(verb) + ", Output: " + str(mem[0]))
-
-        operate(initmem)
-
-def operate(mem):
-    # Iterate through list
-    i = 0;
-
-    while (mem[i] != 99):
-        opcode = mem[i]
-        # Setup parameter mode array pad with a number of leading zeroes
-        prm = list('00000000' + str(opcode))
-        opcode = int(prm[-2] + prm[-1])
-        #print("\ni:" + str(i) + "; opcode:" + str(opcode) + "; param: " + str(prm))
-
-        # Decide operation based of value of opcode
-        if (opcode == 1):
-            #print("0:" + str(mem[i]) + "; 1:" + str(mem[i+1]) + "; 2:" + str(mem[i+2]) + "; 3:" + str(mem[i+3]), end='')
-            # Check parameter mode for this opcode and use values appropriately
-            a = mem[i+1]
-            b = mem[i+2]
-            if prm[-3] == '0':
-                a = mem[mem[i+1]]
-                #print ("; p1: " + str(mem[mem[i+1]]), end='')
-            if prm[-4] == '0':
-                b = mem[mem[i+2]]
-                #print ("; p2: " + str(mem[mem[i+2]]), end='')
-            if prm[-5] == '1':
-                sys.exit("Opcode 1 can be in immediate mode. Update.")
-            # Add values
-            #print("\nAdding " + str(a) + " and " + str(b) + " and putting in " +  str(mem[i+3]))
-            mem[mem[i+3]] = a + b 
-            i += 4
-        elif (opcode == 2):
-            #print("0:" + str(mem[i]) + "; 1:" + str(mem[i+1]) + "; 2:" + str(mem[i+2]) + "; 3:" + str(mem[i+3]), end='')
-            # Check parameter mode for this opcode and use values appropriately
-            a = mem[i+1]
-            b = mem[i+2]
-            if prm[-3] == '0':
-                a = mem[mem[i+1]]
-                #print ("; p1: " + str(mem[mem[i+1]]), end='')
-            if prm[-4] == '0':
-                b = mem[mem[i+2]]
-                #print ("; p2: " + str(mem[mem[i+2]]), end='')
-            if prm[-5] == '1':
-                sys.exit("Opcode 2 can be in immediate mode. Update.")
-            # Multiply values
-            #print("\nMultiplying " + str(a) + " and " + str(b) + " and putting in " +  str(mem[i+3]))
-            mem[mem[i+3]] = a * b
-            i += 4
-        elif (opcode == 3):
-            # Check parameter mode for this opcode and use values appropriately
-            if prm[-3] == '1':
-                sys.exit("Opcode 3 can be in immediate mode. Update.")
-            # Read input from STDIN. Save it to the address given.
-            print('Provide input: ', end='', flush=True)
-            inp = int(sys.stdin.readline().rsplit()[0])
-            mem[mem[i+1]] = inp
-            i += 2
-        elif (opcode == 4):
-            # Check parameter mode for this opcode and use values appropriately
-            if prm[-3] == '1':
-                print(mem[i+1], end=' ')
+        while (initmem[pnt] != 99):
+            opcode = initmem[pnt]
+            # Setup parameter mode array pad with a number of leading zeroes
+            pmode = list('00000000' + str(opcode))
+            opcode = int(pmode[-2] + pmode[-1])
+            # Process instruction based on opcode
+            if opcode in opcs:
+                pnt = opcs[opcode](initmem,pnt,pmode)
             else:
-                print(mem[mem[i+1]], end=' ') 
-            i += 2
-        else:
-            sys.exit("Invalid operator in position " + str(i) + ": " + str(mem[i]))
+                sys.exit("Invalid operator in position " + str(pnt) + ": " + str(initmem[pnt]))
 
-main()
+def op1(mem,i,prm): # Add 2 parameters, place in 3rd
+     # Check parameter mode for this opcode and use values appropriately
+    a = mem[i+1]
+    b = mem[i+2]
+    if prm[-3] == '0':
+        a = mem[mem[i+1]]
+    if prm[-4] == '0':
+        b = mem[mem[i+2]]
+    if prm[-5] == '1':
+        sys.exit("Opcode 1 can write in immediate mode. Update.")
+    # Add values
+    mem[mem[i+3]] = a + b 
+    return i+4
+
+def op2(mem,i,prm): # Multiply 2 parameters, place in 3rd
+     # Check parameter mode for this opcode and use values appropriately
+    a = mem[i+1]
+    b = mem[i+2]
+    if prm[-3] == '0':
+        a = mem[mem[i+1]]
+    if prm[-4] == '0':
+        b = mem[mem[i+2]]
+    if prm[-5] == '1':
+        sys.exit("Opcode 2 can write in immediate mode. Update.")
+    # Multiply values
+    mem[mem[i+3]] = a * b
+    return i+4
+
+def op3(mem,i,prm): # Take input, place in parameter
+    # Check parameter mode for this opcode and use values appropriately
+    if prm[-3] == '1':
+        sys.exit("Opcode 3 can write in immediate mode. Update.")
+    # Read input from STDIN. Save it to the address given.
+    print('Provide input: ', end='', flush=True)
+    inp = int(sys.stdin.readline().rsplit()[0])
+    mem[mem[i+1]] = inp
+    return i+2
+
+def op4(mem,i,prm): # Output parameter
+    # Check parameter mode for this opcode and use values appropriately
+    if prm[-3] == '1':
+        print(mem[i+1], end=' ')
+    else:
+        print(mem[mem[i+1]], end=' ') 
+    return i+2
+
+# Declare opcodes
+opcs = {
+        1: op1,
+        2: op2,
+        3: op3,
+        4: op4
+}
+
+if __name__ == "__main__":
+    main()
