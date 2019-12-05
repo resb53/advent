@@ -41,23 +41,29 @@ def operate(mem):
     i = 0;
 
     while (mem[i] != 99):
-        #print("i:" + str(i) + "; mem:" + str(mem))
-        # Decide operation based of value in first field
-        if (mem[i] == 1):
+        print("i:" + str(i) + "; mem:" + str(mem))
+        opcode = mem[i]
+        # If more than 2 digits, check parameter mode
+        if (opcode > 99):
+            prm = list(str(opcode))
+            opcode = int(prm[-2] + prm[-1])
+            print("opcode:" + str(opcode))
+        # Decide operation based of value of opcode
+        if (opcode == 1):
             # Add values
             mem[mem[i+3]] = mem[mem[i+1]] + mem[mem[i+2]]
             i += 4
-        elif (mem[i] == 2):
+        elif (opcode == 2):
             # Multiply values
             mem[mem[i+3]] = mem[mem[i+1]] * mem[mem[i+2]]
             i += 4
-        elif (mem[i] == 3):
+        elif (opcode == 3):
             # Read input from STDIN. Save it to the address given.
             print('Provide input: ', end='', flush=True)
             inp = int(sys.stdin.readline().rsplit()[0])
             mem[mem[i+1]] = inp
             i += 2
-        elif (mem[i] == 4):
+        elif (opcode == 4):
             print(mem[mem[i+1]], end='')
             i += 2
         else:
