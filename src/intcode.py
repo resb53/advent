@@ -27,66 +27,65 @@ def main():
         while (initmem[pnt] != 99):
             opcode = initmem[pnt]
             # Setup parameter mode array pad with a number of leading zeroes
-            pmode = list('00000000' + str(opcode))
-            opcode = int(pmode[-2] + pmode[-1])
+            pmode = list(str(opcode))
+            opcode = int(''.join(pmode[-2:]))
+            pmode = pmode[0:-2]
+            # Pad with zeroes
+            while len(pmode) < op[opcode][1]:
+                pmode.insert(0,'0')
             # Process instruction based on opcode
-            if opcode in opcs:
-                pnt = opcs[opcode](initmem,pnt,pmode)
+            if opcode in op:
+                pnt = run(opcode,initmem,pnt,pmode)
             else:
                 sys.exit("Invalid operator in position " + str(pnt) + ": " + str(initmem[pnt]))
 
-def op1(mem,i,prm): # Add 2 parameters, place in 3rd
-     # Check parameter mode for this opcode and use values appropriately
-    a = mem[i+1]
-    b = mem[i+2]
-    if prm[-3] == '0':
-        a = mem[mem[i+1]]
-    if prm[-4] == '0':
-        b = mem[mem[i+2]]
-    if prm[-5] == '1':
-        sys.exit("Opcode 1 can write in immediate mode. Update.")
-    # Add values
-    mem[mem[i+3]] = a + b 
-    return i+4
-
-def op2(mem,i,prm): # Multiply 2 parameters, place in 3rd
-     # Check parameter mode for this opcode and use values appropriately
-    a = mem[i+1]
-    b = mem[i+2]
-    if prm[-3] == '0':
-        a = mem[mem[i+1]]
-    if prm[-4] == '0':
-        b = mem[mem[i+2]]
-    if prm[-5] == '1':
-        sys.exit("Opcode 2 can write in immediate mode. Update.")
-    # Multiply values
-    mem[mem[i+3]] = a * b
-    return i+4
-
-def op3(mem,i,prm): # Take input, place in parameter
+def run(opc,mem,i,prm):
     # Check parameter mode for this opcode and use values appropriately
-    if prm[-3] == '1':
-        sys.exit("Opcode 3 can write in immediate mode. Update.")
-    # Read input from STDIN. Save it to the address given.
+    params = []
+
+    #print(str(mem))
+    #print("i:" + str(i) + "; prm:" + str(prm))
+
+    j = i + 1
+    for k in range(0,len(prm))[::-1]:
+        # write to the field specified
+        if op[opc][2][j-i-1] == 'w':
+            params.append(mem[j])
+        # else pull correct value
+        elif prm[k] == '0':
+            params.append(mem[mem[j]])
+        elif prm[k] == '1':
+            params.append(mem[j])
+        j += 1
+
+    #print("opcode:" + str(opc) + "; params:" + str(params))
+
+    return op[opc][0](mem,i,params)
+
+def op1(mem,i,param): # Add 2 parameters, place in 3rd
+    mem[param[2]] = param[0] + param[1] 
+    return i+4
+
+def op2(mem,i,param): # Multiply 2 parameters, place in 3rd
+    mem[param[2]] = param[0] * param[1]
+    return i+4
+
+def op3(mem,i,param): # Take input, place in parameter
     print('Provide input: ', end='', flush=True)
     inp = int(sys.stdin.readline().rsplit()[0])
-    mem[mem[i+1]] = inp
+    mem[param[0]] = inp
     return i+2
 
-def op4(mem,i,prm): # Output parameter
-    # Check parameter mode for this opcode and use values appropriately
-    if prm[-3] == '1':
-        print(mem[i+1], end=' ')
-    else:
-        print(mem[mem[i+1]], end=' ') 
+def op4(mem,i,param): # Output parameter
+    print(param[0], end=' ')
     return i+2
 
-# Declare opcodes
-opcs = {
-        1: op1,
-        2: op2,
-        3: op3,
-        4: op4
+# Declare opcodes, and how many parameters they take
+op = {
+        1: [op1,3,['r','r','w']],
+        2: [op2,3,['r','r','w']],
+        3: [op3,1,['w']],
+        4: [op4,1,['r']]
 }
 
 if __name__ == "__main__":
