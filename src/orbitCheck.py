@@ -23,22 +23,20 @@ def main():
 
         orbits[rel[1]] = rel[0]
 
-    print(str(orbits))
-
     # Calculate orbit checksum
-    chk = 0
+    chk = [0]
 
     for obj in orbits:
-        print(obj + ' orbits ' + orbits[obj] + '; chk=' + str(chk))
-        chk += 1
+        chk[0] += 1
+        #print(obj + ' orbits ' + orbits[obj] + '; chk=' + str(chk))
         countOrbits(orbits,orbits[obj],chk)
 
-    print(chk)        
+    print(str(chk[0]))
 
 def countOrbits(o,x,c):
     if x in o:
-        print(x + ' orbits ' + o[x] + '; c=' + str(c))
-        c += 1
+        #print(x + ' orbits ' + o[x] + '; c=' + str(c))
+        c[0] += 1
         countOrbits(o,o[x],c)
 
 if __name__ == "__main__":
