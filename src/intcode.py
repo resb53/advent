@@ -1,14 +1,21 @@
 #!/usr/bin/python3
 
+import os
 import sys
+import argparse
 
 # Check correct usage
-if (len(sys.argv) != 2):
-    sys.exit("USAGE: " + sys.argv[0] + " inputs_filename")
+parser = argparse.ArgumentParser(description="Ship's intcode computer.")
+parser.add_argument('-p', metavar='phase', type=int, help='Optionally specify the phase for the program.')
+parser.add_argument('run', metavar='programme_file', type=str, help='Specify the program for the computer run.')
+args = parser.parse_args()
+
+# Count inputs received
+prog_inputs = 0
 
 # Parse memory
 try:
-    instr_fh = open(sys.argv[1],'r')
+    instr_fh = open(args.run,'r')
 except IOError:
     sys.exit("Unable to open input file: " + sys.argv[1])
 
@@ -71,8 +78,14 @@ def op02(mem,i,param): # Multiply 2 parameters, place in 3rd
     return i+4
 
 def op03(mem,i,param): # Take input, place in parameter
-    print('Provide input: ', end='', flush=True)
-    inp = int(sys.stdin.readline().rsplit()[0])
+    global prog_inputs
+    if os.isatty(0):
+        print('Provide input: ', end='', flush=True)
+    if prog_inputs == 0 and args.p is not None:
+        inp = args.p
+    else:
+        inp = int(sys.stdin.readline().rsplit()[0])
+    prog_inputs += 1
     mem[param[0]] = inp
     return i+2
 
