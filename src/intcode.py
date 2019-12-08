@@ -6,6 +6,7 @@ import argparse
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Ship's intcode computer.")
+parser.add_argument('-n', metavar='name', type=str, help='Optionally name the process for error messages.')
 parser.add_argument('-p', metavar='phase', type=int, help='Optionally specify the phase for the program.')
 parser.add_argument('run', metavar='programme_file', type=str, help='Specify the program for the computer run.')
 args = parser.parse_args()
