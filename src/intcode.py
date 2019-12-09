@@ -48,8 +48,8 @@ def main():
             # Process instruction based on opcode
             if opcode in op:
                 #print("Mem: " + str(initmem))
-                print("Pnt: " + str(pnt) + " (" + str(initmem[pnt]) + ")")
-                print("Opc: " + str(opcode) + "; Pmode: " + str(pmode) + "; Rel: " + str(rel))
+                #print("Pnt: " + str(pnt) + " (" + str(initmem[pnt]) + ")")
+                #print("Opc: " + str(opcode) + "; Pmode: " + str(pmode) + "; Rel: " + str(rel))
                 pnt = run(opcode,initmem,pnt,pmode,rel)
             else:
                 sys.exit("Invalid operator in position " + str(pnt) + ": " + str(initmem[pnt]))
@@ -76,8 +76,8 @@ def run(opc,mem,i,prm,rb):
             extmem(mem,i+j)
             params.append(mem[i+j])
         elif prm[len(prm)-j] == 2: # relative mode
-            extmem(mem,rb[0]+j)
-            params.append(mem[rb[0]+j])
+            extmem(mem,rb[0]+mem[i+j])
+            params.append(mem[rb[0]+mem[i+j]])
         else:
             sys.exit("Invalid parameter mode in: " + str(prm))
 
@@ -112,7 +112,7 @@ def op03(mem,i,param,rb): # Take input, place in parameter
     extmem(mem,param[0])
     mem[param[0]] = inp
     # print(args.n + ': inp(' + str(prog_inputs) + ') <- ' + str(inp), file=sys.stderr) #debug
-    print("Writing " + str(inp) + " to " + str(param[0]))
+    # print("Writing " + str(inp) + " to " + str(param[0]))
     return i+2
 
 def op04(mem,i,param,rb): # Output parameter
