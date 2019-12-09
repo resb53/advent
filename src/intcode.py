@@ -88,10 +88,12 @@ def op03(mem,i,param): # Take input, place in parameter
         inp = int(sys.stdin.readline().rsplit()[0])
     prog_inputs += 1
     mem[param[0]] = inp
+    #print(args.n + ': inp(' + str(prog_inputs) + ') <- ' + str(inp), file=sys.stderr) #debug
     return i+2
 
 def op04(mem,i,param): # Output parameter
-    print(param[0], end=' ')
+    print(param[0], flush=True)
+    #print(args.n + ': ' + str(param[0]), file=sys.stderr) #debug
     return i+2
 
 def op05(mem,i,param): # Jump to 2nd parameter if first is non-zero else do nothing
@@ -134,3 +136,4 @@ op = {
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)
