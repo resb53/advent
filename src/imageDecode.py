@@ -70,7 +70,15 @@ def main():
                 if flatimage[row][col] is None and image[l][row][col] != '2':
                     flatimage[row][col] = image[l][row][col]
 
-    print(flatimage)
+    #print(flatimage)
+
+    for row in flatimage:
+        for val in row:
+            if val == '1':
+                print('█', end='')
+            else:
+                print(' ', end='')
+        print('')
 
 
 if __name__ == "__main__":
