@@ -81,7 +81,7 @@ def run(opc,mem,i,prm,rb):
         else:
             sys.exit("Invalid parameter mode in: " + str(prm))
 
-    print("Params:" + str(params))
+    #print("Params:" + str(params))
 
     return op[opc][0](mem,i,params,rb)
 
