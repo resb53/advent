@@ -67,7 +67,7 @@ def run(opc,mem,i,prm,rb):
         elif prm[len(prm)-j] == 1: # immediate mode
             params.append(mem[i+j])
         elif prm[len(prm)-j] == 2: # relative mode
-            params.append(rb[0] + prm[len(prm)-j])
+            params.append(mem[rb[0]+j])
         else:
             sys.exit("Invalid parameter mode in: " + str(prm))
 
