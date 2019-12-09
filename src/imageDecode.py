@@ -35,30 +35,43 @@ def main():
     #print(image)
 
     #Find layer with fewest 0 digits
-    minzero = 25 * 6
-    minlayer = 0
-    for l in image:
-        numzeros = 0
-        for row in image[l]:
-            for num in row:
-                if num == '0':
-                    numzeros += 1
-        #print('Layer: ' + str(l) + '; Numzeros: ' + str(numzeros))
-        if numzeros < minzero:
-            minzero = numzeros
-            minlayer = l
+    #minzero = 25 * 6
+    #minlayer = 0
+    #for l in image:
+    #    numzeros = 0
+    #    for row in image[l]:
+    #        for num in row:
+    #            if num == '0':
+    #                numzeros += 1
+    #    #print('Layer: ' + str(l) + '; Numzeros: ' + str(numzeros))
+    #    if numzeros < minzero:
+    #        minzero = numzeros
+    #        minlayer = l
 
     #Calculate number of 1 digits multiplied by the number of 2 digits
-    numones = 0
-    numtwos = 0
-    for row in image[minlayer]:
-        for num in row:
-            if num == '1':
-                numones += 1
-            elif num == '2':
-                numtwos += 1
-    print(str(numones * numtwos))
-        
+    #numones = 0
+    #numtwos = 0
+    #for row in image[minlayer]:
+    #    for num in row:
+    #        if num == '1':
+    #            numones += 1
+    #        elif num == '2':
+    #            numtwos += 1
+    #print(str(numones * numtwos))
+
+    # Create image
+    flatimage = []
+    for x in range(6):
+        flatimage.append([None] * 25)
+
+    for l in image:
+        for row in range(6):
+            for col in range(25):
+                if flatimage[row][col] is None and image[l][row][col] != '2':
+                    flatimage[row][col] = image[l][row][col]
+
+    print(flatimage)
+
 
 if __name__ == "__main__":
     main()
