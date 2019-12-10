@@ -32,7 +32,7 @@ def main():
 
     for row in asteroids:
         for col in row:
-            if asteroids[y][x] == '#':
+            if isAsteroid(x,y,asteroids):
                 astseen = seeAsteroids(x, y, asteroids)
                 if astseen > maxast:
                     maxast = astseen
