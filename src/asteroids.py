@@ -28,6 +28,8 @@ def main():
     # Iterate through elements
     x=0
     y=0
+    bestx=0
+    besty=0
     maxast = 0
 
     for row in asteroids:
@@ -36,11 +38,44 @@ def main():
                 astseen = seeAsteroids(x, y, asteroids)
                 if astseen > maxast:
                     maxast = astseen
+                    bestx = x
+                    besty = y
             x += 1
         y += 1
         x = 0
 
-    print(maxast)
+    print(str(maxast) + ' at (' + str(bestx) + ',' + str(besty) + ')')
+
+    # Part 2, shoot the things
+    print("Commence firing...")
+    shootAsteroids(bestx, besty, asteroids)
+
+def shootAsteroids(x, y, grid):
+    # Recaculate asteroids seen from this point
+    seen = {}
+
+    # Create list of relative positions to iterate through
+    radial = radialIterator(x, y, grid)
+
+    # Count asteroids seen
+    for check in radial:
+        if isAsteroid(x+check[0],y+check[1],grid):
+            if check[2] not in seen:
+                seen[check[2]] = ['(' + str(x+check[0]) + ',' + str(y+check[1]) + ')']
+            else:
+                seen[check[2]].append('(' + str(x+check[0]) + ',' + str(y+check[1]) + ')')
+
+    # Starting at bearing 0.0, shoot one asteroid at a time in a clockwise direction. Report shooting.
+    print(seen)
+    shot = 1
+    while len(seen) > 0:
+        for angle in sorted(seen):
+            hit = seen[angle].pop()
+            print('Shot ' + str(shot) + ' hits ' + hit + '.')
+            shot += 1
+            # Cleanup
+            if len(seen[angle]) == 0:
+                del seen[angle]
 
 def seeAsteroids(x, y, grid):
     # Work out radially from this point, blocking off routes as you see asteroid.
@@ -56,8 +91,6 @@ def seeAsteroids(x, y, grid):
             if check[2] not in seen:
                 count += 1
                 seen.append(check[2])
-
-    #print("x:" + str(x) + "; y:" + str(y) + "; rad:" + str(radial))
 
     return count
 
@@ -88,7 +121,6 @@ def radialIterator(x, y, grid):
                 if y + j >= 0 and y + j < len(grid):
                     rad.append([i,j,bearing(i,j)])
 
-    print(str(rad))
     return rad
 
 def isAsteroid(x, y, grid):
