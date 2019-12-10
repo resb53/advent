@@ -71,23 +71,24 @@ def radialIterator(x, y, grid):
         if y + j >= 0 and y + j < len(grid):
             for i in range(-dist,dist):
                 if x + i >= 0 and x + i < len(grid[y]):
-                    rad.append([i,j,round(degrees(atan2(i, j)),2)]) # Not correct bearings, but unique for a direction
+                    rad.append([i,j,bearing(i,j)])
         i = dist # right side
         if x + i >= 0 and x + i < len(grid[y]):
             for j in range(-dist,dist):
                 if y + j >= 0 and y + j < len(grid):
-                    rad.append([i,j,round(degrees(atan2(i, j)),2)])
+                    rad.append([i,j,bearing(i,j)])
         j = dist # bottom
         if y + j >= 0 and y + j < len(grid):
             for i in range(dist,-dist,-1):
                 if x + i >= 0 and x + i < len(grid[y]):
-                    rad.append([i,j,round(degrees(atan2(i, j)),2)])
+                    rad.append([i,j,bearing(i,j)])
         i = -dist # left side
         if x + i >= 0 and x + i < len(grid[y]):
             for j in range(dist,-dist,-1):
                 if y + j >= 0 and y + j < len(grid):
-                    rad.append([i,j,round(degrees(atan2(i, j)),2)])
+                    rad.append([i,j,bearing(i,j)])
 
+    print(str(rad))
     return rad
 
 def isAsteroid(x, y, grid):
@@ -96,6 +97,13 @@ def isAsteroid(x, y, grid):
         return 1
     else:
         return 0
+
+def bearing(x, y):
+    # Calculate bearing of point relative to (0,0) to 2 d.p.
+    angle = degrees(atan2(x, y))
+    if angle < 0:
+        angle += 360
+    return round(angle,2)
 
 if __name__ == "__main__":
     main()
