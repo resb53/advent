@@ -70,7 +70,7 @@ def shootAsteroids(x, y, grid):
     shot = 1
     while len(seen) > 0:
         for angle in sorted(seen):
-            hit = seen[angle].pop()
+            hit = seen[angle].pop(0)
             print('Shot ' + str(shot) + ' hits ' + hit + '.')
             shot += 1
             # Cleanup
@@ -132,9 +132,11 @@ def isAsteroid(x, y, grid):
 
 def bearing(x, y):
     # Calculate bearing of point relative to (0,0) to 2 d.p.
-    angle = degrees(atan2(x, y))
+    angle = degrees(atan2(y, x)) + 90
     if angle < 0:
         angle += 360
+    elif angle >= 360:
+        angle -= 360
     return round(angle,2)
 
 if __name__ == "__main__":
