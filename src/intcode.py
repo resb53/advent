@@ -11,90 +11,103 @@ parser.add_argument('-p', metavar='phase', type=int, help='Optionally specify th
 parser.add_argument('run', metavar='programme_file', type=str, help='Specify the program for the computer run.')
 args = parser.parse_args()
 
-# Count inputs received
-prog_inputs = 0
-
-# Parse memory
-try:
-    instr_fh = open(args.run,'r')
-except IOError:
-    sys.exit("Unable to open input file: " + sys.argv[1])
+# Globals
+mem = []     # Internal memory
+prog_inputs = 0 # Counts inputs received
+pnt = 0         # Program pointer
+rel = [0]       # Program rel pointer
 
 def main():
+    global mem, pnt, rel
+    # Initialise
+    initialise(args.run)
+    run()
+
+
+def initialise(fh):
+    global mem
+    # Parse memory
+    try:
+        instr_fh = open(fh,'r')
+    except IOError:
+        sys.exit("Unable to open input file: " + sys.argv[1])
+
     # Parse instructions in file. Allow for multiline just in case future need.
     for line in instr_fh:
         cmd = line.rsplit()[0]
 
         # Split command string into list of instructions
-        initmem = cmd.split(',')
-        initmem = [int(x) for x in initmem]
+        mem = cmd.split(',')
+        mem = [int(x) for x in mem]
 
-        # Iterate through memory
-        pnt = 0
-        # Set relative base (insertable to "pass by reference")
-        rel = [0]
+def run():
+    global mem, pnt, rel
 
-        while (initmem[pnt] != 99):
-            opcode = initmem[pnt]
-            # Setup parameter mode array pad with a number of leading zeroes
-            pmode = list(str(opcode))
-            opcode = int(''.join(pmode[-2:]))
-            pmode = pmode[0:-2]
-            # Switch back to int
-            pmode = [int(x) for x in pmode]
-            # Pad with zeroes
-            while len(pmode) < op[opcode][1]:
-                pmode.insert(0,0)
-            # Process instruction based on opcode
-            if opcode in op:
-                pnt = run(opcode,initmem,pnt,pmode,rel)
-            else:
-                sys.exit("Invalid operator in position " + str(pnt) + ": " + str(initmem[pnt]))
+    while (mem[pnt] != 99):
+        opcode = mem[pnt]
+        # Setup parameter mode array pad with a number of leading zeroes
+        pmode = list(str(opcode))
+        opcode = int(''.join(pmode[-2:]))
+        pmode = pmode[0:-2]
+        # Switch back to int
+        pmode = [int(x) for x in pmode]
+        # Pad with zeroes
+        while len(pmode) < op[opcode][1]:
+            pmode.insert(0,0)
+        # Process instruction based on opcode
+        if opcode in op:
+            pnt = operate(opcode,pmode)
+        else:
+            sys.exit("Invalid operator in position " + str(pnt) + ": " + str(mem[pnt]))
 
-def run(opc,mem,i,prm,rb):
+def operate(opc,prm):
+    global mem, pnt, rel
     # Check parameter mode for this opcode and use values appropriately
     params = []
 
     for j in range(1,len(prm)+1):
         # write to the field specified
         if op[opc][2][j-1] == 'w':
-            extmem(mem,i+j)
+            extmem(pnt+j)
             if prm[len(prm)-j] != 2:
-                params.append(mem[i+j])
+                params.append(mem[pnt+j])
             else:
-                params.append(rb[0]+mem[i+j])
+                params.append(rel[0]+mem[pnt+j])
         # else pull correct value
         elif prm[len(prm)-j] == 0: # position mode
-            extmem(mem,mem[i+j])
-            params.append(mem[mem[i+j]])
+            extmem(mem[pnt+j])
+            params.append(mem[mem[pnt+j]])
         elif prm[len(prm)-j] == 1: # immediate mode
-            extmem(mem,i+j)
-            params.append(mem[i+j])
+            extmem(pnt+j)
+            params.append(mem[pnt+j])
         elif prm[len(prm)-j] == 2: # relative mode
-            extmem(mem,rb[0]+mem[i+j])
-            params.append(mem[rb[0]+mem[i+j]])
+            extmem(rel[0]+mem[pnt+j])
+            params.append(mem[rel[0]+mem[pnt+j]])
         else:
             sys.exit("Invalid parameter mode in: " + str(prm))
 
-    return op[opc][0](mem,i,params,rb)
+    return op[opc][0](params)
 
-def extmem(mem,v): # Extend memory up to an including index v
+def extmem(v): # Extend memory up to an including index v
+    global mem
     while v >= len(mem):
         mem.append(0)
     
 
-def op01(mem,i,param,rb): # Add 2 parameters, place in 3rd
-    extmem(mem,param[2])
+def op01(param): # Add 2 parameters, place in 3rd
+    global mem, pnt
+    extmem(param[2])
     mem[param[2]] = param[0] + param[1] 
-    return i+4
+    return pnt+4
 
-def op02(mem,i,param,rb): # Multiply 2 parameters, place in 3rd
-    extmem(mem,param[2])
+def op02(param): # Multiply 2 parameters, place in 3rd
+    global mem, pnt
+    extmem(param[2])
     mem[param[2]] = param[0] * param[1]
-    return i+4
+    return pnt+4
 
-def op03(mem,i,param,rb): # Take input, place in parameter
-    global prog_inputs
+def op03(param): # Take input, place in parameter
+    global mem, pnt, prog_inputs
     if os.isatty(0):
         print('Provide input: ', end='', flush=True)
     if prog_inputs == 0 and args.p is not None:
@@ -102,47 +115,53 @@ def op03(mem,i,param,rb): # Take input, place in parameter
     else:
         inp = int(sys.stdin.readline().rsplit()[0])
     prog_inputs += 1
-    extmem(mem,param[0])
+    extmem(param[0])
     mem[param[0]] = inp
     # print(args.n + ': inp(' + str(prog_inputs) + ') <- ' + str(inp), file=sys.stderr) #debug
-    return i+2
+    return pnt+2
 
-def op04(mem,i,param,rb): # Output parameter
+def op04(param): # Output parameter
+    global pnt
     print(param[0], flush=True)
     #print(args.n + ': ' + str(param[0]), file=sys.stderr) #debug
-    return i+2
+    return pnt+2
 
-def op05(mem,i,param,rb): # Jump to 2nd parameter if first is non-zero else do nothing
+def op05(param): # Jump to 2nd parameter if first is non-zero else do nothing
+    global pnt
     if param[0] == 0:
-        return i+3
+        return pnt+3
     else:
         return param[1]
 
-def op06(mem,i,param,rb): # Jump to 2nd parameter if first is zero else do nothing
+def op06(param): # Jump to 2nd parameter if first is zero else do nothing
+    global pnt
     if param[0] == 0:
         return param[1]
     else:
-        return i+3
+        return pnt+3
 
-def op07(mem,i,param,rb): # If 1st param less than 2nd, store 1 in position given by 3rd, else store 0
-    extmem(mem,param[2])
+def op07(param): # If 1st param less than 2nd, store 1 in position given by 3rd, else store 0
+    global mem, pnt
+    extmem(param[2])
     if param[0] < param[1]:
         mem[param[2]] = 1
     else:
         mem[param[2]] = 0
-    return i+4
+    return pnt+4
 
-def op08(mem,i,param,rb): # If 1st param equals 2nd, store 1 in position given by 3rd, else store 0
-    extmem(mem,param[2])
+def op08(param): # If 1st param equals 2nd, store 1 in position given by 3rd, else store 0
+    global mem, pnt
+    extmem(param[2])
     if param[0] == param[1]:
         mem[param[2]] = 1
     else:
         mem[param[2]] = 0
-    return i+4
+    return pnt+4
 
-def op09(mem,i,param,rb): # Adjust relative base by value of parameter
-    rb[0] += param[0]
-    return i+2
+def op09(param): # Adjust relative base by value of parameter
+    global pnt, rel
+    rel[0] += param[0]
+    return pnt+2
 
 # Declare opcodes, and how many parameters they take
 op = {
