@@ -4,26 +4,21 @@ import os
 import sys
 import argparse
 
-# Check correct usage
-parser = argparse.ArgumentParser(description="Ship's intcode computer.")
-parser.add_argument('-n', metavar='name', type=str, help='Optionally name the process for error messages.')
-parser.add_argument('-p', metavar='phase', type=int, help='Optionally specify the phase for the program.')
-parser.add_argument('run', metavar='programme_file', type=str, help='Specify the program for the computer run.')
-args = parser.parse_args()
-
 # Globals
 mem = []        # Internal memory
 prog_inputs = 0 # Counts inputs received
 pnt = 0         # Program pointer
 rel = [0]       # Program rel pointer
 io = {}         # input/output method dict
+args = ''
+
 def main():
     global mem, pnt, rel
     # Initialise
-    initialise(args.run)
+    init(args.run)
     run()
 
-def initialise(fh):
+def init(fh):
     global mem
     # Parse memory
     try:
@@ -184,5 +179,11 @@ op = {
 }
 
 if __name__ == "__main__":
+    # Check correct usage
+    parser = argparse.ArgumentParser(description="Ship's intcode computer.")
+    parser.add_argument('-n', metavar='name', type=str, help='Optionally name the process for error messages.')
+    parser.add_argument('-p', metavar='phase', type=int, help='Optionally specify the phase for the program.')
+    parser.add_argument('run', metavar='programme_file', type=str, help='Specify the program for the computer run.')
+    args = parser.parse_args()
+
     main()
-    sys.exit(0)
