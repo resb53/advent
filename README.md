@@ -1,3 +1,6 @@
-Advent of Code 2019 challenge folder
+Advent of Code challenge folder
 
-https://adventofcode.com/2019
+https://adventofcode.com/
+
+Challenges attempted:
+* 2019
