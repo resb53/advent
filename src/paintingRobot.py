@@ -4,7 +4,7 @@ import intcode
 
 pos = [0,0,0] # x,y,bearing - 0 North, 1 East, 2, South, 3 West
 grid = {'0,0': 0} # x,y -> 0 black, 1 white
-io = {"input": [0], "output": []} # Dict holding next input / last output
+io = {"input": [1], "output": []} # Dict holding next input / last output
 
 def main():
     global grid
@@ -12,7 +12,8 @@ def main():
     intcode.init('inputs/painting.txt')
     intcode.run(i=instr_in, o=instr_out)
     # How many panels painted at least once?
-    print(len(grid))
+    # print(len(grid))
+    paintID()
 
 def instr_in():
     global pos, grid, io
@@ -52,6 +53,44 @@ def instr_out(p):
 
     io['output'].append(p)
 
+def paintID():
+    global grid
+    # Produce a y/x nested dict from grid
+    pic = {}
+    minx = 100
+    maxx = -100
+    miny = 100
+    maxy = -100
+
+    for c in grid:
+        x, y = c.split(',')
+        x = int(x)
+        if x > maxx:
+            maxx = x
+        if x < minx:
+            minx = x
+        y = int(y)
+        if y > maxy:
+            maxy = y
+        if y < miny:
+            miny = y
+
+        if y not in pic:
+            pic[y] = {}
+        pic[y][x] = grid[c]
+
+    # Iterate through painting
+    for y in range(miny,maxy+1):
+        if y not in pic:
+            pic[y] = {}
+        for x in range(minx,maxx+1):
+            if x not in pic[y]:
+                pic[y][x] = 0
+            if pic[y][x] == 0:
+                print(' ',end='')
+            else:
+                print('█',end='')
+        print('')
 
 if __name__ == "__main__":
     main()
