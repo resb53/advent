@@ -12,17 +12,16 @@ parser.add_argument('run', metavar='programme_file', type=str, help='Specify the
 args = parser.parse_args()
 
 # Globals
-mem = []     # Internal memory
+mem = []        # Internal memory
 prog_inputs = 0 # Counts inputs received
 pnt = 0         # Program pointer
 rel = [0]       # Program rel pointer
-
+io = {}         # input/output method dict
 def main():
     global mem, pnt, rel
     # Initialise
     initialise(args.run)
     run()
-
 
 def initialise(fh):
     global mem
@@ -40,8 +39,22 @@ def initialise(fh):
         mem = cmd.split(',')
         mem = [int(x) for x in mem]
 
-def run():
-    global mem, pnt, rel
+def readin(): # Define input reading behaviour
+    if os.isatty(0):
+        print('Provide input: ', end='', flush=True)
+    if prog_inputs == 0 and args.p is not None:
+        inp = args.p
+    else:
+        inp = int(sys.stdin.readline().rsplit()[0])
+    return inp
+
+def printout(p): # Define output reading behaviour
+    print(p, flush=True)
+
+def run(i=readin,o=printout):
+    global mem, pnt, rel, io
+    io['input'] = i
+    io['output'] = o
 
     while (mem[pnt] != 99):
         opcode = mem[pnt]
@@ -107,22 +120,16 @@ def op02(param): # Multiply 2 parameters, place in 3rd
     return pnt+4
 
 def op03(param): # Take input, place in parameter
-    global mem, pnt, prog_inputs
-    if os.isatty(0):
-        print('Provide input: ', end='', flush=True)
-    if prog_inputs == 0 and args.p is not None:
-        inp = args.p
-    else:
-        inp = int(sys.stdin.readline().rsplit()[0])
+    global mem, pnt, prog_inputs, io
     prog_inputs += 1
     extmem(param[0])
-    mem[param[0]] = inp
+    mem[param[0]] = io['input']()
     # print(args.n + ': inp(' + str(prog_inputs) + ') <- ' + str(inp), file=sys.stderr) #debug
     return pnt+2
 
 def op04(param): # Output parameter
-    global pnt
-    print(param[0], flush=True)
+    global pnt, io
+    io['output'](param[0])
     #print(args.n + ': ' + str(param[0]), file=sys.stderr) #debug
     return pnt+2
 
