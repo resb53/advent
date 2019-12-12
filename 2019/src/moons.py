@@ -3,6 +3,7 @@
 import argparse
 import itertools
 from copy import deepcopy
+from math import gcd
 
 axis = ['x', 'y', 'z']
 
@@ -42,7 +43,13 @@ def main():
             if getDim('z',moons) == getDim('z',prev):
                 period[2] = s
         s += 1
-    print(period)
+
+    # Calculate LCM of periods
+    lcm = int(period[0] * period[1] / (gcd(period[0], period[1])))
+    lcm = int(lcm * period[2] / (gcd(lcm, period[2])))
+
+    print(lcm)
+
 
 def getDim(v,moons):
     dim = []
