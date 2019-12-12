@@ -20,27 +20,36 @@ def main():
 
     # Get moon positions
     moons = getMoons(moonpos)
-    prev = [] # Just hold first value... if full loop. Once same value, all others will repeat, maybe wholly cyclic?
+    prev = deepcopy(moons) # Just hold first value... if full loop. Once same value, all others will repeat, maybe wholly cyclic?
+    period = [0,0,0]
 
     # Calculate movement for n steps
-    n = 100000
-    for s in range(1,n+1):
-    #s = 1
-    #while True:
+    #n = 100000 # 2.5 secs for 100k implies 32.5 hours for test2's 4.6Bn
+    #for s in range(1,n+1):
+    s = 1
+    while period[0] == 0 or period[1] == 0 or period[2] == 0:
         applyGravity(moons)
         applyVelocity(moons)
-
-        #print('After ' + str(s) + ' steps:')
-        #for moon in moons:
-        #    print('pos='+str(moon['x'][0])+','+str(moon['y'][0])+','+str(moon['z'][0])+'; '+'vel='+str(moon['x'][1])+','+str(moon['y'][1])+','+str(moon['z'][1]))
-
         energy = getEnergy(moons)
-        if s == 1:
-            prev = deepcopy(moons)
-        elif moons == prev:
-            print(s)
-            break
+        # Compare each dimension
+        if period[0] == 0:
+            if getDim('x',moons) == getDim('x',prev):
+                period[0] = s
+        if period[1] == 0:
+            if getDim('y',moons) == getDim('y',prev):
+                period[1] = s
+        if period[2] == 0:
+            if getDim('z',moons) == getDim('z',prev):
+                period[2] = s
         s += 1
+    print(period)
+
+def getDim(v,moons):
+    dim = []
+    for i in moons:
+        dim.append(i[v])
+    return dim
+
 
 def getMoons(startpos): # Parse moon starting positions in file.
     moons = []
