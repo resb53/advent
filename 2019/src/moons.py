@@ -20,13 +20,13 @@ def main():
 
     # Get moon positions
     moons = getMoons(moonpos)
-    prev = {} # Previous states keyed on energy
+    prev = [] # Just hold first value... if full loop. Once same value, all others will repeat, maybe wholly cyclic?
 
     # Calculate movement for n steps
-    #n = 1000
-    #for s in range(1,n+1):
-    s = 1
-    while True:
+    n = 100000
+    for s in range(1,n+1):
+    #s = 1
+    #while True:
         applyGravity(moons)
         applyVelocity(moons)
 
@@ -35,11 +35,9 @@ def main():
         #    print('pos='+str(moon['x'][0])+','+str(moon['y'][0])+','+str(moon['z'][0])+'; '+'vel='+str(moon['x'][1])+','+str(moon['y'][1])+','+str(moon['z'][1]))
 
         energy = getEnergy(moons)
-        if energy not in prev:
-            prev[energy] = []
-        if moons not in prev[energy]:
-            prev[energy].append(deepcopy(moons))
-        else:
+        if s == 1:
+            prev = deepcopy(moons)
+        elif moons == prev:
             print(s)
             break
         s += 1
