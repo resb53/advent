@@ -27,7 +27,7 @@ def instr_out(p):
         y = io['output'].pop(0)
         v = io['output'].pop(0)
         if x == -1 and y == 0:
-            score += v
+            score = v
         else:
             if y not in grid:
                 grid[y] = {}
