@@ -111,11 +111,11 @@ class Program:
     def __op03(self, param): # Take input, place in parameter
         self.prog_inputs += 1
         self.__extmem(param[0])
-        self.mem[param[0]] = self.iom['input'](self)
+        self.mem[param[0]] = self.iom['input']()
         return self.pnt+2
 
     def __op04(self, param): # Output parameter
-        self.iom['output'](self, param[0])
+        self.iom['output'](param[0])
         return self.pnt+2
 
     def __op05(self, param): # Jump to 2nd parameter if first is non-zero else do nothing
