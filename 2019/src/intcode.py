@@ -34,8 +34,13 @@ def init(fh):
         mem = cmd.split(',')
         mem = [int(x) for x in mem]
 
-def getmem(): # Return reference to memory object
+def getmem(): # Return current memory
+    global mem
     return mem
+
+def setmem(i,v):
+    global mem
+    mem[i] = v
 
 def readin(): # Define input reading behaviour
     if os.isatty(0):

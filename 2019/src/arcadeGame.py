@@ -12,8 +12,7 @@ def main():
     # Prepare intcode computer
     intcode.init('inputs/arcade.txt')
     intmem = intcode.getmem()
-    intmem[0] = 2
-    
+    intcode.setmem(0,2)
     intcode.run(i=instr_in,o=instr_out)
     # Output
     draw(grid)
@@ -48,8 +47,7 @@ def cheat(mem):
         if mem[i] == 0 and mem[i+1] == 3 and mem[i+2] == 0:
             #Convert all of the paddle row into walls
             for j in range(i-19,i+21):
-                mem[j] = 1
-    print(mem)
+                intcode.setmem(j,1)
 
 if __name__ == "__main__":
     main()
