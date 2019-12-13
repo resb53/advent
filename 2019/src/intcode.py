@@ -34,6 +34,9 @@ def init(fh):
         mem = cmd.split(',')
         mem = [int(x) for x in mem]
 
+def getmem(): # Return reference to memory object
+    return mem
+
 def readin(): # Define input reading behaviour
     if os.isatty(0):
         print('Provide input: ', end='', flush=True)
