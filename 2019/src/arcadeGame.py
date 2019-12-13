@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intcode
+import intCode
 
 pos = [0,0,0] # x,y,bearing - 0 North, 1 East, 2, South, 3 West
 grid = {} # grid[y][x] -> 0 empty, 1 wall, 2 block, 3 paddle, 4 ball
@@ -11,8 +11,8 @@ score = 0
 def main():
     global grid
     # Prepare intcode computer
-    intcode.init('inputs/cheatarcade.txt')
-    intcode.run(i=instr_in,o=instr_out)
+    intCode.init('inputs/cheatarcade.txt')
+    intCode.run(i=instr_in,o=instr_out)
     # Output
     #draw(grid)
     print(score)
@@ -42,12 +42,12 @@ def draw(g):
             print(char[g[y][x]], end='')
         print('')
 
-def cheat(mem):
-    for i in range(0,len(mem)-2):
-        if mem[i] == 0 and mem[i+1] == 3 and mem[i+2] == 0:
+#def cheat(mem):
+    #for i in range(0,len(mem)-2):
+        #if mem[i] == 0 and mem[i+1] == 3 and mem[i+2] == 0:
             #Convert all of the paddle row into walls
-            for j in range(i-19,i+21):
-                intcode.setmem(j,1)
+            #for j in range(i-19,i+21):
+                # Write 1 to each j location
 
 if __name__ == "__main__":
     main()
