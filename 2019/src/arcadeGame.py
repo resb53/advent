@@ -6,17 +6,19 @@ pos = [0,0,0] # x,y,bearing - 0 North, 1 East, 2, South, 3 West
 grid = {} # grid[y][x] -> 0 empty, 1 wall, 2 block, 3 paddle, 4 ball
 io = {"input": [1], "output": []} # Dict holding next input / last output
 char = {0: ' ', 1: '|', 2: '█', 3:'_', 4:'o'}
+score = 0
 
 def main():
     global grid
     # Prepare intcode computer
-    intcode.init('inputs/arcade.txt')
+    intcode.init('inputs/cheatarcade.txt')
     intcode.run(i=instr_in,o=instr_out)
     # Output
-    draw(grid)
+    #draw(grid)
+    print(score)
 
 def instr_out(p):
-    global io
+    global io, grid, score
 
     io['output'].append(p)
 
@@ -24,9 +26,12 @@ def instr_out(p):
         x = io['output'].pop(0)
         y = io['output'].pop(0)
         v = io['output'].pop(0)
-        if y not in grid:
-            grid[y] = {}
-        grid[y][x] = v
+        if x == -1 and y == 0:
+            score += v
+        else:
+            if y not in grid:
+                grid[y] = {}
+            grid[y][x] = v
 
 def instr_in():
     return 0
