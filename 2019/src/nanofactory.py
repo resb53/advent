@@ -14,6 +14,7 @@ def main():
 
     init(args.ingredients)
     # Menu ready
+    print(menu)
     calculateOre()
 
 
@@ -54,8 +55,6 @@ def calculateOre():
         for item in shoplist:
             #print(item)
             prod = 0 # items made of this
-            # Build recipt
-            recipe.insert(0,[item, shoplist[item]])
             # See if we have any already
             if item in leftover:
                 if leftover[item] >= shoplist[item]:
@@ -91,15 +90,29 @@ def calculateOre():
                         leftover[item] += prod - shoplist[item]
                     else:
                         leftover[item] = prod - shoplist[item]
+            # If existing already, add to it, and bring forwards
+            i = -1
+            for x in range(0,len(recipe)):
+                if recipe[x][0] == item:
+                    i = x
+            if i >= 0:
+                x = recipe.pop(i)
+                x[1] += prod
+                recipe.insert(i,x)
+            else:
+                recipe.insert(0,[item, prod])
         shoplist = newlist
         #print('L:' + str(leftover))
 
     print('ORE required: ' + str(ore))
     # print recipe
     for entry in recipe:
-        if entry[0] in leftover:
-            entry[1] += leftover[entry[0]]
-        print('Produce ' + str(entry[1]) + ' of ' + entry[0] + '.')
+        print('Produce ' + str(entry[1]) + ' of ' + entry[0] + ' using:', end='')
+        crafts = entry[1] // menu[entry[0]][0]
+        for ing in menu[entry[0]][1]:
+            print(' ' + str(crafts * menu[entry[0]][1][ing]) + ' ' + ing + ',', end='')
+        print('')
+
     print('Leftovers: ' + str(leftover))
 
 
