@@ -14,7 +14,6 @@ def main():
 
     init(args.ingredients)
     # Menu ready
-    print(menu)
     calculateOre()
 
 
@@ -45,15 +44,18 @@ def calculateOre():
     global menu
     # Count numbers required
     shoplist = {'FUEL': 1}
+    recipe = [] # Production recipe to follow
     leftover = {} # Remaining components
     ore = 0 # Ore required
     #Get 1 FUEL
     while len(shoplist) > 0:
-        print('S:' + str(shoplist))
+        #print('S:' + str(shoplist))
         newlist = {}
         for item in shoplist:
+            #print(item)
             prod = 0 # items made of this
-            print(item)
+            # Build recipt
+            recipe.insert(0,[item, shoplist[item]])
             # See if we have any already
             if item in leftover:
                 if leftover[item] >= shoplist[item]:
@@ -62,10 +64,10 @@ def calculateOre():
                 else:
                     shoplist[item] -= leftover[item]
                     leftover[item] = 0
-                print('Used leftovers - ' + 'Req: ' + str(shoplist[item]) + 'Left: ' + str(leftover[item]))
+                #print('Used leftovers - ' + 'Req: ' + str(shoplist[item]) + 'Left: ' + str(leftover[item]))
             if shoplist[item] > 0:
                 for ing in menu[item][1]:
-                    print('<' + ing)
+                    #print('<' + ing)
                     # Check for any leftovers
                     avail = 0
                     if ing in leftover:
@@ -77,7 +79,6 @@ def calculateOre():
                     # Update lists
                     if ing == 'ORE':
                         ore += req
-                        print ('ORE:' + str(ore))
                     else:
                         if req > 0:
                             if ing in newlist:
@@ -90,14 +91,20 @@ def calculateOre():
                         leftover[item] += prod - shoplist[item]
                     else:
                         leftover[item] = prod - shoplist[item]
-
         shoplist = newlist
-        print('L:' + str(leftover))
+        #print('L:' + str(leftover))
 
     print('ORE required: ' + str(ore))
+    # print recipe
+    for entry in recipe:
+        if entry[0] in leftover:
+            entry[1] += leftover[entry[0]]
+        print('Produce ' + str(entry[1]) + ' of ' + entry[0] + '.')
+    print('Leftovers: ' + str(leftover))
+
 
 def getReq(req, need, prod, avail):
-    print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod) + '; Avail: ' + str(avail))
+    #print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod) + '; Avail: ' + str(avail))
     used = 0
     done = 0
     while done < req:
@@ -110,7 +117,7 @@ def getReq(req, need, prod, avail):
     else:
         avail -= used
 
-    print('Use: ' + str(used) + ' to make ' + str(done) + '. Require: ' + str(new) + ' new and ' + str(avail) + ' leftover.')
+    #print('Use: ' + str(used) + ' to make ' + str(done) + '. Require: ' + str(new) + ' new and ' + str(avail) + ' leftover.')
 
     return [done, new, avail]
 
