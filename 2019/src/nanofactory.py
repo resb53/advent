@@ -46,7 +46,7 @@ def init(fh):
 
 def calculateOre():
     # Count numbers required
-    shoplist = {'FUEL': 1}
+    shoplist = {'FUEL': 2000} # 2000 requires 1,272,149,404
     recipe = [] # Production recipe to follow
     leftover = {} # Remaining components
     ore = 0 # Ore required
