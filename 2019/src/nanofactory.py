@@ -54,32 +54,42 @@ def calculateOre():
         for item in shoplist:
             prod = 0 # items made of this
             print(item)
-            for ing in menu[item][1]:
-                print('<' + ing)
-                # Check for any leftovers
-                avail = 0
-                if item in leftover:
-                    avail = leftover[item]
-                # Get most efficient production from menu
-                [prod, used, left] = getReq(shoplist[item], menu[item][1][ing], menu[item][0], avail)
-                print('Use: ' + str(used) + ' to make ' + str(prod) + ' with ' + str(left) + ' leftover')
-                if item in leftover:
-                    leftover[item] = left
-                # Update lists
-                if ing == 'ORE':
-                    ore += used
-                    print ('ORE:' + str(ore))
+            # See if we have any already
+            if item in leftover:
+                if leftover[item] >= shoplist[item]:
+                    leftover[item] -= shoplist[item]
+                    shoplist[item] = 0
                 else:
-                    if ing in newlist:
-                        newlist[ing] += used
+                    shoplist[item] -= leftover[item]
+                    leftover[item] = 0
+                print('Used leftovers - ' + 'Req: ' + str(shoplist[item]) + 'Left: ' + str(leftover[item]))
+            if shoplist[item] > 0:
+                for ing in menu[item][1]:
+                    print('<' + ing)
+                    # Check for any leftovers
+                    avail = 0
+                    if ing in leftover:
+                        avail = leftover[ing]
+                    # Get most efficient production from menu
+                    [prod, req, left] = getReq(shoplist[item], menu[item][1][ing], menu[item][0], avail)
+                    if ing in leftover:
+                        leftover[ing] = left
+                    # Update lists
+                    if ing == 'ORE':
+                        ore += req
+                        print ('ORE:' + str(ore))
                     else:
-                        newlist[ing] = used
-            # Calculate leftovers
-            if prod > shoplist[item]:
-                if item in leftover:
-                    leftover[item] += prod - shoplist[item]
-                else:
-                    leftover[item] = prod - shoplist[item]
+                        if req > 0:
+                            if ing in newlist:
+                                newlist[ing] += req
+                            else:
+                                newlist[ing] = req
+                # Calculate leftovers
+                if prod > shoplist[item]:
+                    if item in leftover:
+                        leftover[item] += prod - shoplist[item]
+                    else:
+                        leftover[item] = prod - shoplist[item]
 
         shoplist = newlist
         print('L:' + str(leftover))
@@ -88,19 +98,21 @@ def calculateOre():
 
 def getReq(req, need, prod, avail):
     print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod) + '; Avail: ' + str(avail))
-    # Use leftovers first
-    if req >= avail:
-        req -= avail
-        avail = 0
-    elif req < avail:
-        avail -= req
-        req = 0
     used = 0
     done = 0
     while done < req:
         used += need
         done += prod
-    return [done, used, avail]
+    new = 0
+    if used >= avail:
+        new = used - avail
+        avail = 0
+    else:
+        avail -= used
+
+    print('Use: ' + str(used) + ' to make ' + str(done) + '. Require: ' + str(new) + ' new and ' + str(avail) + ' leftover.')
+
+    return [done, new, avail]
 
 if __name__ == "__main__":
     main()
