@@ -46,14 +46,13 @@ def calculateOre():
     # Count numbers required
     shoplist = {'FUEL': 1}
     leftover = {} # Remaining components
-
+    ore = 0 # Ore required
     #Get 1 FUEL
-    while list(shoplist.keys()) != ['ORE']:
+    while len(shoplist) > 0:
         print('S:' + str(shoplist))
         newlist = {}
         for item in shoplist:
-            if item == 'ORE':
-                newlist[item] = shoplist[item]
+            prod = 0 # items made of this
             print(item)
             for ing in menu[item][1]:
                 print('<' + ing)
@@ -61,17 +60,21 @@ def calculateOre():
                 [prod, used] = getReq(shoplist[item], menu[item][1][ing], menu[item][0])
                 print('Use: ' + str(used) + ' to make ' + str(prod))
                 # Update lists
-                if ing in newlist:
-                    newlist[ing] += used
+                if ing == 'ORE':
+                    ore += used
+                    print ('ORE:' + str(ore))
                 else:
-                    newlist[ing] = used
-                # Use leftovers first
-                if ing in leftover:
-                    if leftover[ing] < newlist[ing]:
-                        newlist[ing] -= leftover[ing]
+                    if ing in newlist:
+                        newlist[ing] += used
                     else:
-                        del(newlist[ing])
-                        leftover[ing] -= newlist[ing]
+                        newlist[ing] = used
+                    # Use leftovers first
+                    if ing in leftover:
+                        if leftover[ing] < newlist[ing]:
+                            newlist[ing] -= leftover[ing]
+                        else:
+                            del(newlist[ing])
+                            leftover[ing] -= newlist[ing]
                 # Calculate leftovers
                 if prod > shoplist[item]:
                     if item in leftover:
@@ -82,7 +85,7 @@ def calculateOre():
         shoplist = newlist
         print('L:' + str(leftover))
 
-    print(shoplist)
+    print('ORE required: ' + str(ore))
 
 def getReq(req, need, prod):
     print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod))
