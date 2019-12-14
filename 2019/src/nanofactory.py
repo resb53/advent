@@ -56,9 +56,15 @@ def calculateOre():
             print(item)
             for ing in menu[item][1]:
                 print('<' + ing)
+                # Check for any leftovers
+                avail = 0
+                if item in leftover:
+                    avail = leftover[item]
                 # Get most efficient production from menu
-                [prod, used] = getReq(shoplist[item], menu[item][1][ing], menu[item][0])
-                print('Use: ' + str(used) + ' to make ' + str(prod))
+                [prod, used, left] = getReq(shoplist[item], menu[item][1][ing], menu[item][0], avail)
+                print('Use: ' + str(used) + ' to make ' + str(prod) + ' with ' + str(left) + ' leftover')
+                if item in leftover:
+                    leftover[item] = left
                 # Update lists
                 if ing == 'ORE':
                     ore += used
@@ -68,33 +74,33 @@ def calculateOre():
                         newlist[ing] += used
                     else:
                         newlist[ing] = used
-                    # Use leftovers first
-                    if ing in leftover:
-                        if leftover[ing] < newlist[ing]:
-                            newlist[ing] -= leftover[ing]
-                        else:
-                            del(newlist[ing])
-                            leftover[ing] -= newlist[ing]
-                # Calculate leftovers
-                if prod > shoplist[item]:
-                    if item in leftover:
-                        leftover[item] += prod - shoplist[item]
-                    else:
-                        leftover[item] = prod - shoplist[item]
+            # Calculate leftovers
+            if prod > shoplist[item]:
+                if item in leftover:
+                    leftover[item] += prod - shoplist[item]
+                else:
+                    leftover[item] = prod - shoplist[item]
 
         shoplist = newlist
         print('L:' + str(leftover))
 
     print('ORE required: ' + str(ore))
 
-def getReq(req, need, prod):
-    print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod))
+def getReq(req, need, prod, avail):
+    print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod) + '; Avail: ' + str(avail))
+    # Use leftovers first
+    if req >= avail:
+        req -= avail
+        avail = 0
+    elif req < avail:
+        avail -= req
+        req = 0
     used = 0
     done = 0
     while done < req:
         used += need
         done += prod
-    return [done, used]
+    return [done, used, avail]
 
 if __name__ == "__main__":
     main()
