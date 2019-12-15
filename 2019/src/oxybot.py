@@ -13,15 +13,15 @@ pos = [0,0] # x,y
 prev = [0,0]
 start = [0,0]
 oxy = [0,0]
+expl = [0,0] # Current exploration tile
 grid = {} # grid[y][x] -> 0 empty, 1 wall, 2 robot
-around = {} # whats currently around the bot
 io = {'input': [], 'output': []} # Dict holding next input / last output
 move = {'w': 1, 's': 2, 'a': 3, 'd':4}
 draw = {0: '█', 1: 'o', 2: '!', 3: '.', 4: 'x'} # in the new space draw a wall, or the new droid pos, or the oxysys
-counter = 0
+#counter = 0
 
 def main():
-    global win, pos, start, curses
+    global win, pos, start, expl, curses
     # Read ch from stdin
     fh = sys.stdin.fileno()
     old = termios.tcgetattr(fh)
@@ -39,6 +39,7 @@ def main():
     winy, winx = win.getmaxyx()
     # Start in the middle
     pos = [winx//2, winy//2]
+    expl = [winx//2, winy//2] # explore this
     start = [winx//2, winy//2]
     if pos[1] not in grid:
         grid[pos[1]] = {}
@@ -57,28 +58,32 @@ def sigintClean(sig, frame):
     sys.exit(0)
 
 def drawin():
-    win.addstr(0, 0, str(counter))
+    #win.addstr(0, 0, str(counter))
     for y in grid:
         for x in grid[y]:
             win.addstr(y, x, draw[grid[y][x]])
     win.refresh()
 
 def instr_in():
-    global counter
-    k = 'x'
+    # Print old to new position
+    win.addstr(0, 0, '                                                     ')
+    win.addstr(0, 0, str(prev) + ' -> ' + str(pos))
+    win.refresh()
+    # Make next move
+    # Auto Play
+    generateMove()
     # Manual Play
+    k = 'x'
     while k not in move:
         k = sys.stdin.read(1)
-        if k == 'r':
+        #if k == 'r':
             #Reset counter
-            win.addstr(0, 0, '0                                                     ')
-            win.refresh()
-            counter = 0
-    # Auto Play
-    #k = generateMove()
+            #win.addstr(0, 0, '0                                                     ')
+            #win.refresh()
+            #counter = 0
 
     moveFocus(move[k])
-    counter += 1
+    #counter += 1
     return move[k]
 
 def instr_out(p):
@@ -101,7 +106,6 @@ def instr_out(p):
         else:
             grid[prev[1]][prev[0]] = 3
 
-    updateSur()
     drawin()
 
 def moveFocus(k):
@@ -122,18 +126,56 @@ def moveFocus(k):
     grid[pos[1]][pos[0]] = ''
 
 def generateMove():
-    # Use around to pick next move
-    for d in around:
-        if around[d] == None:
-            return d
-    else:
-        return list(move.keys())[randint(0,3)]
+    global win, expl
+    win.addstr(1, 0, '                                                       ')
+    win.addstr(1, 0, str(getSur(pos)))
+    win.addstr(2, 0, '                                                       ')
+    win.addstr(2, 0, str(getSur(prev)))
+    win.addstr(3, 0, "        ")
 
-def updateSur():
-    global around
+    # If moved since last time:
+    if pos[0] != expl[0] or pos[1] != expl[1]:
+        n = 0
+        c = getSur(prev)
+        for d in c:
+            if c[d] == None:
+                n += 1
+        if n != 0:
+            if pos[0] > expl[0]:
+                win.addstr(3, 0, "Press a")
+            if pos[0] < expl[0]:
+                win.addstr(3, 0, "Press d")
+            if pos[1] > expl[1]:
+                win.addstr(3, 0, "Press w")
+            if pos[1] < expl[1]:
+                win.addstr(3, 0, "Press s")
+        else:
+            expl[0] = pos[0]
+            expl[1] = pos[1]
+            generateMove()
+    else:
+        f = 0
+        c = getSur(pos)
+        for d in c:
+            if c[d] == None:
+                f = 1
+                win.addstr(3, 0, "Press " + d)
+        if f == 0:
+            win.addstr(3, 0, "Proceed")        
+        
+    win.refresh()
+    # Use around to pick next move
+    #for d in around:
+    #    if around[d] == None:
+    #        return d
+    #else:
+    #return list(move.keys())[randint(0,3)]
+
+def getSur(p):
+    around = {}
     check = [0, 0]
-    check[0] = pos[0]
-    check[1] = pos[1]
+    check[0] = p[0]
+    check[1] = p[1]
     # w
     check[1] -= 1
     around['w'] = getTile(check)
@@ -147,11 +189,7 @@ def updateSur():
     # d
     check[0] += 2
     around['d'] = getTile(check)
-    # print
-    #global win
-    #win.addstr(0, 0, '                                                      ')
-    #win.addstr(0, 0, str(around))
-    #win.refresh
+    return around
 
 def getTile(check):
     if check[1] in grid and check[0] in grid[check[1]]:
