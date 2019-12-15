@@ -59,10 +59,11 @@ def drawin():
     win.refresh()
 
 def instr_in():
-    k = sys.stdin.read(1)
-    if k in move:
-        moveFocus(move[k])
-        return move[k]
+    k = 'x'
+    while k not in move:
+        k = sys.stdin.read(1)
+    moveFocus(move[k])
+    return move[k]
 
 def instr_out(p):
     grid[pos[1]][pos[0]] = p
