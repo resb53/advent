@@ -14,12 +14,13 @@ def main():
 
     init(args.ingredients)
     # Menu ready
-    recipe = calculateOre()
-    recipe = orderRecipe(recipe)
-    #printRecipe(recipe)
-    # Use recipe
-    cook(recipe)
-
+    for f in range(16040,16041):
+        recipe = calculateOre({'FUEL': f})
+        recipe = orderRecipe(recipe)
+        #printRecipe(recipe)
+        # Use recipe
+        result = cook(recipe)
+        print('f:' + str(f) + ' ' + str(result))
 
 def init(fh):
     global menu
@@ -44,9 +45,9 @@ def init(fh):
 
         menu[result] = [int(qr), mix]
 
-def calculateOre():
+def calculateOre(slist):
     # Count numbers required
-    shoplist = {'FUEL': 2000} # 2000 requires 1,272,149,404
+    shoplist = slist # 2000 requires 1,272,149,404, range: 'FUEL': 1571955 || (105) 'ORE': 999,000,756,024, 'FUEL': 1570380
     recipe = [] # Production recipe to follow
     leftover = {} # Remaining components
     ore = 0 # Ore required
@@ -108,7 +109,7 @@ def calculateOre():
         #print('L:' + str(leftover))
 
     # PART ONE
-    #print('ORE required: ' + str(ore))
+    print('ORE required: ' + str(ore))
     #print('Leftovers: ' + str(leftover))
 
     return recipe
@@ -158,16 +159,17 @@ def printRecipe(recipe):
 
 def cook(recipe):
     # Have a bag of goodies and cook up that tasty fuel
+    # Using larger numbers in recipe: (105) 'ORE': 1,000,006,972,944, 'FUEL': 1571955 || (105) 'ORE': 999,000,756,024, 'FUEL': 1570380
     bag = {'ORE': 1000000000000}
     #bag = {'ORE': 300000}
     lp = 1000000000000 # last print
     i = 10000000000 # print iterator
     while bag['ORE'] > 0:
-        if len(bag) == 2:
-            print(bag)
-        if bag['ORE'] <= lp -i:
-            print(bag)
-            lp -= i
+        #if len(bag) == 2:
+        #    print(bag)
+        #if bag['ORE'] <= lp -i:
+        #    print(bag)
+        #    lp -= i
         for instr in recipe:
             # See if we have enough already
             if instr[0] in bag and instr[0] != 'FUEL' and bag[instr[0]] >= instr[1]:
@@ -181,7 +183,8 @@ def cook(recipe):
                         bag[mat] -= req
                         #print ('- Used ' + str(req) + ' ' + mat)
                         if bag[mat] < 0:
-                            sys.exit('Not enough ' + mat + ' in bag.\nBag: ' + str(bag))
+                            #sys.exit('Not enough ' + mat + ' in bag.\nBag: ' + str(bag))
+                            return {'ORE': bag['ORE'], 'FUEL': bag['FUEL']}
                     else:
                         sys.exit('No ' + mat + ' in bag.')
                 # crafted
