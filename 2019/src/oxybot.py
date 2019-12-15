@@ -57,6 +57,7 @@ def main():
 
 def sigintClean(sig, frame):
     curses.endwin()
+    print(grid, file=open('grid.txt', 'a'))
     sys.exit(0)
 
 def drawin():
@@ -69,16 +70,18 @@ def drawin():
 def instr_in():
     global hist
     # Print old to new position
-    win.addstr(0, 0, '                                                     ')
-    win.addstr(0, 0, str(prev) + ' -> ' + str(pos))
-    win.refresh()
+    #win.addstr(0, 0, '                                                     ')
+    #win.addstr(0, 0, str(prev) + ' -> ' + str(pos))
+    #win.refresh()
     # Make next move
     # Auto Play
-    generateMove()
+    g = generateMove()
     # Manual Play
     k = 'x'
     while k not in move:
         k = sys.stdin.read(1)
+        if k == 'q': #Semiauto
+            k = g
         #if k == 'r':
             #Reset counter
             #win.addstr(0, 0, '0                                                     ')
@@ -137,11 +140,11 @@ def generateMove():
     global win, expl, ret, hist, rev
     nex = ''
     rev = 0 # Try a new path
-    win.addstr(1, 0, '                                                       ')
-    win.addstr(1, 0, str(getSur(pos)))
-    win.addstr(2, 0, '                                                       ')
-    win.addstr(2, 0, str(getSur(prev)))
-    win.addstr(3, 0, '                                                       ')
+    #win.addstr(1, 0, '                                                       ')
+    #win.addstr(1, 0, str(getSur(pos)))
+    #win.addstr(2, 0, '                                                       ')
+    #win.addstr(2, 0, str(getSur(prev)))
+    #win.addstr(3, 0, '                                                       ')
 
     # If moved since last time:
     if pos[0] != expl[0] or pos[1] != expl[1]:
@@ -162,7 +165,7 @@ def generateMove():
         else:
             expl[0] = pos[0]
             expl[1] = pos[1]
-            generateMove()
+            return generateMove()
     else:
         f = 0
         c = getSur(pos)
@@ -191,7 +194,10 @@ def generateMove():
                         nex = d
             # If still nothing, retrace steps till there is
             if nex == '':
-                v = hist.pop()
+                if len(hist) > 0:
+                    v = hist.pop()
+                else:
+                    return '?'
                 w = ''
                 if v == 'w':
                     w = 's'
@@ -205,12 +211,7 @@ def generateMove():
                 rev = 1 # still reversing
     win.addstr(3, 0, 'Press ' + nex)
     win.refresh()
-    # Use around to pick next move
-    #for d in around:
-    #    if around[d] == None:
-    #        return d
-    #else:
-    #return list(move.keys())[randint(0,3)]
+    return nex
 
 def getSur(p):
     around = {}
