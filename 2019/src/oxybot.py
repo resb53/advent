@@ -12,11 +12,13 @@ from random import randint
 pos = [0,0] # x,y
 prev = [0,0]
 start = [0,0]
+oxy = [0,0]
 grid = {} # grid[y][x] -> 0 empty, 1 wall, 2 robot
 around = {} # whats currently around the bot
 io = {'input': [], 'output': []} # Dict holding next input / last output
 move = {'w': 1, 's': 2, 'a': 3, 'd':4}
 draw = {0: '█', 1: 'o', 2: '!', 3: '.', 4: 'x'} # in the new space draw a wall, or the new droid pos, or the oxysys
+counter = 0
 
 def main():
     global win, pos, start, curses
@@ -55,33 +57,46 @@ def sigintClean(sig, frame):
     sys.exit(0)
 
 def drawin():
+    win.addstr(0, 0, str(counter))
     for y in grid:
         for x in grid[y]:
             win.addstr(y, x, draw[grid[y][x]])
     win.refresh()
 
 def instr_in():
+    global counter
     k = 'x'
     # Manual Play
-    #while k not in move:
-    #    k = sys.stdin.read(1)
+    while k not in move:
+        k = sys.stdin.read(1)
+        if k == 'r':
+            #Reset counter
+            win.addstr(0, 0, '0                                                     ')
+            win.refresh()
+            counter = 0
     # Auto Play
-    k = generateMove()
+    #k = generateMove()
 
     moveFocus(move[k])
+    counter += 1
     return move[k]
 
 def instr_out(p):
+    global oxy
     grid[pos[1]][pos[0]] = p
-    if p == 0 or p == 2:
-        # If it was a wall, or the oxytank, keep droid in pos, reset pos
+    if p == 0:
+        # If it was a wall, keep droid in pos, reset pos
         pos[0] = prev[0]
         pos[1] = prev[1]
     else:
-        # If it was the start use an x, else change previous space to a .
-        #global win
-        #win.addstr(0, 0, str(prev) + ' vs ' + str(start))
-        if prev[0] == start[0] and prev[1] == start[1]:
+        # If it was the tank, record this
+        if p == 2:
+            oxy[0] = pos[0]
+            oxy[1] = pos[1]
+        if prev[0] == oxy[0] and prev[1] == oxy[1]:
+            grid[prev[1]][prev[0]] = 2
+        # Else if it was the start use an x, else change previous space to a .
+        elif prev[0] == start[0] and prev[1] == start[1]:
             grid[prev[1]][prev[0]] = 4
         else:
             grid[prev[1]][prev[0]] = 3
