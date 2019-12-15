@@ -161,7 +161,25 @@ def generateMove():
                 f = 1
                 win.addstr(3, 0, "Press " + d)
         if f == 0:
-            win.addstr(3, 0, "Proceed")        
+            # Find available route that isn't yet explored
+            option = []
+            for d in c:
+                if c[d] == 3:
+                    x = {}
+                    if d == 'w':
+                        x = getSur([pos[0],pos[1]-1])
+                    elif d == 's':
+                        x = getSur([pos[0],pos[1]+1])
+                    elif d == 'a':
+                        x = getSur([pos[0]-1,pos[1]])
+                    elif d == 'd':
+                        x = getSur([pos[0]+1,pos[1]])
+                    n = 0
+                    for y in x:
+                        if x[y] == None:
+                            n += 1
+                    if n != 0:
+                        win.addstr(3, 0, "Press " + d)
         
     win.refresh()
     # Use around to pick next move
