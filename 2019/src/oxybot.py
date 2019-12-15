@@ -14,6 +14,8 @@ prev = [0,0]
 start = [0,0]
 oxy = [0,0]
 expl = [0,0] # Current exploration tile
+hist = [] # List of history
+rev = 0 # Reversing flag
 grid = {} # grid[y][x] -> 0 empty, 1 wall, 2 robot
 io = {'input': [], 'output': []} # Dict holding next input / last output
 move = {'w': 1, 's': 2, 'a': 3, 'd':4}
@@ -65,6 +67,7 @@ def drawin():
     win.refresh()
 
 def instr_in():
+    global hist
     # Print old to new position
     win.addstr(0, 0, '                                                     ')
     win.addstr(0, 0, str(prev) + ' -> ' + str(pos))
@@ -83,6 +86,11 @@ def instr_in():
             #counter = 0
 
     moveFocus(move[k])
+    if rev == 0:
+        hist.append(k)
+    if len(hist) > 100:
+        hist.pop(0)
+    win.addstr(4, 0, str(hist))
     #counter += 1
     return move[k]
 
@@ -126,12 +134,14 @@ def moveFocus(k):
     grid[pos[1]][pos[0]] = ''
 
 def generateMove():
-    global win, expl
+    global win, expl, ret, hist, rev
+    nex = ''
+    rev = 0 # Try a new path
     win.addstr(1, 0, '                                                       ')
     win.addstr(1, 0, str(getSur(pos)))
     win.addstr(2, 0, '                                                       ')
     win.addstr(2, 0, str(getSur(prev)))
-    win.addstr(3, 0, "        ")
+    win.addstr(3, 0, '                                                       ')
 
     # If moved since last time:
     if pos[0] != expl[0] or pos[1] != expl[1]:
@@ -142,13 +152,13 @@ def generateMove():
                 n += 1
         if n != 0:
             if pos[0] > expl[0]:
-                win.addstr(3, 0, "Press a")
+                nex = 'a'
             if pos[0] < expl[0]:
-                win.addstr(3, 0, "Press d")
+                nex = 'd'
             if pos[1] > expl[1]:
-                win.addstr(3, 0, "Press w")
+                nex = 'w'
             if pos[1] < expl[1]:
-                win.addstr(3, 0, "Press s")
+                nex = 's'
         else:
             expl[0] = pos[0]
             expl[1] = pos[1]
@@ -159,10 +169,9 @@ def generateMove():
         for d in c:
             if c[d] == None:
                 f = 1
-                win.addstr(3, 0, "Press " + d)
+                nex = d
         if f == 0:
             # Find available route that isn't yet explored
-            option = []
             for d in c:
                 if c[d] == 3:
                     x = {}
@@ -179,8 +188,22 @@ def generateMove():
                         if x[y] == None:
                             n += 1
                     if n != 0:
-                        win.addstr(3, 0, "Press " + d)
-        
+                        nex = d
+            # If still nothing, retrace steps till there is
+            if nex == '':
+                v = hist.pop()
+                w = ''
+                if v == 'w':
+                    w = 's'
+                elif v == 's':
+                    w = 'w'
+                elif v == 'a':
+                    w = 'd'
+                elif v == 'd':
+                    w = 'a'
+                nex = w
+                rev = 1 # still reversing
+    win.addstr(3, 0, 'Press ' + nex)
     win.refresh()
     # Use around to pick next move
     #for d in around:
