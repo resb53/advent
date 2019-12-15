@@ -14,13 +14,31 @@ def main():
 
     init(args.ingredients)
     # Menu ready
-    for f in range(16040,16041):
-        recipe = calculateOre({'FUEL': f})
-        recipe = orderRecipe(recipe)
-        #printRecipe(recipe)
-        # Use recipe
-        result = cook(recipe)
-        print('f:' + str(f) + ' ' + str(result))
+    #recipe = calculateOre({'FUEL': 2})
+    #recipe = orderRecipe(recipe)
+    #printRecipe(recipe)
+    # Use recipe
+    #result = cook(recipe)
+    #print(str(result))
+    f = 1
+    o = 0
+    while o < 1000000000000:
+        o = calculateOre({'FUEL': f})
+        print(str(f) + ' FUEL needs ' + str(o) + ' ORE.')
+        f *= 2
+    maxf = f // 2
+    minf = f // 4
+    while maxf - minf > 1:
+        print('Between ' + str(minf) + ' and ' + str(maxf))
+        f = (maxf+minf) // 2
+        o = calculateOre({'FUEL': f})
+        print(str(f) + ' FUEL needs ' + str(o) + ' ORE.')
+        if o > 1000000000000:
+            maxf = f
+        else:
+            minf = f
+    print('Answer: ' + str(minf))
+
 
 def init(fh):
     global menu
@@ -109,10 +127,11 @@ def calculateOre(slist):
         #print('L:' + str(leftover))
 
     # PART ONE
-    print('ORE required: ' + str(ore))
+    #print('ORE required: ' + str(ore))
     #print('Leftovers: ' + str(leftover))
+    return ore
 
-    return recipe
+    #return recipe
 
 def getReq(req, need, prod, avail):
     #print('Req: ' + str(req) + '; Need: ' + str(need) + '; Prod: ' + str(prod) + '; Avail: ' + str(avail))
@@ -165,11 +184,11 @@ def cook(recipe):
     lp = 1000000000000 # last print
     i = 10000000000 # print iterator
     while bag['ORE'] > 0:
-        #if len(bag) == 2:
-        #    print(bag)
-        #if bag['ORE'] <= lp -i:
-        #    print(bag)
-        #    lp -= i
+        if len(bag) == 2:
+            print(bag)
+        if bag['ORE'] <= lp -i:
+            print(bag)
+            lp -= i
         for instr in recipe:
             # See if we have enough already
             if instr[0] in bag and instr[0] != 'FUEL' and bag[instr[0]] >= instr[1]:
