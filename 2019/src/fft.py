@@ -26,13 +26,11 @@ def main():
     for i in range(0, 7):
         skip += str(signal[i])
     signal = 10000 * signal
-    curbed = signal[int(skip):]
+    signal = signal[int(skip):] # curbed
     # Calculate len(curbed) mod arrays for signal from n to end
-    mod = prepMods(len(signal), int(skip)) # <- returns 30 rows in 1m30, 526569 rows in 
-    print(len(mod[0]))
-    print(len(mod))
-    #for rep in range(0, args.p):
-    #    signal = processSignal(signal, mod)
+    #mod = prepMods(len(signal), int(skip)) # <- returns 30 rows in 1m30, 526569 rows in 
+    for rep in range(0, args.p):
+        signal = processSignal(signal, mod)
 
 def getInput(inp):
     try:
@@ -72,9 +70,12 @@ def processSignal(sig, mod):
     for i in range(0, l):
         num = 0
         for j in range(i, l):
-            num += sig[j] * mod[i][j]
+            #num += sig[j] * mod[i][j]
+            num += sig[j] # 1's for high n!
         sumstr = str(num)
         output.append(int(sumstr[-1]))
+        #print(int(sumstr[-1]), end='', flush=True)
+    #print('')
     print(output[0:8])
     return output
 
