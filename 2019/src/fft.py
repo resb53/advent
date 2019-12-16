@@ -25,8 +25,10 @@ def main():
     skip = ''
     for i in range(0, 7):
         skip += str(signal[i])
+    print('Skip:' + skip)
     signal = 10000 * signal
     signal = signal[int(skip):] # curbed
+    print('Curb:' + str(len(signal)))
     # Calculate len(curbed) mod arrays for signal from n to end
     #mod = prepMods(len(signal), int(skip)) # <- returns 30 rows in 1m30, 526569 rows in 
     for rep in range(0, args.p):
@@ -68,14 +70,9 @@ def processSignal(sig, mod):
     l = len(sig)
     # Rows
     for i in range(0, l):
-        num = 0
-        for j in range(i, l):
-            #num += sig[j] * mod[i][j]
-            num += sig[j] # 1's for high n!
-        sumstr = str(num)
-        output.append(int(sumstr[-1]))
-        #print(int(sumstr[-1]), end='', flush=True)
-    #print('')
+        num = sum(sig[i:]) # 1's for high n!
+        #print(str(num)[-1], end='', flush=True)
+        output.append(int(str(num)[-1]))
     print(output[0:8])
     return output
 
