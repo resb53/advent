@@ -13,12 +13,24 @@ signal = [] # Signal array
 mod = [] # Modulations
 seed = [0, 1, 0, -1] # Mod seeds
 
+# Part 2 thoughts: for elements n to n+7, only columns and rows between n and end matter
+# Far fewer calculations to start at the right element, and only do 8 rows for it
+# But how to quickly get the right seed for these elements?
+
 def main():
     global signal, mod
     signal = getInput(args.inp)
-    mod = prepMods(len(signal))
-    for rep in range(0, args.p):
-        signal = processSignal(signal, mod)
+
+    # First just see how long it takes to get digits from n to end <- returns in 0.271s
+    skip = ''
+    for i in range(0, 7):
+        skip += str(signal[i])
+    signal = 10000 * signal
+    curbed = signal[int(skip):]
+    print(len(curbed))
+    #mod = prepMods(len(signal))
+    #for rep in range(0, args.p):
+    #    signal = processSignal(signal, mod)
 
 def getInput(inp):
     try:
@@ -61,7 +73,6 @@ def processSignal(sig, mod):
             num += sig[j] * mod[i][j]
         sumstr = str(num)
         output.append(int(sumstr[-1]))
-
     print(output[0:8])
     return output
 
