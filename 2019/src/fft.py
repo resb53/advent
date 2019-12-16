@@ -69,10 +69,11 @@ def processSignal(sig, mod):
     output = []
     l = len(sig)
     # Rows
-    for i in range(0, l):
-        num = sum(sig[i:]) # 1's for high n!
-        #print(str(num)[-1], end='', flush=True)
-        output.append(int(str(num)[-1]))
+    total = sum(sig)
+    output.append(int(str(total)[-1]))
+    for i in range(1, l):
+        total -= sig[i-1]
+        output.append(int(str(total)[-1]))
     print(output[0:8])
     return output
 
