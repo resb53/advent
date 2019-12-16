@@ -9,11 +9,15 @@ parser.add_argument('inp', metavar='inp', type=str, help='Input array.')
 args = parser.parse_args()
 
 signal = [] # Signal array
+mod = [] # Modulations
+seed = [0, 1, 0, -1] # Mod seeds
 
 def main():
-    global signal
+    global signal, mod
     signal = getInput(args.inp)
-    print(signal)
+    mod = prepMods(len(signal))
+    print(mod)
+    signal = processSignal(signal, mod)
 
 def getInput(inp):
     try:
@@ -23,7 +27,30 @@ def getInput(inp):
 
     line = grid_fh.readline().strip('\n')
 
-    return line
+    return list(str(line))
+
+def prepMods(l):
+    mods = []
+    # Rows
+    for i in range(1, l+1):
+        # Columns
+        col = []
+        j = 0
+        while len(col) < l+1:
+            col.extend(seedGen(i, j))
+            j += 1
+        mods.append(col[1:l+1])
+
+    return mods
+
+def seedGen(i, j):
+    gen = []
+    for p in range(0, i):
+       gen.append(seed[j % 4])
+    return gen 
+
+def processSignal(sig, mod):
+    return
 
 if __name__ == "__main__":
     main()
