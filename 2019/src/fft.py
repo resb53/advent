@@ -25,10 +25,15 @@ def main():
     skip = ''
     for i in range(0, 7):
         skip += str(signal[i])
-    signal = 10000 * signal
+    #signal = 10000 * signal
+    signal = 2 * signal # test on shorter knowns
+    skip = 4
+    print(signal)
     curbed = signal[int(skip):]
-    print(len(curbed))
-    #mod = prepMods(len(signal))
+    print(curbed)
+
+    # Calculate len(curbed) mod arrays for signal from n to end
+    mod = prepMods(len(signal), int(skip))
     #for rep in range(0, args.p):
     #    signal = processSignal(signal, mod)
 
@@ -43,18 +48,18 @@ def getInput(inp):
 
     return arr
 
-def prepMods(l):
+def prepMods(l, skip):
     mods = []
     # Rows
-    for i in range(1, l+1):
+    for i in range(skip+1, l+1):
         # Columns
         col = []
         j = 0
         while len(col) < l+1:
             col.extend(seedGen(i, j))
             j += 1
-        mods.append(col[1:l+1])
-
+        mods.append(col[skip+1:l+1])
+    print(mods)
     return mods
 
 def seedGen(i, j):
