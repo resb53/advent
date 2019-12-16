@@ -25,15 +25,12 @@ def main():
     skip = ''
     for i in range(0, 7):
         skip += str(signal[i])
-    #signal = 10000 * signal
-    signal = 2 * signal # test on shorter knowns
-    skip = 4
-    print(signal)
+    signal = 10000 * signal
     curbed = signal[int(skip):]
-    print(curbed)
-
     # Calculate len(curbed) mod arrays for signal from n to end
-    mod = prepMods(len(signal), int(skip))
+    mod = prepMods(len(signal), int(skip)) # <- returns 30 rows in 1m30, 526569 rows in 
+    print(len(mod[0]))
+    print(len(mod))
     #for rep in range(0, args.p):
     #    signal = processSignal(signal, mod)
 
@@ -59,7 +56,7 @@ def prepMods(l, skip):
             col.extend(seedGen(i, j))
             j += 1
         mods.append(col[skip+1:l+1])
-    print(mods)
+        print(len(mods[0]))
     return mods
 
 def seedGen(i, j):
