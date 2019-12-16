@@ -28,7 +28,6 @@ def getInput(inp):
 
     arr = list(str(grid_fh.readline().strip('\n')))
     arr = [ int(x) for x in arr ]
-    print(arr)
 
     return arr
 
@@ -63,7 +62,7 @@ def processSignal(sig, mod):
         sumstr = str(num)
         output.append(int(sumstr[-1]))
 
-    print(output)
+    print(output[0:8])
     return output
 
 if __name__ == "__main__":
