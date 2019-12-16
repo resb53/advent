@@ -6,6 +6,7 @@ import sys
 # Check correct usage
 parser = argparse.ArgumentParser(description="Watch oxygen fill the room.")
 parser.add_argument('inp', metavar='inp', type=str, help='Input array.')
+parser.add_argument('-p', metavar='phases', type=int, default=1, help='Number of phases to iterate (def=1).')
 args = parser.parse_args()
 
 signal = [] # Signal array
@@ -16,8 +17,8 @@ def main():
     global signal, mod
     signal = getInput(args.inp)
     mod = prepMods(len(signal))
-    print(mod)
-    signal = processSignal(signal, mod)
+    for rep in range(0, args.p):
+        signal = processSignal(signal, mod)
 
 def getInput(inp):
     try:
@@ -25,9 +26,11 @@ def getInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
-    line = grid_fh.readline().strip('\n')
+    arr = list(str(grid_fh.readline().strip('\n')))
+    arr = [ int(x) for x in arr ]
+    print(arr)
 
-    return list(str(line))
+    return arr
 
 def prepMods(l):
     mods = []
@@ -50,7 +53,18 @@ def seedGen(i, j):
     return gen 
 
 def processSignal(sig, mod):
-    return
+    output = []
+    l = len(sig)
+    # Rows
+    for i in range(0, l):
+        num = 0
+        for j in range(0, l):
+            num += sig[j] * mod[i][j]
+        sumstr = str(num)
+        output.append(int(sumstr[-1]))
+
+    print(output)
+    return output
 
 if __name__ == "__main__":
     main()
