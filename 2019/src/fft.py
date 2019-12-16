@@ -57,7 +57,7 @@ def processSignal(sig, mod):
     # Rows
     for i in range(0, l):
         num = 0
-        for j in range(0, l):
+        for j in range(i, l):
             num += sig[j] * mod[i][j]
         sumstr = str(num)
         output.append(int(sumstr[-1]))
