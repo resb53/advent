@@ -12,10 +12,11 @@ def main():
     # Prepare intcode computer
     prog = intCode.Program('inputs/ascii.txt')
     prog.run(o=instr_out)
+    # Do part 1: Find intersections and calculate alignment parameters
     cleanGrid()
     printGrid()
-    # Do part 1: Find intersections and calculate alignment parameters
-    intersect()
+    #intersect()
+    # Do part 2:
 
 def instr_out(p):
     global pos, grid
