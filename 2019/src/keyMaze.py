@@ -65,39 +65,45 @@ def getItems():
 def calcRoutes(pos, key, doo, rou):
     global grid, bestroute
     option = {} # Key option to go for, value distance
-    count = 0
+    count = rou[0]
     grid[pos[1]][pos[0]] = ','
     done = False
 
     while done == False:
         count += 1
-        [grid, option, done] = expand(grid, option, count)
+        if count >= bestroute[0]:
+            done = 1
+        else:
+            [grid, option, done] = expand(grid, option, count)
 
     for k in option:
-        # New copy for this route
-        grid = deepcopy(freshg)
-        newpos = [option[k][2], option[k][1]]
-        newkeys = deepcopy(key)
-        newdoor = deepcopy(doo)
-        # Update for this route
-        newrou = deepcopy(rou)
-        newrou[0] = rou[0] + option[k][0]
-        newrou.append(k)
-        print(newrou)
-        newkeys[k] = 1
-        newdoor[k.upper()] = 1
-        for y in grid:
-            for x in grid[y]:
-                if grid[y][x] in newdoor and newdoor[grid[y][x]] == 1:
-                    grid[y][x] = '.'
-                elif grid[y][x] in newkeys and newkeys[grid[y][x]] == 1:
-                    grid[y][x] = '.'
-        # Reset grid, rerun from newpos
-        calcRoutes(newpos, newkeys, newdoor, newrou)
+        # Only continue if this route isn't already longer
+        if option[k][0] < bestroute[0]:
+            # New copy for this route
+            grid = deepcopy(freshg)
+            newpos = [option[k][2], option[k][1]]
+            newkeys = deepcopy(key)
+            newdoor = deepcopy(doo)
+            # Update for this route
+            newrou = deepcopy(rou)
+            newrou[0] = option[k][0]
+            newrou.append(k)
+            print(newrou)
+            newkeys[k] = 1
+            newdoor[k.upper()] = 1
+            for y in grid:
+                for x in grid[y]:
+                    if grid[y][x] in newdoor and newdoor[grid[y][x]] == 1:
+                        grid[y][x] = '.'
+                    elif grid[y][x] in newkeys and newkeys[grid[y][x]] == 1:
+                        grid[y][x] = '.'
+            # Reset grid, rerun from newpos
+            calcRoutes(newpos, newkeys, newdoor, newrou)
 
     if len(rou) == len(key) + 1:
         print("Total route: " + str(rou[0]))
-        bestroute = deepcopy(rou)
+        if rou[0] < bestroute[0]:
+            bestroute = deepcopy(rou)
 
 def expand(g, o, c):
     # No bound checking as surrounding wall
