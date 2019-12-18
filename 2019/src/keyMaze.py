@@ -14,6 +14,7 @@ freshg = {} # Fresh grid
 keys = {} # List of keys: 1 = held, 0 = not held
 door = {} # List of doors: 1 = open, 0 = locked
 keyroute = [0] # 0: distance so far, 1-n: n'th key collected
+bestroute = [10000]
 pos = [0,0] # x, y
 
 def main():
@@ -24,6 +25,8 @@ def main():
     # Brute force all possible routes, and print fastest. <- No! 26 keys = 26! options (MANY)... unless only a few visible at a time
     getItems()
     calcRoutes(pos, keys, door, keyroute)
+
+    print('Best:' + str(bestroute))
 
 def parseInput(inp):
     global grid, pos
@@ -60,7 +63,7 @@ def getItems():
                     keys[ch] = 0
                 
 def calcRoutes(pos, key, doo, rou):
-    global grid
+    global grid, bestroute
     option = {} # Key option to go for, value distance
     count = 0
     grid[pos[1]][pos[0]] = ','
@@ -72,7 +75,6 @@ def calcRoutes(pos, key, doo, rou):
 
     for k in option:
         # New copy for this route
-        print(k)
         grid = deepcopy(freshg)
         newpos = [option[k][2], option[k][1]]
         newkeys = deepcopy(key)
@@ -93,7 +95,9 @@ def calcRoutes(pos, key, doo, rou):
         # Reset grid, rerun from newpos
         calcRoutes(newpos, newkeys, newdoor, newrou)
 
-    print("Total route: " + option[0])
+    if len(rou) == len(key) + 1:
+        print("Total route: " + str(rou[0]))
+        bestroute = deepcopy(rou)
 
 def expand(g, o, c):
     # No bound checking as surrounding wall
