@@ -10,14 +10,16 @@ parser.add_argument('map', metavar='map', type=str, help='Map input.')
 args = parser.parse_args()
 
 grid = {} # map[y][x] symbols
+freshg = {} # Fresh grid
 keys = {} # List of keys: 1 = held, 0 = not held
 door = {} # List of doors: 1 = open, 0 = locked
 keyroute = [0] # 0: distance so far, 1-n: n'th key collected
 pos = [0,0] # x, y
 
 def main():
-    global grid, keys, door, keyroute
+    global grid, freshg
     parseInput(args.map)
+    freshg = deepcopy(grid)
     # Part 1: From start calculate distance to each key, then from each key to each other with doors unlocked, etc.
     # Brute force all possible routes, and print fastest. <- No! 26 keys = 26! options (MANY)... unless only a few visible at a time
     getItems()
@@ -58,27 +60,42 @@ def getItems():
                     keys[ch] = 0
                 
 def calcRoutes(pos, key, doo, rou):
-    # New copy for this route
-    thispos = deepcopy(pos)
-    thiskeys = deepcopy(key)
-    thisdoor = deepcopy(doo)
-    thisroute = deepcopy(rou)
-    thisgrid = deepcopy(grid)
-
+    global grid
     option = {} # Key option to go for, value distance
-    
     count = 0
-    thisgrid[pos[1]][pos[0]] = ','
+    grid[pos[1]][pos[0]] = ','
     done = False
 
     while done == False:
         count += 1
-        [thisgrid, done] = expand(thisgrid)
+        [grid, option, done] = expand(grid, option, count)
 
-    printGrid(thisgrid)
-    print(count)
+    for k in option:
+        # New copy for this route
+        print(k)
+        grid = deepcopy(freshg)
+        newpos = [option[k][2], option[k][1]]
+        newkeys = deepcopy(key)
+        newdoor = deepcopy(doo)
+        # Update for this route
+        newrou = deepcopy(rou)
+        newrou[0] = rou[0] + option[k][0]
+        newrou.append(k)
+        print(newrou)
+        newkeys[k] = 1
+        newdoor[k.upper()] = 1
+        for y in grid:
+            for x in grid[y]:
+                if grid[y][x] in newdoor and newdoor[grid[y][x]] == 1:
+                    grid[y][x] = '.'
+                elif grid[y][x] in newkeys and newkeys[grid[y][x]] == 1:
+                    grid[y][x] = '.'
+        # Reset grid, rerun from newpos
+        calcRoutes(newpos, newkeys, newdoor, newrou)
 
-def expand(g):
+    print("Total route: " + option[0])
+
+def expand(g, o, c):
     # No bound checking as surrounding wall
     expanded = []
     for y in g:
@@ -87,18 +104,34 @@ def expand(g):
                 # Expand
                 if g[y-1][x] == '.':
                     expanded.append([y-1, x])
+                elif g[y-1][x].islower():
+                    o[g[y-1][x]] = [c, y-1, x]
+                    g[y-1][x] = '!'
+
                 if g[y+1][x] == '.':
                     expanded.append([y+1, x])
+                elif g[y+1][x].islower():
+                    o[g[y+1][x]] = [c, y+1, x]
+                    g[y+1][x] = '!'
+
                 if g[y][x-1] == '.':
                     expanded.append([y, x-1])
+                elif g[y][x-1].islower():
+                    o[g[y][x-1]] = [c, y, x-1]
+                    g[y][x-1] = '!'
+
                 if g[y][x+1] == '.':
                     expanded.append([y, x+1])
+                elif g[y][x+1].islower():
+                    o[g[y][x+1]] = [c, y, x+1]
+                    g[y][x+1] = '!'
+
     if len(expanded) > 0:
-        for c in expanded:
-            g[c[0]][c[1]] = ','
-        return [g, False]
+        for p in expanded:
+            g[p[0]][p[1]] = ','
+        return [g, o, False]
     else:
-        return [g, True]
+        return [g, o, True]
 
 def printGrid(g):
     for y in g:
