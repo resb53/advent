@@ -65,7 +65,7 @@ def main():
                 if cache[0]['end'] - start >= 99:
                     print('Old: ' + str(cache[0]))
                     print('New: ' + str(new))
-                    print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
+                    print('Answer: ' + str((cache[0]['end'] - 99) * 10000 + cache[0]['y']))
                     sys.exit(0)
                 else:
                     cache.append(new)
