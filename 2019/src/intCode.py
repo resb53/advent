@@ -115,7 +115,7 @@ class Program:
         return self.pnt+2
 
     def __op04(self, param): # Output parameter
-        self.iom['output'](self, param[0])
+        self.iom['output'](param[0])
         return self.pnt+2
 
     def __op05(self, param): # Jump to 2nd parameter if first is non-zero else do nothing
