@@ -38,33 +38,37 @@ def main():
     cache = deque(initial, maxlen=99)
     for y in range(4,1100): # Start at row 2 to avoid blank lines
         beam = 0
-        x = -1
+        x = cache[-1]['start']-2 #Start at where the last rows first # was seen
         start = 0
         end = 0
-        print('y:' + str(y), end='')
+        print('y:' + str(y))
         while beam != 2:
             x += 1
+            print(str(x) + ':', end='')
             io['inp'] = [x, y]
             prog = intCode.Program(args.code)
             prog.run(i=instr_in, o=instr_out)
             test = io['out'].pop(0)
+            print(str(test) + '; ', end='')
             if beam == 0 and test == 1:
                 beam += 1
                 start = x
-                print('; start:' + str(x), end='')
+                # Skip forwards towards last # could be 1 less than last width
+                if y > 20:
+                    x += (cache[-1]['end'] - cache[-1]['start'] - 2)
             elif beam == 1 and test == 0:
                 beam += 1
                 end = x-1
-                print('; end:' + str(x-1))
-            new = {'y': y, 'start': start, 'end': end}
-            # Cache 100 rows ago, and see if old end - new start = 99
-            if cache[0]['end'] - start >= 99:
-                print('Old: ' + str(cache[0]))
-                print('New: ' + str(new))
-                print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
-                sys.exit(0)
-            else:
-                cache.append(new)
+                new = {'y': y, 'start': start, 'end': end}
+                print('\n' + str(new))
+                # Cache 100 rows ago, and see if old end - new start = 99
+                if cache[0]['end'] - start >= 99:
+                    print('Old: ' + str(cache[0]))
+                    print('New: ' + str(new))
+                    print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
+                    sys.exit(0)
+                else:
+                    cache.append(new)
 
 
 #y:3; start:2; end:2
