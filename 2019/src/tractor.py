@@ -32,22 +32,22 @@ def main():
 
     # part 2
     # Look for leading, following edge pattern
-#    for y in range(3,61): # Start at row 2 to avoid blank lines
-#        beam = 0
-#        x = -1
-#        print('y:' + str(y), end='')
-#        while beam != 2:
-#            x += 1
-#            io['inp'] = [x, y]
-#            prog = intCode.Program(args.code)
-#            prog.run(i=instr_in, o=instr_out)
-#            test = io['out'].pop(0)
-#            if beam == 0 and test == 1:
-#                beam += 1
-#                print('; start:' + str(x), end='')
-#            elif beam == 1 and test == 0:
-#                beam += 1
-#                print('; end:' + str(x-1))
+    for y in range(600,601): # Start at row 2 to avoid blank lines
+        beam = 0
+        x = -1
+        print('y:' + str(y), end='')
+        while beam != 2:
+            x += 1
+            io['inp'] = [x, y]
+            prog = intCode.Program(args.code)
+            prog.run(i=instr_in, o=instr_out)
+            test = io['out'].pop(0)
+            if beam == 0 and test == 1:
+                beam += 1
+                print('; start:' + str(x), end='')
+            elif beam == 1 and test == 0:
+                beam += 1
+                print('; end:' + str(x-1))
 
 #y:3; start:2; end:2
 #y:4; start:3; end:3
@@ -85,6 +85,10 @@ def main():
             start += 1
         if n % 6 != 5:
             end += 1
+
+        # Debug
+        if y == 600:
+            print('y:' + str(y) + '; start:' + str(start) + '; end:' + str(end))
 
         new = {'y': y, 'start': start, 'end': end}
         # Cache 100 rows ago, and see if old end - new start = 99
