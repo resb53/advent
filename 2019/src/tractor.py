@@ -31,10 +31,14 @@ def main():
     #print(count)
 
     # part 2
+    debug = {} # {y: [[start, end], [genstart, genend]]
+
     # Look for leading, following edge pattern
-    for y in range(600,601): # Start at row 2 to avoid blank lines
+    for y in range(10,61): # Start at row 2 to avoid blank lines
         beam = 0
         x = -1
+        start = 0
+        end = 0
         print('y:' + str(y), end='')
         while beam != 2:
             x += 1
@@ -44,10 +48,13 @@ def main():
             test = io['out'].pop(0)
             if beam == 0 and test == 1:
                 beam += 1
+                start = x
                 print('; start:' + str(x), end='')
             elif beam == 1 and test == 0:
                 beam += 1
+                end = x-1
                 print('; end:' + str(x-1))
+            debug[y] = [[start, end]]
 
 #y:3; start:2; end:2
 #y:4; start:3; end:3
@@ -87,8 +94,9 @@ def main():
             end += 1
 
         # Debug
-        if y == 600:
-            print('y:' + str(y) + '; start:' + str(start) + '; end:' + str(end))
+        if y >= 10 and y < 61:
+            #print('y:' + str(y) + '; start:' + str(start) + '; end:' + str(end))
+            debug[y].append([start, end])
 
         new = {'y': y, 'start': start, 'end': end}
         # Cache 100 rows ago, and see if old end - new start = 99
@@ -99,6 +107,10 @@ def main():
             print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
         else:
             cache.append(new)
+
+    print("Debug:")
+    for y in debug:
+        print("y:" + str(y) + "; intcode:" + str(debug[y][0]) + "; pregen:" + str(debug[y][1]))
 
 def instr_out(p):
     global io
