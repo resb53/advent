@@ -33,8 +33,10 @@ def main():
     # part 2
     debug = {} # {y: [[start, end], [genstart, genend]]
 
-    # Look for leading, following edge pattern
-    for y in range(10,61): # Start at row 2 to avoid blank lines
+    # No pattern but have estimate range
+    initial = [{'y': 3, 'start': 2, 'end': 2}]
+    cache = deque(initial, maxlen=99)
+    for y in range(4,1100): # Start at row 2 to avoid blank lines
         beam = 0
         x = -1
         start = 0
@@ -54,7 +56,16 @@ def main():
                 beam += 1
                 end = x-1
                 print('; end:' + str(x-1))
-            debug[y] = [[start, end]]
+            new = {'y': y, 'start': start, 'end': end}
+            # Cache 100 rows ago, and see if old end - new start = 99
+            if cache[0]['end'] - start >= 99:
+                print('Old: ' + str(cache[0]))
+                print('New: ' + str(new))
+                print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
+                sys.exit(0)
+            else:
+                cache.append(new)
+
 
 #y:3; start:2; end:2
 #y:4; start:3; end:3
@@ -76,41 +87,41 @@ def main():
 #y:20; start:14; end:16
 
     # Part 2 calculation
-    done = 0
-    y=8 # Start at 8, easier patterns
-    start=6
-    end=6
-    n=0
-    initial = [{'y': y, 'start': 6, 'end': 6}]
-    cache = deque(initial, maxlen=99)
+    #done = 0
+    #y=8 # Start at 8, easier patterns
+    #start=6
+    #end=6
+    #n=0
+    #initial = [{'y': y, 'start': 6, 'end': 6}]
+    #cache = deque(initial, maxlen=99)
 
-    while done == 0:
-        y += 1
-        n += 1
+    #while done == 0:
+    #    y += 1
+    #    n += 1
 
-        if n % 3 != 1:
-            start += 1
-        if n % 6 != 5:
-            end += 1
+    #    if n % 3 != 1:
+    #        start += 1
+    #    if n % 6 != 5:
+    #        end += 1
 
-        # Debug
-        if y >= 10 and y < 61:
-            #print('y:' + str(y) + '; start:' + str(start) + '; end:' + str(end))
-            debug[y].append([start, end])
+    #    # Debug
+    #    if y >= 10 and y < 61:
+    #        #print('y:' + str(y) + '; start:' + str(start) + '; end:' + str(end))
+    #        debug[y].append([start, end])
 
-        new = {'y': y, 'start': start, 'end': end}
-        # Cache 100 rows ago, and see if old end - new start = 99
-        if cache[0]['end'] - start >= 99:
-            done = 1
-            print('Old: ' + str(cache[0]))
-            print('New: ' + str(new))
-            print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
-        else:
-            cache.append(new)
+    #    new = {'y': y, 'start': start, 'end': end}
+    #    # Cache 100 rows ago, and see if old end - new start = 99
+    #    if cache[0]['end'] - start >= 99:
+    #        done = 1
+    #        print('Old: ' + str(cache[0]))
+    #        print('New: ' + str(new))
+    #        print('Answer: ' + str(cache[0]['start'] * 10000 + cache[0]['y']))
+    #    else:
+    #        cache.append(new)
 
-    print("Debug:")
-    for y in debug:
-        print("y:" + str(y) + "; intcode:" + str(debug[y][0]) + "; pregen:" + str(debug[y][1]))
+    #print("Debug:")
+    #for y in debug:
+    #    print("y:" + str(y) + "; intcode:" + str(debug[y][0]) + "; pregen:" + str(debug[y][1]))
 
 def instr_out(p):
     global io
