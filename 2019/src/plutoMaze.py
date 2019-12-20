@@ -13,17 +13,18 @@ grid = {} # map[y][x] symbols
 floor = []
 portals = {} # x,y to x,y
 pos = [0,0] # x, y
+minx, miny, maxx, maxy = 0, 0, 0, 0
+depth = 0
 
 def main():
     global grid, portals, pos
     parseInput(args.map)
-    printGrid(grid)
     # Part 2: Shortest route AA to ZZ across floors
     getPortals()
     # Prep floors
-
+    prepFloors()
     # Calculate path
-    print(calcRoutes())
+    #print(calcRoutes())
 
 def parseInput(inp):
     global grid, pos
@@ -53,10 +54,25 @@ def printGrid(g):
                 print(g[y][x], end='')
         print('')
 
+def prepFloors():
+    global floor, grid
+    # Ground (0) and -1 (1) floor
+    floor.append(deepcopy(grid))
+    floor.append(deepcopy(grid))
+    # Block upstairs and remove exits downstairs
+    for y in grid:
+        for x in grid[y]:
+            if len(grid[y][x]) > 1:
+                if x < minx or x > maxx or y < miny or y > maxy:
+                    floor[0][y][x] = '#'
+            elif grid[y][x] == '$' or grid[y][x] == '£':
+                floor[1][y][x] = '#'
+    # Update grid for future floors
+    grid = deepcopy(floor[1])
+
 def getPortals():
-    global grid, portals, pos
+    global grid, portals, pos, minx, miny, maxx, maxy
     # Get corner coords
-    minx, miny, maxx, maxy = 0, 0, 0, 0
     for y in grid:
         for x in grid[y]:
             if grid[y][x] == '#':
@@ -90,9 +106,9 @@ def getPortals():
                                 portals[p] = []
                             # Choose +1 or -1 based on bounds of map
                             if v[1] < minx or v[1] > maxx or v[0] < miny or v[0] > maxy:
-                                portals[p].append([v[1], v[0], 1])
-                            else:
                                 portals[p].append([v[1], v[0], -1])
+                            else:
+                                portals[p].append([v[1], v[0], 1])
                             grid[v[0]][v[1]] = p
                             grid[v[2]][v[3]] = ' '
 
@@ -106,8 +122,8 @@ def calcRoutes():
         count += 1
         grid, done = expand(grid)
 
-        if count % 20 == 0:
-            printGrid(grid)
+        #if count % 20 == 0:
+        #    printGrid(grid)
 
     return(count)
 
