@@ -14,7 +14,6 @@ floor = []
 portals = {} # x,y to x,y
 pos = [0,0] # x, y
 minx, miny, maxx, maxy = 0, 0, 0, 0
-depth = 0
 
 def main():
     global grid, portals, pos
@@ -24,7 +23,7 @@ def main():
     # Prep floors
     prepFloors()
     # Calculate path
-    #print(calcRoutes())
+    print(calcRoutes())
 
 def parseInput(inp):
     global grid, pos
@@ -106,63 +105,74 @@ def getPortals():
                                 portals[p] = []
                             # Choose +1 or -1 based on bounds of map
                             if v[1] < minx or v[1] > maxx or v[0] < miny or v[0] > maxy:
-                                portals[p].append([v[1], v[0], -1])
-                            else:
                                 portals[p].append([v[1], v[0], 1])
+                            else:
+                                portals[p].append([v[1], v[0], -1])
                             grid[v[0]][v[1]] = p
                             grid[v[2]][v[3]] = ' '
 
 def calcRoutes():
-    global grid
+    global floor
     count = 0
-    grid[pos[1]][pos[0]] = '█'
+    floor[0][pos[1]][pos[0]] = '█'
     done = False
 
     while done == False:
+    #while count < 30:
         count += 1
-        grid, done = expand(grid)
+        floor, done = expand(floor)
 
-        #if count % 20 == 0:
-        #    printGrid(grid)
+        if count % 50 == 0:
+            print("Step:" + str(count) + " Depth:" + str(len(floor)))
+        #for g in floor:
+        #    printGrid(g)
 
     return(count)
 
-def expand(g):
-    # No bound checking as surrounding wall
+def expand(f):
+    depth = 0
     expanded = []
     done = False
-    for y in g:
-        for x in g[y]:
-            check = [[y-1, x], [y+1, x], [y, x+1], [y, x-1]]
-            if g[y][x] == '█':
-                # Expand
-                for v in check:
-                    if g[v[0]][v[1]] == '.':
-                        expanded.append([v[0], v[1], '.'])
-                    elif len(g[v[0]][v[1]]) > 1:
-                        p = g[v[0]][v[1]]
-                        if [portals[p][0][0], portals[p][0][1]] == [v[1], v[0]]:
-                            expanded.append([portals[p][1][1], portals[p][1][0], 'p'])
-                        else:
-                            expanded.append([portals[p][0][1], portals[p][0][0], 'p'])
-                    elif g[v[0]][v[1]] == '£':
-                        done = True
+    for g in f:
+        for y in g:
+            for x in g[y]:
+                check = [[y-1, x], [y+1, x], [y, x+1], [y, x-1]]
+                if g[y][x] == '█':
+                    # Expand
+                    for v in check:
+                        if g[v[0]][v[1]] == '.':
+                            expanded.append([v[0], v[1], '.', depth])
+                        elif len(g[v[0]][v[1]]) > 1:
+                            p = g[v[0]][v[1]]
+                            if [portals[p][0][0], portals[p][0][1]] == [v[1], v[0]]:
+                                expanded.append([portals[p][1][1], portals[p][1][0], 'p', depth + portals[p][1][2]])
+                                g[portals[p][0][1]][portals[p][0][0]] = '█'
+                            else:
+                                expanded.append([portals[p][0][1], portals[p][0][0], 'p', depth + portals[p][0][2]])
+                                g[portals[p][1][1]][portals[p][1][0]] = '█'
+                        elif g[v[0]][v[1]] == '£':
+                            done = True
+        depth += 1
 
     if len(expanded) > 0:
         for p in expanded:
             if p[2] == '.':
-                g[p[0]][p[1]] = '█'
+                f[p[3]][p[0]][p[1]] = '█'
             else:
-                expandTile(p[1], p[0])
-        return [g, done]
+                expandTile(p[1], p[0], p[3])
+        return [f, done]
     else:
-        return [g, True]
+        return [f, True]
 
-def expandTile(x, y):
-    global grid
+def expandTile(x, y, d):
+    global floor
+    if d >= len(floor):
+        floor.append(deepcopy(grid))
+    g = floor[d]
     for v in [[y-1, x], [y+1, x], [y, x+1], [y, x-1]]:
-        if grid[v[0]][v[1]] == '.':
-            grid[v[0]][v[1]] = '█'
+        if g[v[0]][v[1]] == '.':
+            g[v[0]][v[1]] = '█'
+    g[y][x] = '█'
 
 if __name__ == "__main__":
     main()
