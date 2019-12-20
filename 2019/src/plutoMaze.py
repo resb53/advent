@@ -121,12 +121,15 @@ def getPortals():
 def calcRoutes():
     global grid
     count = 0
-    grid[pos[1]][pos[0]] = ','
+    grid[pos[1]][pos[0]] = '█'
     done = False
 
     while done == False:
         count += 1
         grid, done = expand(grid)
+
+        #if count % 20 == 0:
+        #    printGrid(grid)
 
     return(count)
 
@@ -136,7 +139,7 @@ def expand(g):
     done = False
     for y in g:
         for x in g[y]:
-            if g[y][x] == ',':
+            if g[y][x] == '█':
                 # Expand
                 if g[y-1][x] == '.':
                     expanded.append([y-1, x, '.'])
@@ -183,10 +186,11 @@ def expand(g):
                 elif g[y][x+1] == '£':
                     done = True
 
+    print(expanded)
     if len(expanded) > 0:
         for p in expanded:
             if p[2] == '.':
-                g[p[0]][p[1]] = ','
+                g[p[0]][p[1]] = '█'
             else:
                 expandTile(p[1], p[0])
         return [g, done]
@@ -197,7 +201,7 @@ def expandTile(x, y):
     global grid
     for v in [[y-1, x], [y+1, x], [y, x+1], [y, x-1]]:
         if grid[v[0]][v[1]] == '.':
-            grid[v[0]][v[1]] = ','
+            grid[v[0]][v[1]] = '█'
 
 if __name__ == "__main__":
     main()
