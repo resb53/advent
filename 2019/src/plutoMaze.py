@@ -14,13 +14,13 @@ portals = {} # x,y to x,y
 pos = [0,0] # x, y
 
 def main():
-    global grid, portals
+    global grid, portals, pos
     parseInput(args.map)
     # Part 1: Shortest route AA to ZZ
     getPortals()
-    printGrid(grid)
     print(portals)
-    #calcRoutes()
+    # Set start
+    calcRoutes()
 
 def parseInput(inp):
     global grid, pos
@@ -51,7 +51,7 @@ def printGrid(g):
         print('')
 
 def getPortals():
-    global grid, portals
+    global grid, portals, pos
     for y in grid:
         for x in grid[y]:
             ch = grid[y][x]
@@ -62,79 +62,77 @@ def getPortals():
                     fc = grid[y-2][x]
                     sc = grid[y-1][x]
                     p = fc + sc
-                    if p not in portals:
-                        portals[p] = []
-                    portals[p].append([x, y])
-                    grid[y][x] = p
+                    if p == 'AA':
+                        pos = [x, y]
+                        grid[y][x] = '$'
+                    elif p == 'ZZ':
+                        grid[y][x] = '£'
+                    else:
+                        if p not in portals:
+                            portals[p] = []
+                        portals[p].append([x, y-1])
+                        grid[y-1][x] = p
+                        grid[y-2][x] = ' '
                 if grid[y+1][x].isupper() and len(grid[y+1][x]) == 1:
                     fc = grid[y+1][x]
                     sc = grid[y+2][x]
                     p = fc + sc
-                    if p not in portals:
-                        portals[p] = []
-                    portals[p].append([x, y])
-                    grid[y][x] = p
+                    if p == 'AA':
+                        pos = [x, y]
+                        grid[y][x] = '$'
+                    elif p == 'ZZ':
+                        grid[y][x] = '£'
+                    else:
+                        if p not in portals:
+                            portals[p] = []
+                        portals[p].append([x, y+1])
+                        grid[y+1][x] = p
+                        grid[y+2][x] = ' '
                 if grid[y][x+1].isupper() and len(grid[y][x+1]) == 1:
                     fc = grid[y][x+1]
                     sc = grid[y][x+2]
                     p = fc + sc
-                    if p not in portals:
-                        portals[p] = []
-                    portals[p].append([x, y])
-                    grid[y][x] = p
+                    if p == 'AA':
+                        pos = [x, y]
+                        grid[y][x] = '$'
+                    elif p == 'ZZ':
+                        grid[y][x] = '£'
+                    else:
+                        if p not in portals:
+                            portals[p] = []
+                        portals[p].append([x+1, y])
+                        grid[y][x+1] = p
+                        grid[y][x+2] = ' '
                 if grid[y][x-1].isupper() and len(grid[y][x-1]) == 1:
                     fc = grid[y][x-2]
                     sc = grid[y][x-1]
                     p = fc + sc
-                    if p not in portals:
-                        portals[p] = []
-                    portals[p].append([x, y])
-                    grid[y][x] = p
+                    if p == 'AA':
+                        pos = [x, y]
+                        grid[y][x] = '$'
+                    elif p == 'ZZ':
+                        grid[y][x] = '£'
+                    else:
+                        if p not in portals:
+                            portals[p] = []
+                        portals[p].append([x-1, y])
+                        grid[y][x-1] = p
+                        grid[y][x-2] = ' '
 
-def calcRoutes(pos, key, doo, rou):
-    global grid, bestroute
-    option = {} # Key option to go for, value distance
-    count = rou[0]
+def calcRoutes():
+    global grid
+    count = 0
     grid[pos[1]][pos[0]] = ','
     done = False
 
-    while done == False:
+    #while done == False:
+    while count <= 5:
         count += 1
-        if count >= bestroute[0]:
-            done = 1
-        else:
-            [grid, option, done] = expand(grid, option, count)
+        print(count)
+        grid, done = expand(grid)
+        printGrid(grid)
 
-    for k in option:
-        # Only continue if this route isn't already longer
-        if option[k][0] < bestroute[0]:
-            # New copy for this route
-            grid = deepcopy(freshg)
-            newpos = [option[k][2], option[k][1]]
-            newkeys = deepcopy(key)
-            newdoor = deepcopy(doo)
-            # Update for this route
-            newrou = deepcopy(rou)
-            newrou[0] = option[k][0]
-            newrou.append(k)
-            print(newrou)
-            newkeys[k] = 1
-            newdoor[k.upper()] = 1
-            for y in grid:
-                for x in grid[y]:
-                    if grid[y][x] in newdoor and newdoor[grid[y][x]] == 1:
-                        grid[y][x] = '.'
-                    elif grid[y][x] in newkeys and newkeys[grid[y][x]] == 1:
-                        grid[y][x] = '.'
-            # Reset grid, rerun from newpos
-            calcRoutes(newpos, newkeys, newdoor, newrou)
-
-    if len(rou) == len(key) + 1:
-        print("Total route: " + str(rou[0]))
-        if rou[0] < bestroute[0]:
-            bestroute = deepcopy(rou)
-
-def expand(g, o, c):
+def expand(g):
     # No bound checking as surrounding wall
     expanded = []
     for y in g:
@@ -143,34 +141,54 @@ def expand(g, o, c):
                 # Expand
                 if g[y-1][x] == '.':
                     expanded.append([y-1, x])
-                elif g[y-1][x].islower():
-                    o[g[y-1][x]] = [c, y-1, x]
-                    g[y-1][x] = '!'
+                elif len(g[y-1][x]) > 1:
+                    p = g[y-1][x]
+                    if portals[p][0] == [x, y-1]:
+                        print('At ' + str(portals[p][0]) + ' expand ' + str(portals[p][1]))
+                        expanded.append([portals[p][1][1], portals[p][1][0]])
+                    else:
+                        print('At ' + str(portals[p][1]) + ' expand ' + str(portals[p][0]))
+                        expanded.append([portals[p][0][1], portals[p][0][0]])
 
                 if g[y+1][x] == '.':
                     expanded.append([y+1, x])
-                elif g[y+1][x].islower():
-                    o[g[y+1][x]] = [c, y+1, x]
-                    g[y+1][x] = '!'
+                elif len(g[y+1][x]) > 1:
+                    p = g[y+1][x]
+                    if portals[p][0] == [x, y+1]:
+                        print('At ' + str(portals[p][0]) + ' expand ' + str(portals[p][1]))
+                        expanded.append([portals[p][1][1], portals[p][1][0]])
+                    else:
+                        print('At ' + str(portals[p][1]) + ' expand ' + str(portals[p][0]))
+                        expanded.append([portals[p][0][1], portals[p][0][0]])
 
                 if g[y][x-1] == '.':
                     expanded.append([y, x-1])
-                elif g[y][x-1].islower():
-                    o[g[y][x-1]] = [c, y, x-1]
-                    g[y][x-1] = '!'
+                elif len(g[y][x-1]) > 1:
+                    p = g[y][x-1]
+                    if portals[p][0] == [x-1, y]:
+                        print('At ' + str(portals[p][0]) + ' expand ' + str(portals[p][1]))
+                        expanded.append([portals[p][1][1], portals[p][1][0]])
+                    else:
+                        print('At ' + str(portals[p][1]) + ' expand ' + str(portals[p][0]))
+                        expanded.append([portals[p][0][1], portals[p][0][0]])
 
                 if g[y][x+1] == '.':
                     expanded.append([y, x+1])
-                elif g[y][x+1].islower():
-                    o[g[y][x+1]] = [c, y, x+1]
-                    g[y][x+1] = '!'
+                elif len(g[y][x+1]) > 1:
+                    p = g[y][x+1]
+                    if portals[p][0] == [x+1, y]:
+                        print('At ' + str(portals[p][0]) + ' expand ' + str(portals[p][1]))
+                        expanded.append([portals[p][1][1]], [portals[p][1][0]])
+                    else:
+                        print('At ' + str(portals[p][1]) + ' expand ' + str(portals[p][0]))
+                        expanded.append([portals[p][0][1]], [portals[p][0][0]])
 
     if len(expanded) > 0:
         for p in expanded:
             g[p[0]][p[1]] = ','
-        return [g, o, False]
+        return [g, False]
     else:
-        return [g, o, True]
+        return [g, True]
 
 if __name__ == "__main__":
     main()
