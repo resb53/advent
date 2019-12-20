@@ -10,15 +10,16 @@ parser.add_argument('map', metavar='map', type=str, help='Map input.')
 args = parser.parse_args()
 
 grid = {} # map[y][x] symbols
-portals = {}
+portals = {} # x,y to x,y
 pos = [0,0] # x, y
 
 def main():
     global grid, portals
     parseInput(args.map)
-    printGrid(grid)
     # Part 1: Shortest route AA to ZZ
-    #getPortals()
+    getPortals()
+    printGrid(grid)
+    print(portals)
     #calcRoutes()
 
 def parseInput(inp):
@@ -43,20 +44,53 @@ def parseInput(inp):
 def printGrid(g):
     for y in g:
         for x in g[y]:
-            print(g[y][x], end='')
+            if len(g[y][x]) > 1:
+                print('@', end='')
+            else:
+                print(g[y][x], end='')
         print('')
 
-def getItems():
-    global door, keys
+def getPortals():
+    global grid, portals
     for y in grid:
         for x in grid[y]:
             ch = grid[y][x]
-            if ch != '#' and ch != '.' and ch != '@':
-                if ch.isupper():
-                    door[ch] = 0
-                else:
-                    keys[ch] = 0
-                
+            if ch == '.':
+                # Check neighbours to find portal
+                portal = 0
+                if grid[y-1][x].isupper() and len(grid[y-1][x]) == 1:
+                    fc = grid[y-2][x]
+                    sc = grid[y-1][x]
+                    p = fc + sc
+                    if p not in portals:
+                        portals[p] = []
+                    portals[p].append([x, y])
+                    grid[y][x] = p
+                if grid[y+1][x].isupper() and len(grid[y+1][x]) == 1:
+                    fc = grid[y+1][x]
+                    sc = grid[y+2][x]
+                    p = fc + sc
+                    if p not in portals:
+                        portals[p] = []
+                    portals[p].append([x, y])
+                    grid[y][x] = p
+                if grid[y][x+1].isupper() and len(grid[y][x+1]) == 1:
+                    fc = grid[y][x+1]
+                    sc = grid[y][x+2]
+                    p = fc + sc
+                    if p not in portals:
+                        portals[p] = []
+                    portals[p].append([x, y])
+                    grid[y][x] = p
+                if grid[y][x-1].isupper() and len(grid[y][x-1]) == 1:
+                    fc = grid[y][x-2]
+                    sc = grid[y][x-1]
+                    p = fc + sc
+                    if p not in portals:
+                        portals[p] = []
+                    portals[p].append([x, y])
+                    grid[y][x] = p
+
 def calcRoutes(pos, key, doo, rou):
     global grid, bestroute
     option = {} # Key option to go for, value distance
