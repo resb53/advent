@@ -10,18 +10,14 @@ parser.add_argument('map', metavar='map', type=str, help='Map input.')
 args = parser.parse_args()
 
 grid = {} # map[y][x] symbols
-floor = []
 portals = {} # x,y to x,y
 pos = [0,0] # x, y
 
 def main():
     global grid, portals, pos
     parseInput(args.map)
-    printGrid(grid)
-    # Part 2: Shortest route AA to ZZ across floors
+    # Part 1: Shortest route AA to ZZ
     getPortals()
-    # Prep floors
-
     # Calculate path
     print(calcRoutes())
 
@@ -55,15 +51,6 @@ def printGrid(g):
 
 def getPortals():
     global grid, portals, pos
-    # Get corner coords
-    minx, miny, maxx, maxy = 0, 0, 0, 0
-    for y in grid:
-        for x in grid[y]:
-            if grid[y][x] == '#':
-                if minx == 0 and miny == 0:
-                    minx, miny = x, y
-                maxx, maxy = x, y
-
     for y in grid:
         for x in grid[y]:
             ch = grid[y][x]
@@ -88,11 +75,7 @@ def getPortals():
                         else:
                             if p not in portals:
                                 portals[p] = []
-                            # Choose +1 or -1 based on bounds of map
-                            if v[1] < minx or v[1] > maxx or v[0] < miny or v[0] > maxy:
-                                portals[p].append([v[1], v[0], 1])
-                            else:
-                                portals[p].append([v[1], v[0], -1])
+                            portals[p].append([v[1], v[0]])
                             grid[v[0]][v[1]] = p
                             grid[v[2]][v[3]] = ' '
 
@@ -106,8 +89,8 @@ def calcRoutes():
         count += 1
         grid, done = expand(grid)
 
-        if count % 20 == 0:
-            printGrid(grid)
+        #if count % 20 == 0:
+        #    printGrid(grid)
 
     return(count)
 
@@ -125,7 +108,7 @@ def expand(g):
                         expanded.append([v[0], v[1], '.'])
                     elif len(g[v[0]][v[1]]) > 1:
                         p = g[v[0]][v[1]]
-                        if [portals[p][0][0], portals[p][0][1]] == [v[1], v[0]]:
+                        if portals[p][0] == [v[1], v[0]]:
                             expanded.append([portals[p][1][1], portals[p][1][0], 'p'])
                         else:
                             expanded.append([portals[p][0][1], portals[p][0][0], 'p'])
