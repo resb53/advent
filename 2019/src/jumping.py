@@ -11,11 +11,19 @@ args = parser.parse_args()
 
 # Prepare io
 output = []
-instr = list('NOT A J\nNOT B T\nOR T J\nNOT C T\nOR T J\nAND D J\n')
-instr.extend(list('WALK\n'))
-
+# Part 1
 # Robot will jump 4 spaces forwards. Need to ensure this is not a hole. AND D J final command
 # If hole in 3, 2 or 1, and 4 is safe, jump now.
+#instr = list('NOT A J\nNOT B T\nOR T J\nNOT C T\nOR T J\nAND D J\n')
+#instr.extend(list('WALK\n'))
+
+# Part 2
+# Still only jumps 4 spaces forwards.
+# Make sure E is also ground
+# OR H can be for double jump
+instr = list('NOT A J\nNOT B T\nOR T J\nNOT C T\nOR T J\nAND D J\nNOT E T\nNOT T T\nOR H T\nAND T J\n')
+instr.extend(list('RUN\n'))
+
 def main():
     prog = intCode.Program(args.code)
     prog.run(i=instr_in, o=instr_out)
