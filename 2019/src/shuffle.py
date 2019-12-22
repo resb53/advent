@@ -65,8 +65,9 @@ def shufNew(val):
     # 0,1,2,3,4 -> 4,3,2,1,0 nextgap=1/-1
     # 0,3,1,4,2 -> 2,4,1,3,0 nextgap=2/3
     global first, nextgap
-    first = (first + nextgap) % args.n
+    first = (first - nextgap) % args.n
     nextgap = (nextgap * -1) % args.n
+    # >>> Each element increases by gap, mod args.n? So last is first - gap mod args.n? <<< nope, not always
 
 def shufCut(val):
     # Gapping stays the same, but first card changes
@@ -79,10 +80,16 @@ def shufCut(val):
     # 0,3,1,4,2 -> 4,2,0,3,1 cut 3, gap 2
     # cut -n = cut (-n % args.n)
     # first = first + LCM(val,nextgap) (keep looping around until we know a value, number of loops = number of increments?)
+    # Maybe not LCM... keep increasing by gap until we loop back (mod args.n) and reach the correct position.
     global first
     val %= args.n
-    print(str(lcm(nextgap, val)))
-    first = (first + lcm(nextgap, val)//nextgap) % args.n
+    n = 0
+    v = 0
+    while v != val:
+        v += nextgap
+        v %= args.n
+        n += 1
+    first = (first + n) % args.n
 
 def shufInc(val):
     # First card stays the same, gapping changes
