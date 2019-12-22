@@ -42,7 +42,7 @@ def getInstr(inp):
 
 def shufCut(val):
     global cards
-    cards.rotate(val)
+    cards.rotate(-val)
 
 def shufInc(val):
     global cards
