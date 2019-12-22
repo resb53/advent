@@ -16,10 +16,10 @@ instr = [] # Instructions
 def main():
     global instr, cards
     instr = getInstr(args.inp)
-    print(cards)
     for cmd in instr:
         print(cmd[0] + ' ' + str(cmd[1]))
         cmds[cmd[0]](cmd[1])
+        #print(cards.index(2019))
         print(cards)
     
 def getInstr(inp):
