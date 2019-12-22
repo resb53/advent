@@ -13,14 +13,19 @@ args = parser.parse_args()
 cards = deque(range(args.n), maxlen=args.n) # Card array
 instr = [] # Instructions
 
+# Part 1: Run simple instructions
+# Part 2: Many numbers. Look for patterns to shortcut / simplify / calculate card position after commands. Track one card?
+# Observations over 20 cards:
+# Reverse, card in position n moves to maxlen-n
+# Wait... Need number on card in position 2020, can't follow single card around.
 def main():
     global instr, cards
     instr = getInstr(args.inp)
     for cmd in instr:
         print(cmd[0] + ' ' + str(cmd[1]))
         cmds[cmd[0]](cmd[1])
-        print(cards.index(2019))
-        #print(cards)
+        print(cards)
+        print(cards.index(4))
     
 def getInstr(inp):
     try:
