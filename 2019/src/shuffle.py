@@ -65,9 +65,15 @@ def shufNew(val):
     # 0,1,2,3,4 -> 4,3,2,1,0 nextgap=1/-1
     # 0,3,1,4,2 -> 2,4,1,3,0 nextgap=2/3
     global first, nextgap
-    first = (first - nextgap) % args.n
+    val = args.n - 1
+    n = 0
+    v = 0
+    while v != val:
+        v += nextgap
+        v %= args.n
+        n += 1
+    first = (first + n) % args.n
     nextgap = (nextgap * -1) % args.n
-    # >>> Each element increases by gap, mod args.n? So last is first - gap mod args.n? <<< nope, not always
 
 def shufCut(val):
     # Gapping stays the same, but first card changes
