@@ -27,12 +27,12 @@ def parseInput(inp):
 
     for line in accounts_fh:
         line = line.strip("\n")
-        accounts.append(line)
+        accounts.append(int(line))
+
+    accounts = sorted(accounts)
 
 
 def findErrors():
-    global accounts
-    
     for entry in accounts:
         print(entry)
 
