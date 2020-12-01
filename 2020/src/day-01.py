@@ -18,8 +18,9 @@ def main():
     findErrors()
 
 
+# Parse the input file
 def parseInput(inp):
-    global accounts
+    global accounts, backward
     try:
         accounts_fh = open(inp, 'r')
     except IOError:
@@ -32,9 +33,25 @@ def parseInput(inp):
     accounts = sorted(accounts)
 
 
+# Calculate the rows with errors
 def findErrors():
-    for entry in accounts:
-        print(entry)
+    size = len(accounts)
+
+    for i in range(size):
+        #print(accounts[i])
+        add = 5000
+        check = size - 1
+
+        while add > 2020:
+            add = accounts[i] + accounts[check]
+            #print (str(accounts[i]) + ' + ' + str(accounts[check]) + ' = ' + str(add))
+            check = check - 1
+
+        #print(str(add) + ' = ' + str(accounts[i]) + ' + ' + str(accounts[check + 1]))
+        if add == 2020:
+            print('2020 = ' + str(accounts[i]) + ' + ' + str(accounts[check + 1]))
+            print('Answer is: ' + str(accounts[i] * accounts[check + 1]))
+            break
 
 
 if __name__ == "__main__":
