@@ -4,3 +4,4 @@ https://adventofcode.com/
 
 Challenges attempted:
 * 2019
+* 2020
