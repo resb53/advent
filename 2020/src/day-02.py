@@ -15,6 +15,7 @@ passwords = []
 def main():
     parseInput(args.input)
     findValid()
+    findActual()
 
 
 # Parse the input file
@@ -49,6 +50,26 @@ def findValid():
             valid = valid + 1
 
     print(valid)
+
+
+# Part 2 - find true passwords
+def findActual():
+    actual = 0
+
+    for pword in passwords:
+        # Conditions met
+        met = 0
+
+        if pword[3][pword[0]-1] == pword[2]:
+            met = met + 1
+
+        if pword[3][pword[1]-1] == pword[2]:
+            met = met + 1
+
+        if met == 1:
+            actual = actual + 1
+
+    print(actual)
 
 
 if __name__ == "__main__":
