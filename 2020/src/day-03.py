@@ -2,12 +2,12 @@
 
 import argparse
 import sys
-import cmath
 from functools import reduce
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Toboggan Path.")
-parser.add_argument('input', metavar='input', type=str, help='Password list input.')
+parser.add_argument('input', metavar='input', type=str,
+                    help='Password list input.')
 args = parser.parse_args()
 
 grid = {}
@@ -19,7 +19,7 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    print ("Part 1: " + str(findTrees(3 + 1j)))
+    print("Part 1: " + str(findTrees(3 + 1j)))
 
     # Part 2
     trees = []
@@ -29,9 +29,9 @@ def main():
 
     print("Part 2: " + str(reduce((lambda x, y: x * y), trees)))
 
-
     # Debug
-    #printGrid()
+    # printGrid()
+
 
 # Parse the input file
 def parseInput(inp):
@@ -46,11 +46,12 @@ def parseInput(inp):
 
     for line in grid_fh:
         line = line.strip("\n")
-        # parse line and add to dict, with complex key (real on x axis, imag on y)
+        # parse line and add to dict, with complex key
+        # (real on x axis, imag on y)
         xcur = 0
-        
+
         for element in line:
-            grid[ xcur + ycur * 1j ] = element
+            grid[xcur + ycur * 1j] = element
             xcur = xcur + 1
 
         ycur = ycur + 1
@@ -76,13 +77,13 @@ def findTrees(slope):
         pos = pos + slope
 
     return trees
-    
+
 
 # Print grid
 def printGrid():
     for y in range(ymax):
         for x in range(xmax):
-            print(grid[ x + y * 1j ], end='')
+            print(grid[x + y * 1j], end='')
         print('')
 
 
