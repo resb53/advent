@@ -3,6 +3,7 @@
 import argparse
 import sys
 import cmath
+from functools import reduce
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Toboggan Path.")
@@ -16,7 +17,20 @@ ymax = 0
 
 def main():
     parseInput(args.input)
-    findTrees()
+
+    # Part 1
+    print ("Part 1: " + str(findTrees(3 + 1j)))
+
+    # Part 2
+    trees = []
+
+    for route in (1 + 1j, 3 + 1j, 5 + 1j, 7 + 1j, 1 + 2j):
+        trees.append(findTrees(route))
+
+    print("Part 2: " + str(reduce((lambda x, y: x * y), trees)))
+
+
+    # Debug
     #printGrid()
 
 # Parse the input file
@@ -46,9 +60,8 @@ def parseInput(inp):
 
 
 # Find the trees on a given slope
-def findTrees():
+def findTrees(slope):
     pos = 0
-    slope = 3 + 1j
     trees = 0
 
     while pos.imag < ymax:
@@ -62,8 +75,7 @@ def findTrees():
 
         pos = pos + slope
 
-
-    print(trees)
+    return trees
     
 
 # Print grid
