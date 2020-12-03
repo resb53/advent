@@ -17,6 +17,7 @@ ymax = 0
 def main():
     parseInput(args.input)
     findTrees()
+    #printGrid()
 
 # Parse the input file
 def parseInput(inp):
@@ -27,17 +28,18 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     xcur = 0
-    ycur = -1
+    ycur = 0
 
     for line in grid_fh:
         line = line.strip("\n")
         # parse line and add to dict, with complex key (real on x axis, imag on y)
         xcur = 0
-        ycur = ycur + 1
         
         for element in line:
-            grid[xcur + ycur * 1j] = element
+            grid[ xcur + ycur * 1j ] = element
             xcur = xcur + 1
+
+        ycur = ycur + 1
 
     xmax = xcur
     ymax = ycur
@@ -46,11 +48,29 @@ def parseInput(inp):
 # Find the trees on a given slope
 def findTrees():
     pos = 0
-    print(str(xmax) + ',' + str(ymax))
+    slope = 3 + 1j
+    trees = 0
 
+    while pos.imag < ymax:
+        # Check for need to wrap
+        if pos.real >= xmax:
+            pos = pos - xmax
+
+        # Check for tree
+        if grid[pos] == '#':
+            trees = trees + 1
+
+        pos = pos + slope
+
+
+    print(trees)
+    
+
+# Print grid
+def printGrid():
     for y in range(ymax):
         for x in range(xmax):
-            print(grid[x + y * 1j], end='')
+            print(grid[ x + y * 1j ], end='')
         print('')
 
 
