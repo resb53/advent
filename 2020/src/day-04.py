@@ -3,6 +3,7 @@
 import argparse
 import sys
 from functools import reduce
+import re
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Passport.")
@@ -63,28 +64,86 @@ def parseInput(inp):
     batch.append(passport)
 
 
-# Count how many passports are valid according to mandatory fields
+# Count how many passports are Present and Valid according to mandatory fields
 def countValid(data):
+    present = 0
     valid = 0
 
     for pp in data:
         #print(pp)
         result = 1
+        accurate = 1
         test = fields.copy()
+        correct = fields.copy()
 
         for item in pp:
-            if item[0] in test:
+            if item[0] in fields:
                 test[item[0]] += 1
-            
+
+                # Check Validity of data
+                #byr
+                if item[0] == 'byr':
+                    item[1] = int(item[1])
+                    if 1920 <= item[1] and item[1] <= 2002:
+                        correct[item[0]] += 1
+
+                #iyr
+                elif item[0] == 'iyr':
+                    item[1] = int(item[1])
+                    if 2010 <= item[1] and item[1] <= 2020:
+                        correct[item[0]] += 1
+
+                #eyr
+                elif item[0] == 'eyr':
+                    item[1] = int(item[1])
+                    if 2020 <= item[1] and item[1] <= 2030:
+                        correct[item[0]] += 1
+
+                #hgt
+                elif item[0] == 'hgt':
+                    match = re.match(r"^(\d+)(in|cm)$", item[1], re.I)
+                    if match:
+                        hits = list(match.groups())
+                        hits[0] = int(hits[0])
+                        if hits[1] == 'cm':
+                            if 150 <= hits[0] and hits[0] <= 193:
+                                correct[item[0]] += 1
+                        else:
+                            if 59 <= hits[0] and hits[0] <= 76:
+                                correct[item[0]] += 1
+
+                #hcl
+                elif item[0] == 'hcl':
+                    match = re.match(r"^\#[0-9a-f]{6}$", item[1], re.I)
+                    if match:
+                        correct[item[0]] += 1
+
+                #ecl
+                elif item[0] == 'ecl':
+                    if item[1] in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']:
+                        correct[item[0]] += 1
+
+                #pid
+                elif item[0] == 'pid':
+                    match = re.match(r"^\d{9}$", item[1])
+                    if match:
+                        correct[item[0]] += 1
+
+        #print(test)
         for check in test:
             if test[check] == 0:
-                #print("No " + check)
                 result = 0
         
-        valid += result
+        #print(correct)
+        for check in correct:
+            if correct[check] == 0:
+                accurate = 0
+        
+        present += result
+        valid += accurate
         #print("Valid so far: " + str(valid))
 
-    return valid
+    return (present, valid)
 
     
 # Print batch
