@@ -58,6 +58,9 @@ def parseInput(inp):
         for item in records:
             kvpair = item.split(':')
             passport.append(kvpair)
+    
+    # Add last passport
+    batch.append(passport)
 
 
 # Count how many passports are valid according to mandatory fields
@@ -65,7 +68,7 @@ def countValid(data):
     valid = 0
 
     for pp in data:
-        print(pp)
+        #print(pp)
         result = 1
         test = fields.copy()
 
@@ -75,11 +78,11 @@ def countValid(data):
             
         for check in test:
             if test[check] == 0:
-                print("No " + check)
+                #print("No " + check)
                 result = 0
         
         valid += result
-        print("Valid so far: " + str(valid))
+        #print("Valid so far: " + str(valid))
 
     return valid
 
