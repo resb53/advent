@@ -4,9 +4,9 @@ import argparse
 import sys
 
 # Check correct usage
-parser = argparse.ArgumentParser(description="Check your Passport.")
+parser = argparse.ArgumentParser(description="Check your Seat.")
 parser.add_argument('input', metavar='input', type=str,
-                    help='Password list input.')
+                    help='Boarding Pass list input.')
 args = parser.parse_args()
 
 passes = []
