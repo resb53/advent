@@ -10,6 +10,7 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 passes = []
+seats = []
 rows = 128
 cols = 8
 
@@ -21,6 +22,7 @@ def main():
     findSeats()
 
     # Part 2
+    findMySeat()
 
     # Debug
     # printSeats()
@@ -40,6 +42,7 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def findSeats():
+    global seats
     maxseat = 0
 
     for item in passes:
@@ -64,10 +67,22 @@ def findSeats():
 
         # Calculate seat
         seat = minrow * 8 + mincol
+        seats.append(seat)
         if seat > maxseat:
             maxseat = seat
-    
+
     print(maxseat)
+
+
+def findMySeat():
+    global seats
+    seats.sort()
+    lastseat = seats.pop(0)
+
+    for seat in seats:
+        if seat == (lastseat + 2):
+            print(seat - 1)
+        lastseat = seat
 
 
 def printSeats():
