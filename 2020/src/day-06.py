@@ -4,45 +4,71 @@ import argparse
 import sys
 
 # Check correct usage
-parser = argparse.ArgumentParser(description="Check your Passport.")
+parser = argparse.ArgumentParser(description="Check your Customs Forms.")
 parser.add_argument('input', metavar='input', type=str,
-                    help='Password list input.')
+                    help='Customs group form input.')
 args = parser.parse_args()
 
-passes = []
+forms = []
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    findSeats()
+    print(findTicks())
 
     # Part 2
 
     # Debug
-    printSeats()
+    # printForms()
 
 
 # Parse the input file
 def parseInput(inp):
-    global passes
+    global forms
     try:
-        passes_fh = open(inp, 'r')
+        customs_fh = open(inp, 'r')
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
-    for line in passes_fh:
-        passes.append(line.strip("\n"))
+    group = []
+
+    for line in customs_fh:
+        line = line.strip("\n")
+
+        if line == '':
+            forms.append(group)
+            group = []
+
+        else:
+            group.append(line)
+
+    forms.append(group)
 
 
-# For each pass, identify its seat
-def findSeats():
-    return True
+# For each group, identify its ticked questions
+def findTicks():
+    sumall = 0
+
+    for group in forms:
+        ticks = {}
+
+        for response in group:
+            for tick in response:
+                if tick in ticks:
+                    ticks[tick] = ticks[tick] + 1
+                else:
+                    ticks[tick] = 1
+
+        sumall += len(ticks)
+
+    return sumall
 
 
-def printSeats():
-    for item in passes:
+
+def printForms():
+    for item in forms:
         print(item)
 
 
