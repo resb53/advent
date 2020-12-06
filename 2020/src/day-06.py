@@ -19,6 +19,7 @@ def main():
     print(findTicks())
 
     # Part 2
+    print(findAllTicked())
 
     # Debug
     # printForms()
@@ -65,6 +66,27 @@ def findTicks():
 
     return sumall
 
+
+# For each group identify questions the whole group ticked
+def findAllTicked():
+    sumall = 0
+
+    for group in forms:
+        ticks = {}
+        size = len(group)
+
+        for response in group:
+            for tick in response:
+                if tick in ticks:
+                    ticks[tick] = ticks[tick] + 1
+                else:
+                    ticks[tick] = 1
+
+        for question in ticks:
+            if ticks[question] == size:
+                sumall += 1
+
+    return sumall
 
 
 def printForms():
