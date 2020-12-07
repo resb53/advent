@@ -42,7 +42,7 @@ def main():
             redo = False
 
         else:
-            new = newnew.copy()
+            new = newnew
 
     print(f"Total in holdsgold: {len(holdsgold)}.")
 
