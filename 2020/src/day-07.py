@@ -47,6 +47,18 @@ def main():
     print(f"Total in holdsgold: {len(holdsgold)}.")
 
     # Part 2
+    contained = countBags("shiny gold")
+    count = len(contained)
+
+    while len(contained) > 0:
+        print(f"Contained: {contained}, count: {count}")
+        add = contained.pop(0)
+        print(f"Check: {add}...")
+        new = countBags(add)
+        count += len(new)
+        contained.extend(new)
+
+    print(f"Total bags to buy: {count}")
 
     # Debug
     # printRules()
@@ -98,6 +110,12 @@ def findBags(bagtype):
 def printRules():
     for item in rules:
         print(f"{item}: {rules[item]}")
+
+
+def countBags(bagtype):
+    contains = rules[bagtype]
+
+    return contains
 
 
 if __name__ == "__main__":
