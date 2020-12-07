@@ -12,10 +12,11 @@ args = parser.parse_args()
 
 rules = {}
 holdsgold = []
+countcont = 0
 
 
 def main():
-    global holdsgold
+    global holdsgold, countcont
     parseInput(args.input)
 
     # Part 1
@@ -47,36 +48,8 @@ def main():
     print(f"Total in holdsgold: {len(holdsgold)}.")
 
     # Part 2
-    count = 0
-
-    multi = 1
-    contained = countBags("shiny gold")
-
-    for bag in contained:
-        contained[bag] *= multi
-        count += contained[bag]
-
-        newcont = countBags(bag)
-
-        if len(newcont) > 0:
-            for newbag in newcont:
-                newcont[newbag] *= contained[bag]
-                count += newcont[newbag]
-
-                newnewcont = countBags(newbag)
-
-                if len(newnewcont) > 0:
-                    for newnewbag in newnewcont:
-                        newnewcont[newnewbag] *= newcont[newbag]
-                        count += newcont[newbag]
-
-                    print(newnewcont)          
-
-            print(newcont)
-
-    print(contained)
-
-    print(f"Total bags in gold bag: {count}")
+    countBags("shiny gold", 1)
+    print(f"Total bags in gold bag: {countcont}")
 
     # Debug
     # printRules()
@@ -131,10 +104,14 @@ def printRules():
         print(f"{item}: {rules[item]}")
 
 
-def countBags(bagtype):
-    contains = rules[bagtype]
+def countBags(bagtype, multi):
+    global countcont
+    contains = rules[bagtype].copy()
 
-    return contains
+    for val in contains:
+        contains[val] *= multi
+        countcont += contains[val]
+        countBags(val, contains[val])
 
 
 if __name__ == "__main__":
