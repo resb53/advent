@@ -11,18 +11,45 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 rules = {}
+holdsgold = []
 
 
 def main():
+    global holdsgold
     parseInput(args.input)
 
     # Part 1
-    findBags()
+    # Check for directly holding
+    holdsgold = findBags("shiny gold")
+
+    # Check for indirectly holding
+    new = holdsgold.copy()
+    redo = True
+
+    while redo:
+        newnew = []
+        print(f"Checking... {new}")
+
+        for item in new:
+            check = findBags(item)
+
+            for test in check:
+                if test not in holdsgold:
+                    newnew.append(test)
+                    holdsgold.append(test)
+
+        if len(newnew) == 0:
+            redo = False
+
+        else:
+            new = newnew.copy()
+
+    print(f"Total in holdsgold: {len(holdsgold)}.")
 
     # Part 2
 
     # Debug
-    printRules()
+    # printRules()
 
 
 # Parse the input file
@@ -57,9 +84,15 @@ def parseInput(inp):
             rules[container] = match
 
 
-# For each pass, identify its seat
-def findBags():
-    return True
+# For specified bag, how many can contain it?
+def findBags(bagtype):
+    holds = []
+
+    for item in rules:
+        if bagtype in rules[item]:
+            holds.append(item)
+
+    return(holds)
 
 
 def printRules():
