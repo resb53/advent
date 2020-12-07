@@ -28,7 +28,7 @@ def main():
 
     while redo:
         newnew = []
-        print(f"Checking... {new}")
+        # print(f"Checking... {new}")
 
         for item in new:
             check = findBags(item)
@@ -47,18 +47,36 @@ def main():
     print(f"Total in holdsgold: {len(holdsgold)}.")
 
     # Part 2
+    count = 0
+
+    multi = 1
     contained = countBags("shiny gold")
-    count = len(contained)
 
-    while len(contained) > 0:
-        print(f"Contained: {contained}, count: {count}")
-        add = contained.pop(0)
-        print(f"Check: {add}...")
-        new = countBags(add)
-        count += len(new)
-        contained.extend(new)
+    for bag in contained:
+        contained[bag] *= multi
+        count += contained[bag]
 
-    print(f"Total bags to buy: {count}")
+        newcont = countBags(bag)
+
+        if len(newcont) > 0:
+            for newbag in newcont:
+                newcont[newbag] *= contained[bag]
+                count += newcont[newbag]
+
+                newnewcont = countBags(newbag)
+
+                if len(newnewcont) > 0:
+                    for newnewbag in newnewcont:
+                        newnewcont[newnewbag] *= newcont[newbag]
+                        count += newcont[newbag]
+
+                    print(newnewcont)          
+
+            print(newcont)
+
+    print(contained)
+
+    print(f"Total bags in gold bag: {count}")
 
     # Debug
     # printRules()
@@ -83,17 +101,18 @@ def parseInput(inp):
             # print(f"Container: {container}, Content: {content}")
 
         # Parse the contents
-        if contents == "no other bags":
-            match = []
-        else:
-            match = re.findall(r"\d+ (\w+ \w+) bag", contents, re.I)
+        itin = {}
+        if contents != "no other bags":
+            match = re.findall(r"(\d+) (\w+ \w+) bag", contents, re.I)
             if not match:
                 print(f"Error: Can't parse contents: {contents}")
+            else:
+                # Include number of each
+                for hit in match:
+                    hit = list(hit)
+                    itin[hit[1]] = int(hit[0])
 
-        if container in rules:
-            print(f"Already seen '{container}'.")
-        else:
-            rules[container] = match
+        rules[container] = itin
 
 
 # For specified bag, how many can contain it?
