@@ -10,7 +10,7 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Bag rule list input.')
 args = parser.parse_args()
 
-rules = []
+rules = {}
 
 
 def main():
@@ -37,11 +37,24 @@ def parseInput(inp):
         line = line.strip("\n")
         match = re.match(r"^(\w+ \w+) bags contain (.+)\.$", line, re.I)
         if not match:
-            print(f"Error: Can't parse {line}")
+            print(f"Error: Can't parse line: {line}")
         else:
             container = match.group(1)
             contents = match.group(2)
-            # print(f"Container: {container}, Contents: {contents}")
+            # print(f"Container: {container}, Content: {content}")
+
+        # Parse the contents
+        if contents == "no other bags":
+            match = []
+        else:
+            match = re.findall(r"\d+ (\w+ \w+) bag", contents, re.I)
+            if not match:
+                print(f"Error: Can't parse contents: {contents}")
+
+        if container in rules:
+            print(f"Already seen '{container}'.")
+        else:
+            rules[container] = match
 
 
 # For each pass, identify its seat
@@ -51,7 +64,7 @@ def findBags():
 
 def printRules():
     for item in rules:
-        print(item)
+        print(f"{item}: {rules[item]}")
 
 
 if __name__ == "__main__":
