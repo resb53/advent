@@ -6,7 +6,7 @@ import sys
 class Handheld:
     'A class for running Handheld assembly'
 
-    def __init__(self, incode):
+    def __init__(self, incode=[]):
         self.code = incode
         self.acc = 0
         self.ptr = 0
