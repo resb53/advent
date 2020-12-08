@@ -9,7 +9,7 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Code input.')
 args = parser.parse_args()
 
-code = []
+incode = []
 acc = 0
 exo = []  # Execution Order
 
@@ -18,9 +18,10 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    executeCode()
+    executeCode(incode)
 
     # Part 2
+    findBug()
 
     # Debug
     # printCode()
@@ -28,7 +29,7 @@ def main():
 
 # Parse the input file
 def parseInput(inp):
-    global code
+    global incode
     try:
         code_fh = open(inp, 'r')
     except IOError:
@@ -36,16 +37,22 @@ def parseInput(inp):
 
     for line in code_fh:
         op, arg = line.strip("\n").split(" ")
-        code.append([op, int(arg)])
+        incode.append([op, int(arg)])
 
 
 # For each pass, identify its seat
-def executeCode():
-    global acc
+def executeCode(code):
+    global acc, exo
+    acc = 0
     step = 0
+    exo = []
 
     while step not in exo:
         exo.append(step)
+        # Exit gracefully
+        if step < 0 or step >= len(code):
+            return 0
+
         op = code[step][0]
         arg = code[step][1]
 
@@ -64,11 +71,36 @@ def executeCode():
             sys.exit(f"Unknown argument on line {step}: {arg}")
 
     print(acc)
+    return 1
+
+
+# Find bug
+def findBug():
+    # list all potention ops to change
+    for step in range(len(incode)):
+        test = False
+        testcode = incode.copy()
+
+        if testcode[step][0] == 'jmp':
+            testcode[step][0] == 'nop'
+            test = True
+        elif testcode[step][0] == 'nop':
+            testcode[step][0] == 'jmp'
+            test = True
+
+        if test:
+            print(f"Test line: {step}")
+
+            if executeCode(testcode) == 0:
+                print(acc)
+                return 0  # Bug found
+
+    return 1  # Bug not found
 
 
 def printCode():
     for item in code:
-        print(item)
+        print(f"End: {item}")
 
 
 if __name__ == "__main__":
