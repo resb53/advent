@@ -70,36 +70,40 @@ def executeCode(code):
         else:
             sys.exit(f"Unknown argument on line {step}: {arg}")
 
-    print(acc)
+    print(f"Infinite loop at instr: {step}, acc: {acc}", file=sys.stderr)
     return 1
 
 
 # Find bug
 def findBug():
+    testcode = incode.copy()
+
     # list all potention ops to change
     for step in range(len(incode)):
         test = False
-        testcode = incode.copy()
 
         if testcode[step][0] == 'jmp':
-            testcode[step][0] == 'nop'
+            reset = 'jmp'
+            testcode[step][0] = 'nop'
             test = True
         elif testcode[step][0] == 'nop':
-            testcode[step][0] == 'jmp'
+            reset = 'nop'
+            testcode[step][0] = 'jmp'
             test = True
 
         if test:
-            print(f"Test line: {step}")
-
             if executeCode(testcode) == 0:
-                print(acc)
+                print(f"Ended gracefully, acc: {acc}")
                 return 0  # Bug found
+
+            else:
+                testcode[step][0] = reset
 
     return 1  # Bug not found
 
 
 def printCode():
-    for item in code:
+    for item in incode:
         print(f"End: {item}")
 
 
