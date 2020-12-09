@@ -20,6 +20,9 @@ def main():
     print(findFirstError())
 
     # Part 2
+    targetset = (findContiguousSet(257342611))
+    print(sum(targetset))
+    print(targetset[0] + targetset[-1])
 
     # Debug
     # printSeats()
@@ -56,6 +59,19 @@ def findFirstError():
         if match is False:
             return data[i]
 
+
+def findContiguousSet(target):
+    # For range keep adding next number until larger than target, then inc
+    for i in range(len(data)):
+        cont = [data[i]]
+        n = i+1
+
+        while sum(cont) < target and n < len(data):
+            cont.append(data[n])
+            n += 1
+
+        if sum(cont) == target:
+            return cont
 
 
 def printSeats():
