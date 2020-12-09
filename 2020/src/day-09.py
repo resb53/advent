@@ -22,7 +22,7 @@ def main():
     # Part 2
     targetset = (findContiguousSet(257342611))
     print(sum(targetset))
-    print(targetset[0] + targetset[-1])
+    print(min(targetset) + max(targetset))
 
     # Debug
     # printSeats()
