@@ -17,7 +17,7 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    findFirstError()
+    print(findFirstError())
 
     # Part 2
 
