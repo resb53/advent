@@ -45,8 +45,8 @@ def findDiffs():
     adaptsort = sorted(adapters)
     diffs = {1: 0, 2: 0, 3: 0}
 
-    for i in range(len(adaptsort)-1):
-        diffs[adaptsort[i+1]-adaptsort[i]] += 1
+    for first, second in zip(adaptsort, adaptsort[1:]):
+        diffs[second-first] += 1
 
     return diffs
 
