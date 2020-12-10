@@ -10,10 +10,15 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 adapters = []
+outlet = 0
+device = 0
 
 
 def main():
+    global device
+
     parseInput(args.input)
+    device = max(adapters) + 3
 
     # Part 1
     diff = (findDiffs())
@@ -22,7 +27,7 @@ def main():
     # Part 2
 
     # Debug
-    # printAdapters()
+    printAdapters()
 
 
 # Parse the input file
@@ -36,13 +41,12 @@ def parseInput(inp):
     for line in adapters_fh:
         adapters.append(int(line.strip("\n")))
 
-    adapters.append(0)
-    adapters.append(max(adapters)+3)
-
 
 # For each pass, identify its seat
 def findDiffs():
-    adaptsort = sorted(adapters)
+    adaptsort = adapters.copy()
+    adaptsort.extend([outlet, device])
+    adaptsort.sort()
     diffs = {1: 0, 2: 0, 3: 0}
 
     for first, second in zip(adaptsort, adaptsort[1:]):
