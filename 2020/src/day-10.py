@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Adapters.")
@@ -21,7 +22,7 @@ def main():
     print(f"{diff}\nPart 1: {diff[1]*diff[3]}")
 
     # Part 2
-    arrangements()
+    print(arrangements())
 
     # Debug
     # printAdapters()
@@ -54,8 +55,15 @@ def findDiffs():
 
 # Find all possible arrangements
 def arrangements():
-    # Iterate across sorted list
-    return True
+    # Work out how many ways to connect next adapter
+    ways = defaultdict(int)
+    # Set 1 way for wall source
+    ways[0] = 1
+    for jolt in adapters[1:]:
+        ways[jolt] = ways[jolt-1] + ways[jolt-2] + ways[jolt-3]
+
+    return ways[adapters[-1]]
+
 
 def printAdapters():
     for item in adapters:
