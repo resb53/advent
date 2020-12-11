@@ -18,12 +18,15 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    print(fillSeats())
+    changed = 1
+    while changed > 0:
+        changed = fillSeats()
+    print(occupied())
 
     # Part 2
 
     # Debug
-    printSeats()
+    # printSeats()
 
 
 # Parse the input file
@@ -89,6 +92,17 @@ def checkAdjacent(seat):
     for s in adjacent:
         if s.real >= 0 and s.real < maxrow and s.imag >= 0 and s.imag < maxcol:
             if seats[s] != '.' and seats[s]:
+                count += 1
+
+    return count
+
+
+def occupied():
+    count = 0
+
+    for r in range(maxrow):
+        for c in range(maxcol):
+            if seats[r + c * 1j] != '.' and seats[r + c * 1j]:
                 count += 1
 
     return count
