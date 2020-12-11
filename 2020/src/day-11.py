@@ -17,12 +17,12 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    fillSeats()
+    print(fillSeats())
 
     # Part 2
 
     # Debug
-    printSeats()
+    # printSeats()
 
 
 # Parse the input file
@@ -49,7 +49,29 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def fillSeats():
-    return True
+    global seats
+    change = {}  # Dict for any seats that change state this iteration
+
+    for r in range(maxrow):
+        for c in range(maxcol):
+            adj = checkAdjacent(r + c * 1j)
+            print(adj, end="")
+        print("")
+
+
+def checkAdjacent(seat):
+    count = 0
+    adjacent = [seat - 1 - 1j, seat - 1, seat - 1 + 1j,
+                seat - 1j,                 seat + 1j,
+                seat + 1 - 1j, seat + 1, seat + 1 + 1j]
+
+    for s in adjacent:
+        if s.real >= 0 and s.real < maxrow and s.imag >= 0 and s.imag < maxcol:
+            if seats[s] == 'L':
+                count += 1
+
+    return count
+
 
 
 def printSeats():
