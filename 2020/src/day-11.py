@@ -2,8 +2,6 @@
 
 import argparse
 import sys
-import cmath
-import math
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check seat patterns.")
@@ -16,11 +14,10 @@ seats = {}
 maxrow = 0
 maxcol = 0
 
-# Trig values
-poles = [math.radians(0), math.radians(90), 
-         math.radians(180), math.radians(270)]
-midpoles = [math.radians(45), math.radians(135),
-            math.radians(225), math.radians(315)]
+# 8 cardinal vector
+vector = [-1 - 1j, -1, -1 + 1j,
+              -1j,          1j,
+           1 - 1j,  1,  1 + 1j]
 
 
 def main():
@@ -29,10 +26,15 @@ def main():
     # Part 1
     changed = 1
     while changed > 0:
-        changed = fillSeats()
+        changed = fillSeats("adj")
     print(occupied())
 
     # Part 2
+    parseInput(args.input)  # Neater reset would be nice, but short on time!
+    changed = 1
+    while changed > 0:
+        changed = fillSeats("seen")
+    print(occupied())
 
     # Debug
     # printSeats()
@@ -64,7 +66,7 @@ def parseInput(inp):
 
 
 # For each pass, identify its seat
-def fillSeats():
+def fillSeats(mode):
     global seats
     change = set()  # Dict for any seats that change state this iteration
 
@@ -74,16 +76,22 @@ def fillSeats():
             state = seats[seat]
 
             if state != '.':
-                adj = checkAdjacent(r + c * 1j)
-                # print(f"Seat: {r + c * 1j}, Status: {seat}, Adj: {adj}")
-
-                # If empty and nobody adjacent, fill
-                if not state and adj == 0:
-                    change.add(seat)
-
-                # If filled and 4 or more adjacent, empty
-                if state and adj >= 4:
-                    change.add(seat)
+                if mode == 'adj':
+                    adj = checkAdjacent(seat)
+                    # If empty and nobody adjacent, fill
+                    if not state and adj == 0:
+                        change.add(seat)
+                    # If filled and 4 or more adjacent, empty
+                    if state and adj >= 4:
+                        change.add(seat)
+                elif mode == 'seen':
+                    seen = checkVisible(seat)
+                    # If empty and nobody seen, fill
+                    if not state and seen == 0:
+                        change.add(seat)
+                    # If filled and 5 or more seen, empty
+                    if state and seen >= 5:
+                        change.add(seat)
 
     # For changing seats, update seats
     for seat in change:
@@ -94,11 +102,9 @@ def fillSeats():
 
 def checkAdjacent(seat):
     count = 0
-    adjacent = [seat - 1 - 1j, seat - 1, seat - 1 + 1j,
-                seat - 1j,                 seat + 1j,
-                seat + 1 - 1j, seat + 1, seat + 1 + 1j]
 
-    for s in adjacent:
+    for v in vector:
+        s = seat + v
         if s.real >= 0 and s.real < maxrow and s.imag >= 0 and s.imag < maxcol:
             if seats[s] != '.' and seats[s]:
                 count += 1
@@ -109,21 +115,24 @@ def checkAdjacent(seat):
 def checkVisible(seat):
     count = 0
 
-    for dir in poles:
-        # psuedo
-        # dist = 1
-        # as distance increases check:
-        #   int(round(cmath.rect(dist, dir).real))
-        #   int(round(cmath.rect(dist, dir).imag))
-        # dist += 1
+    for v in vector:
+        dist = 1
+        finish = False
 
-    for dir in midpoles:
-        # psuedo
-        # dist = 1
-        # as distance increases check:
-        #   int(round(cmath.rect(dist * math.sqrt(2), dir).real))
-        #   int(round(cmath.rect(dist * math.sqrt(2), dir).imag))
-        # dist += 1
+        while not finish:
+            s = seat + dist * v
+            if s.real >= 0 and s.real < maxrow and s.imag >= 0 and s.imag < maxcol:
+                if seats[s] != '.':
+                    finish = True
+                    # Check if seat is occupied
+                    if seats[s]:
+                        count += 1
+                else:
+                    dist += 1
+            else:
+                finish = True
+
+    return count
 
 
 def occupied():
