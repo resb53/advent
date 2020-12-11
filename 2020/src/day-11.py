@@ -2,6 +2,8 @@
 
 import argparse
 import sys
+import cmath
+import math
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check seat patterns.")
@@ -9,9 +11,16 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Seat position input.')
 args = parser.parse_args()
 
+# Grid values
 seats = {}
 maxrow = 0
 maxcol = 0
+
+# Trig values
+poles = [math.radians(0), math.radians(90), 
+         math.radians(180), math.radians(270)]
+midpoles = [math.radians(45), math.radians(135),
+            math.radians(225), math.radians(315)]
 
 
 def main():
@@ -95,6 +104,26 @@ def checkAdjacent(seat):
                 count += 1
 
     return count
+
+
+def checkVisible(seat):
+    count = 0
+
+    for dir in poles:
+        # psuedo
+        # dist = 1
+        # as distance increases check:
+        #   int(round(cmath.rect(dist, dir).real))
+        #   int(round(cmath.rect(dist, dir).imag))
+        # dist += 1
+
+    for dir in midpoles:
+        # psuedo
+        # dist = 1
+        # as distance increases check:
+        #   int(round(cmath.rect(dist * math.sqrt(2), dir).real))
+        #   int(round(cmath.rect(dist * math.sqrt(2), dir).imag))
+        # dist += 1
 
 
 def occupied():
