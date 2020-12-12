@@ -79,13 +79,14 @@ def moveShip(cmd, arg):
 
 # Move waypoint and move towards it
 def moveViaWaypoint():
-    global waypoint, face, pos
+    global waypoint, pos
 
     # Reset
     pos = complex()
-    face = 0
+    # print(f"Pos:{pos}, Way:{waypoint}")
 
     for cmd, arg in navigation:
+        # print(f"Cmd:{cmd}, Arg:{arg}")
         if cmd == 'N':
             waypoint = waypoint + arg * 1j
         elif cmd == 'S':
@@ -104,7 +105,7 @@ def moveViaWaypoint():
             arg = arg % 360
 
             if arg == 90:
-                waypoint = i + r * 1j
+                waypoint = -1 * i + r * 1j
             elif arg == 180:
                 waypoint *= -1
             elif arg == 270:
@@ -112,6 +113,8 @@ def moveViaWaypoint():
 
         elif cmd == 'F':
             pos = pos + arg * waypoint
+
+        # print(f"Pos:{pos}, Way:{waypoint}")
 
 
 def printNavigation():
