@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 navigation = []
 pos = complex()  # positive real = E, positive imag = N
-waypoint = 10 + 1j  # 10 E, 1 N
+waypoint = 10 + 1j  # 10 E, 1 N, relative to ship
 face = 0  # degrees = E
 faceDir = {0: 'E', 90: 'N', 180: 'W', 270: 'S'}
 
@@ -26,6 +26,8 @@ def main():
 
     # Part 2
     moveViaWaypoint()
+    print(pos)
+    print(abs(pos.real) + abs(pos.imag))
 
     # Debug
     # printNavigation()
@@ -48,10 +50,7 @@ def parseInput(inp):
 def findPosition():
     global face
     # Move based on command
-    for move in navigation:
-        cmd = move[0]
-        arg = move[1]
-
+    for cmd, arg in navigation:
         if cmd == 'L':
             face = (face + arg) % 360
         elif cmd == 'R':
@@ -80,10 +79,39 @@ def moveShip(cmd, arg):
 
 # Move waypoint and move towards it
 def moveViaWaypoint():
-    global waypoint, face
-    face = 0  # reset
+    global waypoint, face, pos
 
-    return True
+    # Reset
+    pos = complex()
+    face = 0
+
+    for cmd, arg in navigation:
+        if cmd == 'N':
+            waypoint = waypoint + arg * 1j
+        elif cmd == 'S':
+            waypoint = waypoint - arg * 1j
+        elif cmd == 'E':
+            waypoint = waypoint + arg
+        elif cmd == 'W':
+            waypoint = waypoint - arg
+        elif cmd == 'L' or cmd == 'R':
+            r = waypoint.real
+            i = waypoint.imag
+
+            if cmd == 'R':
+                arg = 360 - arg
+
+            arg = arg % 360
+
+            if arg == 90:
+                waypoint = i + r * 1j
+            elif arg == 180:
+                waypoint *= -1
+            elif arg == 270:
+                waypoint = i - r * 1j
+
+        elif cmd == 'F':
+            pos = pos + arg * waypoint
 
 
 def printNavigation():
