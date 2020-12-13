@@ -16,6 +16,8 @@ syncStart = 0
 
 
 def main():
+    global busses
+
     parseInput(args.input)
 
     # Part 1
@@ -29,11 +31,11 @@ def main():
     # Work through from first bus
     first = busses[0]
     for comp in range(1, len(busses)):
-        findSync(first, busses[comp])
+        first = findSync(first, busses[comp])
     print(syncStart)
 
     # Debug
-    printTimetable()
+    # printTimetable()
 
 
 # Parse the input file
@@ -72,16 +74,31 @@ def findNextBus():
 
 def findSync(a, b):
     global syncStart
+    #print(f"Sync: {a} - {b}")
     delta = b[1] - a[1]
+    #print(f"Delta: {delta}")
     match = False
+    firstObs = None
+    periodicity = None
 
+    # Find 2 matches, and infer periodicity for these busses
+    #print(f"Start: {syncStart}")
     while not match:
         # If in sync based on start
         if (syncStart + delta) % b[0] == 0:
-            match = True
+            if firstObs is None:
+                firstObs = syncStart
+                #print(f"First: {firstObs}")
+            else:
+                match = True
+                periodicity = syncStart - firstObs
+                #print(f"Second: {syncStart}")
+                #print(f"Period: {periodicity}")
         # Check next window
-        else:
-            syncStart += a[0]
+        syncStart += a[0]
+
+    syncStart = firstObs
+    return (periodicity, 0)
 
 
 def printTimetable():
