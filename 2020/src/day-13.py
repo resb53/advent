@@ -74,26 +74,26 @@ def findNextBus():
 
 def findSync(a, b):
     global syncStart
-    #print(f"Sync: {a} - {b}")
+    # print(f"Sync: {a} - {b}")
     delta = b[1] - a[1]
-    #print(f"Delta: {delta}")
+    # print(f"Delta: {delta}")
     match = False
     firstObs = None
     periodicity = None
 
     # Find 2 matches, and infer periodicity for these busses
-    #print(f"Start: {syncStart}")
+    # print(f"Start: {syncStart}")
     while not match:
         # If in sync based on start
         if (syncStart + delta) % b[0] == 0:
             if firstObs is None:
                 firstObs = syncStart
-                #print(f"First: {firstObs}")
+                # print(f"First: {firstObs}")
             else:
                 match = True
                 periodicity = syncStart - firstObs
-                #print(f"Second: {syncStart}")
-                #print(f"Period: {periodicity}")
+                # print(f"Second: {syncStart}")
+                # print(f"Period: {periodicity}")
         # Check next window
         syncStart += a[0]
 
