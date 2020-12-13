@@ -21,9 +21,11 @@ def main():
 
     # Part 2
     # Find t such that t * b1 = u * b2 + gap = v * b3 + gap2
+    # Essentially lowest common multiples, with an offset?
+    # 
 
     # Debug
-    # printTimetable()
+    printTimetable()
 
 
 # Parse the input file
@@ -38,9 +40,11 @@ def parseInput(inp):
 
     for line in busses_fh:
         line = line.strip("\n")
+        pos = 0
         for i in line.split(','):
             if i != 'x':
-                busses.append(int(i))
+                busses.append((int(i), pos))
+            pos += 1
 
 
 # For each pass, identify its seat
@@ -48,13 +52,13 @@ def findNextBus():
     arrivals = {}
     minwait = 1000000
 
-    for bus in busses:
+    for bus, pos in busses:
         nextArrival = math.ceil(board / bus) * bus
         wait = nextArrival - board
         arrivals[wait] = bus
         if wait < minwait:
             minwait = wait
-    
+
     print(minwait * arrivals[minwait])
 
 
