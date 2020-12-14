@@ -116,6 +116,7 @@ def getDCs(dcs):
 
     return options
 
+
 # For each pass, identify its seat
 def findInit():
     return sum(data.values())
