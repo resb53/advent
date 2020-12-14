@@ -10,7 +10,26 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Bitwise data input.')
 args = parser.parse_args()
 
-data = []
+data = {}
+
+
+class bit36:
+    'Class for 36 bit unsigned integers'
+    value = 0
+    bits = [0] * 36  # Most significant to least significant
+
+    def __init__(self, val):
+        if not isinstance(val, int):
+            raise TypeError("Must be passed integer value.")
+        if val < 0 or val > 68719476735:
+            raise ValueError('Value initiated is outside bounds of 36-bit int.')
+
+        self.value = val
+        for i, v in enumerate('{0:036b}'.format(val)):
+            self.bits[i] = v
+
+    def __repr__(self):
+        return str(self.value)
 
 
 def main():
@@ -40,7 +59,7 @@ def parseInput(inp):
             mask = line.split(" = ")[1]
             print(f"New mask: {mask}")
         else:
-            data.append((int(match.group(1)), int(match.group(2))))
+            data[bit36(int(match.group(1)))] = bit36(int(match.group(2)))
 
 
 # For each pass, identify its seat
@@ -49,8 +68,8 @@ def findInit():
 
 
 def printData():
-    for item in data:
-        print(item)
+    for mem in data:
+        print(f"{mem}: {data[mem]}")
 
 
 if __name__ == "__main__":
