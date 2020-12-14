@@ -15,21 +15,21 @@ data = {}
 
 class bit36:
     'Class for 36 bit unsigned integers'
-    value = 0
-    bits = [0] * 36  # Most significant to least significant
-
     def __init__(self, val):
         if not isinstance(val, int):
             raise TypeError("Must be passed integer value.")
         if val < 0 or val > 68719476735:
             raise ValueError('Value initiated is outside bounds of 36-bit int.')
 
-        self.value = val
+        self.bits = [0] * 36  # Most significant to least significant
         for i, v in enumerate('{0:036b}'.format(val)):
             self.bits[i] = v
 
+    def value(self):
+        return int(''.join(self.bits), 2)
+
     def __repr__(self):
-        return str(self.value)
+        return str(self.value())
 
 
 def main():
@@ -47,7 +47,7 @@ def main():
 # Parse the input file
 def parseInput(inp):
     global data
-    mask = ''
+    mask = ['X'] * 36
     try:
         data_fh = open(inp, 'r')
     except IOError:
@@ -56,8 +56,7 @@ def parseInput(inp):
     for line in data_fh:
         match = re.match(r"^mem\[(\d+)\] = (\d+)$", line, re.I)
         if not match:
-            mask = line.split(" = ")[1]
-            print(f"New mask: {mask}")
+            mask = list(line.strip("\n").split(" = ")[1])
         else:
             data[bit36(int(match.group(1)))] = bit36(int(match.group(2)))
 
