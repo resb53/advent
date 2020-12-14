@@ -2,47 +2,54 @@
 
 import argparse
 import sys
+import re
 
 # Check correct usage
-parser = argparse.ArgumentParser(description="Check your Passport.")
+parser = argparse.ArgumentParser(description="Check your Bitmask.")
 parser.add_argument('input', metavar='input', type=str,
-                    help='Password list input.')
+                    help='Bitwise data input.')
 args = parser.parse_args()
 
-passes = []
+data = []
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    findSeats()
+    findInit()
 
     # Part 2
 
     # Debug
-    printSeats()
+    printData()
 
 
 # Parse the input file
 def parseInput(inp):
-    global passes
+    global data
+    mask = ''
     try:
-        passes_fh = open(inp, 'r')
+        data_fh = open(inp, 'r')
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
-    for line in passes_fh:
-        passes.append(line.strip("\n"))
+    for line in data_fh:
+        match = re.match(r"^mem\[(\d+)\] = (\d+)$", line, re.I)
+        if not match:
+            mask = line.split(" = ")[1]
+            print(f"New mask: {mask}")
+        else:
+            data.append((int(match.group(1)), int(match.group(2))))
 
 
 # For each pass, identify its seat
-def findSeats():
+def findInit():
     return True
 
 
-def printSeats():
-    for item in passes:
+def printData():
+    for item in data:
         print(item)
 
 
