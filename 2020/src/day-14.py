@@ -37,22 +37,27 @@ class bit36:
     def __repr__(self):
         return str(int(self))
 
+    def __copy__(self):
+        return bit36(int(self))
+
 
 def main():
-    parseInput(args.input)
-
     # Part 1
+    parseInput(args.input, 1)
     print(findInit())
 
     # Part 2
+    parseInput(args.input, 2)
+    print(findInit())
 
     # Debug
     # printData()
 
 
 # Parse the input file
-def parseInput(inp):
+def parseInput(inp, version):
     global data
+    data = {}
     mask = ['X'] * 36
     try:
         data_fh = open(inp, 'r')
@@ -67,13 +72,49 @@ def parseInput(inp):
             mem = bit36(int(match.group(1)))
             val = bit36(int(match.group(2)))
 
-            # Apply mask to val
-            for i, v in enumerate(mask):
-                if v != 'X':
-                    val.setbit(i, v)
+            if version == 1:
+                # Apply mask to val
+                for i, v in enumerate(mask):
+                    if v != 'X':
+                        val.setbit(i, v)
 
-            data[int(mem)] = val
+                data[int(mem)] = val
 
+            elif version == 2:
+                dontcares = []
+
+                # Apply mask to mem and set all 1's / find dontcares
+                for i, v in enumerate(mask):
+                    if v == '1':
+                        mem.setbit(i, v)
+                    elif v == 'X':
+                        dontcares.append(i)
+
+                # From dontcares identify list of affected memory
+                options = getDCs(dontcares)
+
+                # Add each address
+                for opt in options:
+                    bits = mem.bits.copy()
+
+                    for i, v in enumerate(opt):
+                        bits[dontcares[i]] = v
+
+                    address = int(''.join(bits), 2)
+                    data[address] = val
+
+
+# Return list of lists of all don't care states
+def getDCs(dcs):
+    options = []
+
+    total = 2 ** len(dcs)
+    fmt = '{0:0'+str(len(dcs))+'b}'
+
+    for i in range(total):
+        options.append(list(fmt.format(i)))
+
+    return options
 
 # For each pass, identify its seat
 def findInit():
