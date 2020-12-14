@@ -25,23 +25,29 @@ class bit36:
         for i, v in enumerate('{0:036b}'.format(val)):
             self.bits[i] = v
 
-    def value(self):
+    def setbit(self, i, v):
+        self.bits[i] = v
+
+    def __int__(self):
         return int(''.join(self.bits), 2)
 
+    def __radd__(self, other):
+        return other + int(self)
+
     def __repr__(self):
-        return str(self.value())
+        return str(int(self))
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    findInit()
+    print(findInit())
 
     # Part 2
 
     # Debug
-    printData()
+    # printData()
 
 
 # Parse the input file
@@ -58,12 +64,20 @@ def parseInput(inp):
         if not match:
             mask = list(line.strip("\n").split(" = ")[1])
         else:
-            data[bit36(int(match.group(1)))] = bit36(int(match.group(2)))
+            mem = bit36(int(match.group(1)))
+            val = bit36(int(match.group(2)))
+
+            # Apply mask to val
+            for i, v in enumerate(mask):
+                if v != 'X':
+                    val.setbit(i, v)
+
+            data[int(mem)] = val
 
 
 # For each pass, identify its seat
 def findInit():
-    return True
+    return sum(data.values())
 
 
 def printData():
