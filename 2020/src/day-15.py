@@ -22,7 +22,7 @@ def main():
     print(turns[0])
 
     # Part 2
-    print(findTurn(2020))
+    print(findTurn(30000000))
 
     # Debug
     #printTurns()
@@ -64,15 +64,19 @@ def findTurn(target):
     global lastseen, curval, curturn
 
     while curturn < target:
+        # print(f"Current turn: {curturn}, Value spoken: {curval}")
+
         if curval not in lastseen:
             lastseen[curval] = curturn
             curval = 0
         else:
-            curval = curturn - lastseen[curval]
+            nextval = curturn - lastseen[curval]
             lastseen[curval] = curturn
+            curval = nextval
         curturn += 1
+        # print(lastseen)
 
-    return curval, curturn
+    return curval
 
 
 def printTurns():
