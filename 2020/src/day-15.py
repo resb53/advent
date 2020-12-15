@@ -10,6 +10,8 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 turns = []  # Reverse turn order so to use list.index()
+lastseen = {}  # memory conservation for part 2!
+lastval = 0
 
 
 def main():
@@ -20,6 +22,7 @@ def main():
     print(turns[0])
 
     # Part 2
+    print(findTurn(2020))
 
     # Debug
     #printTurns()
@@ -27,14 +30,22 @@ def main():
 
 # Parse the input file
 def parseInput(inp):
-    global turns
+    global turns, lastseen, curval, curturn
     try:
         nums_fh = open(inp, 'r')
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
     line = nums_fh.readline()
-    turns = list(reversed([int(i) for i in line.strip("\n").split(',')]))
+    seen = [int(i) for i in line.strip("\n").split(',')]
+    turns = list(reversed(seen))
+
+    i = 1
+    for val in seen[:-1]:
+        lastseen[val] = i
+        i += 1
+    curval = seen[-1]
+    curturn = i
 
 
 # For each pass, identify its seat
@@ -47,6 +58,21 @@ def takeTurns(limit):
         except ValueError:
             val = 0
         turns.insert(0, val)
+
+
+def findTurn(target):
+    global lastseen, curval, curturn
+
+    while curturn < target:
+        if curval not in lastseen:
+            lastseen[curval] = curturn
+            curval = 0
+        else:
+            curval = curturn - lastseen[curval]
+            lastseen[curval] = curturn
+        curturn += 1
+
+    return curval, curturn
 
 
 def printTurns():
