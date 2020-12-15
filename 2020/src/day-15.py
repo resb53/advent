@@ -9,7 +9,7 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Numbers game input.')
 args = parser.parse_args()
 
-turns = []
+turns = []  # Reverse turn order so to use list.index()
 
 
 def main():
@@ -17,11 +17,12 @@ def main():
 
     # Part 1
     takeTurns(2020)
+    print(turns[0])
 
     # Part 2
 
     # Debug
-    printTurns()
+    #printTurns()
 
 
 # Parse the input file
@@ -33,18 +34,25 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     line = nums_fh.readline()
-    turns = [int(i) for i in line.strip("\n").split(',')]
+    turns = list(reversed([int(i) for i in line.strip("\n").split(',')]))
 
 
 # For each pass, identify its seat
 def takeTurns(limit):
-    return True
+    global turns
+
+    while len(turns) < limit:
+        try:
+            val = turns.index(turns[0], 1)
+        except ValueError:
+            val = 0
+        turns.insert(0, val)
 
 
 def printTurns():
-    print(f"0: {turns[0]}", end="")
-    for turn, num in enumerate(turns, 1):
-        print(f", {turn}: {num}", end="")
+    last = len(turns)  # Start at 1
+    for turn, num in enumerate(turns):
+        print(f", {last-turn}: {num}", end="")
     print("")
 
 
