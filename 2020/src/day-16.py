@@ -13,7 +13,7 @@ args = parser.parse_args()
 rules = {}
 myticket = []
 tickets = []
-errors = []
+errors = {}
 
 
 def main():
@@ -21,9 +21,15 @@ def main():
     uber = uberrule()
 
     # Part 1
-    print(findErrors(uber))
+    findErrors(uber)
+    total = 0
+    for vals in errors.values():
+        for val in vals:
+            total += val
+    print(total)
 
     # Part 2
+    removeErrors()
 
     # Debug
     # printTickets()
@@ -79,12 +85,24 @@ def findErrors(uber):
     global errors
 
     # ALL incorrect values (regardless of anything else)
-    for ticket in tickets:
+    for i, ticket in enumerate(tickets):
         for val in ticket:
             if val < uber[0] or val > uber[1]:
-                errors.append(val)
+                if i not in errors:
+                    errors[i] = []
+                errors[i].append(val)
 
     return sum(errors)
+
+
+# Remove tickets if they have an error - work backwards to maintain indices
+def removeErrors():
+    global tickets
+
+    badids = sorted(errors.keys(), reverse=True)
+
+    for i in badids:
+        tickets.pop(i)
 
 
 def printTickets():
