@@ -30,6 +30,7 @@ def main():
 
     # Part 2
     removeErrors()
+    solve(findFields())
 
     # Debug
     # printTickets()
@@ -103,6 +104,55 @@ def removeErrors():
 
     for i in badids:
         tickets.pop(i)
+
+
+# Iterate through each field over each ticket. Elminate impossible rules.
+def findFields():
+    options = {}
+
+    for field in range(len(tickets[0])):
+        possField = list(rules.keys())
+
+        for ticket in tickets:
+            for rule in rules:
+                if (ticket[field] < rules[rule][0][0] or
+                    (ticket[field] > rules[rule][0][1] and
+                     ticket[field] < rules[rule][1][0]) or
+                    ticket[field] > rules[rule][1][1]):
+                        possField.remove(rule)
+
+        # print(f"Field: {field}, Possibles: {possField}")
+
+        options[field] = possField
+
+    # Go through fields based on fewest options to determine truth
+    truth = {}
+
+    sortops = sorted(options.keys(), key=lambda x: len(options[x]))
+
+    for i in sortops:
+        for v in options[i]:
+            if v not in truth:
+                truth[v] = i
+
+    return truth
+
+
+# Solve puzzle for my ticket
+def solve(truth):
+    prod = 1
+
+    for field in [
+        "departure location",
+        "departure station",
+        "departure platform",
+        "departure track",
+        "departure date",
+        "departure time"
+    ]:
+        prod *= myticket[truth[field]]
+
+    print(prod)
 
 
 def printTickets():
