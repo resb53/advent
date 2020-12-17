@@ -29,6 +29,8 @@ neighbs = [
 
 def main():
     parseInput(args.input)
+    print("Before any cycles:")
+    printActive()
 
     # Part 1
     cycleCubes(6)
@@ -89,17 +91,19 @@ def cycleCubes(cycles):
             if act[0] < xrange[0]:
                 xrange[0] = act[0]
             elif act[0]+1 > xrange[1]:
-                xrange[1] = act[0]
+                xrange[1] = act[0]+1
             elif act[1] < yrange[0]:
                 yrange[0] = act[1]
             elif act[1]+1 > yrange[1]:
-                yrange[1] = act[1]
+                yrange[1] = act[1]+1
             elif act[2] < zrange[0]:
                 zrange[0] = act[2]
             elif act[2]+1 > zrange[1]:
-                zrange[1] = act[2]
+                zrange[1] = act[2]+1
 
         cycle += 1
+        print(f"After {cycle} cycles:")
+        printActive()
 
 
 def activeNeighbours(x, y, z):
@@ -111,7 +115,16 @@ def activeNeighbours(x, y, z):
 
 
 def printActive():
-    print(", ".join([str(i) for i in active]))
+    for z in range(zrange[0], zrange[1]):
+        print(f"z={z}:")
+        for y in range(yrange[0], yrange[1]):
+            for x in range(xrange[0], xrange[1]):
+                if [x, y, z] in active:
+                    print('#', end='')
+                else:
+                    print('.', end='')
+            print('')
+        print('')
 
 
 if __name__ == "__main__":
