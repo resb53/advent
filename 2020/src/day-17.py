@@ -27,6 +27,8 @@ neighbs.remove([0, 0, 0, 0])
 
 def main():
     parseInput(args.input)
+    # print("Before any cycles:")
+    # printActive()
 
     # Part 2
     cycleCubes(6)
@@ -100,6 +102,45 @@ def activeNeighbours(neicount, calc):
                 calc[2] + check[2], calc[3] + check[3])
         neicount[bump] += 1
 
+
+def printActive():
+    xrange = [0,0]
+    yrange = [0,0]
+    zrange = [0,0]
+    wrange = [0,0]
+
+    for act in active:
+        if act[0] < xrange[0]:
+            xrange[0] = act[0]
+        elif act[0] > xrange[1]:
+            xrange[1] = act[0]
+
+        elif act[1] < yrange[0]:
+            yrange[0] = act[1]
+        elif act[1] > yrange[1]:
+            yrange[1] = act[1]
+
+        elif act[2] < zrange[0]:
+            zrange[0] = act[2]
+        elif act[2] > zrange[1]:
+            zrange[1] = act[2]
+
+        elif act[3] < wrange[0]:
+            wrange[0] = act[3]
+        elif act[3] > wrange[1]:
+            wrange[1] = act[3]
+
+    for w in range(wrange[0], wrange[1]+1):
+        for z in range(zrange[0], zrange[1]+1):
+            print(f"w={w},z={z}")
+            for y in range(yrange[0], yrange[1]+1):
+                for x in range(xrange[0], xrange[1]+1):
+                    if [x, y, z, w] in active:
+                        print('#', end='')
+                    else:
+                        print('.', end='')
+                print('')
+            print('')
 
 if __name__ == "__main__":
     main()
