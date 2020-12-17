@@ -29,8 +29,8 @@ neighbs = [
 
 def main():
     parseInput(args.input)
-    print("Before any cycles:")
-    printActive()
+    # print("Before any cycles:")
+    # printActive()
 
     # Part 1
     cycleCubes(6)
@@ -73,7 +73,10 @@ def cycleCubes(cycles):
     cycle = 0
 
     while cycle < cycles:
-        # Update Actives
+        # Calculate Changes
+        toremove = []
+        toappend = []
+
         for z in range(zrange[0]-1, zrange[1]+1):
             for y in range(yrange[0]-1, yrange[1]+1):
                 for x in range(xrange[0]-1, xrange[1]+1):
@@ -81,10 +84,18 @@ def cycleCubes(cycles):
 
                     if [x, y, z] in active:
                         if count != 2 and count != 3:
-                            active.remove([x, y, z])
+                            toremove.append([x, y, z])
+                            # active.remove([x, y, z])
                     else:
                         if count == 3:
-                            active.append([x, y, z])
+                            toappend.append([x, y, z])
+                            # active.append([x, y, z])
+
+        # Update Actives
+        for rem in toremove:
+            active.remove(rem)
+        for app in toappend:
+            active.append(app)
 
         # Update Ranges
         for act in active:
@@ -102,21 +113,23 @@ def cycleCubes(cycles):
                 zrange[1] = act[2]+1
 
         cycle += 1
-        print(f"After {cycle} cycles:")
-        printActive()
+        # print(f"After {cycle} cycles:")
+        # printActive()
 
 
 def activeNeighbours(x, y, z):
     count = 0
+    # Lost of overchecking in here - if I need more efficiency!
     for check in neighbs:
         if [x + check[0], y + check[1], z + check[2]] in active:
             count += 1
+
     return count
 
 
 def printActive():
     for z in range(zrange[0], zrange[1]):
-        print(f"z={z}:")
+        print(f"z={z}: ({xrange}, {yrange}, {zrange})")
         for y in range(yrange[0], yrange[1]):
             for x in range(xrange[0], xrange[1]):
                 if [x, y, z] in active:
