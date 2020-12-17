@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Cubes.")
@@ -10,22 +11,10 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 active = []  # x + to right, y + down, z + into
-xrange = [0, 1]
-yrange = [0, 1]
-zrange = [0, 1]
-wrange = [0, 1]  # Range maxes +1 for use of range() function
+# Don't check ranges, just check neighbours of actives
 
 # Array of neighbours
 neighbs = []
-#        [-1, -1, -1], [ 0, -1, -1], [ 1, -1, -1],
-#        [-1,  0, -1], [ 0,  0, -1], [ 1,  0, -1],
-#        [-1,  1, -1], [ 0,  1, -1], [ 1,  1, -1],
-#        [-1, -1,  0], [ 0, -1,  0], [ 1, -1,  0],
-#        [-1,  0,  0],               [ 1,  0,  0],
-#        [-1,  1,  0], [ 0,  1,  0], [ 1,  1,  0],
-#        [-1, -1,  1], [ 0, -1,  1], [ 1, -1,  1],
-#        [-1,  0,  1], [ 0,  0,  1], [ 1,  0,  1],
-#        [-1,  1,  1], [ 0,  1,  1], [ 1,  1,  1],
 
 for w in [-1, 0, 1]:
     for z in [-1, 0, 1]:
@@ -38,17 +27,10 @@ neighbs.remove([0, 0, 0, 0])
 
 def main():
     parseInput(args.input)
-    #print("Before any cycles:")
-    #printActive()
 
     # Part 2
     cycleCubes(6)
     print(len(active))
-
-    # Debug
-    # printActive()
-    # print(xrange)
-    # print(yrange)
 
 
 # Parse the input file
@@ -84,19 +66,21 @@ def cycleCubes(cycles):
         toremove = []
         toappend = []
 
-        for w in range(wrange[0]-1, wrange[1]+1):
-            for z in range(zrange[0]-1, zrange[1]+1):
-                for y in range(yrange[0]-1, yrange[1]+1):
-                    for x in range(xrange[0]-1, xrange[1]+1):
-                        count = activeNeighbours(x, y, z, w)
+        # Count for all neighbour cubes
+        neicount = defaultdict(int)  # Tuple of coords: active neighbours
 
-                        if [x, y, z, w] in active:
-                            if count != 2 and count != 3:
-                                toremove.append([x, y, z, w])
+        for calc in active:
+            activeNeighbours(neicount, calc)
 
-                        else:
-                            if count == 3:
-                                toappend.append([x, y, z, w])
+        for tnode in neicount.keys():
+            lnode = list(tnode)
+            if lnode in active:
+                if neicount[tnode] != 2 and neicount[tnode] != 3:
+                    toremove.append(lnode)
+
+            else:
+                if neicount[tnode] == 3:
+                    toappend.append(lnode)
 
         # Update Actives
         for rem in toremove:
@@ -104,52 +88,17 @@ def cycleCubes(cycles):
         for app in toappend:
             active.append(app)
 
-        # Update Ranges
-        for act in active:
-            if act[0] < xrange[0]:
-                xrange[0] = act[0]
-            elif act[0]+1 > xrange[1]:
-                xrange[1] = act[0]+1
-            elif act[1] < yrange[0]:
-                yrange[0] = act[1]
-            elif act[1]+1 > yrange[1]:
-                yrange[1] = act[1]+1
-            elif act[2] < zrange[0]:
-                zrange[0] = act[2]
-            elif act[2]+1 > zrange[1]:
-                zrange[1] = act[2]+1
-            elif act[3] < wrange[0]:
-                wrange[0] = act[3]
-            elif act[3]+1 > wrange[1]:
-                wrange[1] = act[3]+1
-
         cycle += 1
         # print(f"After {cycle} cycles:")
         # printActive()
 
 
-def activeNeighbours(x, y, z, w):
-    count = 0
+def activeNeighbours(neicount, calc):
     # Lots of overchecking in here - if I need more efficiency!
     for check in neighbs:
-        if [x + check[0], y + check[1], z + check[2], w + check[3]] in active:
-            count += 1
-
-    return count
-
-
-def printActive():
-    for w in range(wrange[0], wrange[1]):
-        for z in range(zrange[0], zrange[1]):
-            print(f"w={w},z={z}")
-            for y in range(yrange[0], yrange[1]):
-                for x in range(xrange[0], xrange[1]):
-                    if [x, y, z, w] in active:
-                        print('#', end='')
-                    else:
-                        print('.', end='')
-                print('')
-            print('')
+        bump = (calc[0] + check[0], calc[1] + check[1],
+                calc[2] + check[2], calc[3] + check[3])
+        neicount[bump] += 1
 
 
 if __name__ == "__main__":
