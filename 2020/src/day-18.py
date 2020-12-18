@@ -19,7 +19,8 @@ def main():
     # Part 1
     answer = 0
     for prob in probs:
-        print(findSolutions(prob))
+        answer += findSolutions(prob)
+    print(answer)
 
     # Part 2
 
@@ -58,8 +59,8 @@ def findSolutions(line):
         else:
             strdep += str(curdep)
 
-    print(line)
-    print(strdep)
+    # print(line)
+    # print(strdep)
 
     # If parsing parentheses
     if maxdep > 0:
