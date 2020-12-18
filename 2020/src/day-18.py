@@ -13,16 +13,21 @@ probs = []
 ops = ["*", "+"]
 nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
+
 def main():
     parseInput(args.input)
 
     # Part 1
     answer = 0
     for prob in probs:
-        answer += findSolutions(prob)
+        answer += findSolutions(prob, solveLTR)
     print(answer)
 
     # Part 2
+    answer = 0
+    for prob in probs:
+        answer += findSolutions(prob, solveAddFirst)
+    print(answer)
 
     # Debug
     # printProbs()
@@ -41,7 +46,7 @@ def parseInput(inp):
 
 
 # Iterate through problem
-def findSolutions(line):
+def findSolutions(line, solve):
     # Find parenthese depth
     strdep = ""
     curdep = 0
@@ -93,13 +98,13 @@ def findSolutions(line):
 
         newstr += line[start:]
 
-        return findSolutions(newstr)
+        return findSolutions(newstr, solve)
 
     else:
         return solve(line)
 
 
-def solve(line):
+def solveLTR(line):
     lhs = ''
     rhs = ''
     op = ''
@@ -124,7 +129,37 @@ def solve(line):
 
     if stop != 0:
         line = str(soln) + line[stop:]
-        return solve(line)
+        return solveLTR(line)
+    else:
+        return soln
+
+
+def solveAddFirst(line):
+    lhs = ''
+    rhs = ''
+    op = ''
+    stop = 0
+    soln = 0
+
+    for i, cha in enumerate(line):
+        if op not in ops and cha in nums:
+            lhs += cha
+        elif op not in ops and cha in ops:
+            op = cha
+        elif op in ops and cha in nums:
+            rhs += cha
+        elif op in ops and cha in ops:
+            stop = i
+            break
+
+    if op == '*':
+        soln = int(lhs) * int(rhs)
+    elif op == '+':
+        soln = int(lhs) + int(rhs)
+
+    if stop != 0:
+        line = str(soln) + line[stop:]
+        return solveAddFirst(line)
     else:
         return soln
 
