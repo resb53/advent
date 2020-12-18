@@ -64,21 +64,34 @@ def findSolutions(line):
 
     chunks = []
     catch = False
+    breaks = []
 
     for i, p in enumerate(strdep):
         if p == str(maxdep) and catch is False:
             catch = True
+            breaks.append(i)
             chunks.append('')
             chunks[-1] += line[i]
         elif p == str(maxdep) and catch is True:
             chunks[-1] += line[i]
         elif p != str(maxdep) and catch is True:
             catch = False
+            breaks.append(i)
 
-    # for i, chunk in enumerate(chunks):
-    #    chunks[i] = solve[chunk]
+    for i, chunk in enumerate(chunks):
+        chunks[i] = solve(chunk)
 
-    print(solve(chunks[0]))
+    newstr = ""
+    start = 0
+
+    while len(breaks) > 0:
+        newstr += line[start:breaks.pop(0)-1]
+        newstr += str(chunks.pop(0))
+        start = breaks.pop(0)+1
+
+    newstr += line[start:]
+
+    print(newstr)
 
     return 1
 
