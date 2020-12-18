@@ -19,8 +19,7 @@ def main():
     # Part 1
     answer = 0
     for prob in probs:
-        answer += findSolutions(prob)
-    print(answer)
+        print(findSolutions(prob))
 
     # Part 2
 
@@ -62,38 +61,41 @@ def findSolutions(line):
     print(line)
     print(strdep)
 
-    chunks = []
-    catch = False
-    breaks = []
+    # If parsing parentheses
+    if maxdep > 0:
+        chunks = []
+        catch = False
+        breaks = []
 
-    for i, p in enumerate(strdep):
-        if p == str(maxdep) and catch is False:
-            catch = True
-            breaks.append(i)
-            chunks.append('')
-            chunks[-1] += line[i]
-        elif p == str(maxdep) and catch is True:
-            chunks[-1] += line[i]
-        elif p != str(maxdep) and catch is True:
-            catch = False
-            breaks.append(i)
+        for i, p in enumerate(strdep):
+            if p == str(maxdep) and catch is False:
+                catch = True
+                breaks.append(i)
+                chunks.append('')
+                chunks[-1] += line[i]
+            elif p == str(maxdep) and catch is True:
+                chunks[-1] += line[i]
+            elif p != str(maxdep) and catch is True:
+                catch = False
+                breaks.append(i)
 
-    for i, chunk in enumerate(chunks):
-        chunks[i] = solve(chunk)
+        for i, chunk in enumerate(chunks):
+            chunks[i] = solve(chunk)
 
-    newstr = ""
-    start = 0
+        newstr = ""
+        start = 0
 
-    while len(breaks) > 0:
-        newstr += line[start:breaks.pop(0)-1]
-        newstr += str(chunks.pop(0))
-        start = breaks.pop(0)+1
+        while len(breaks) > 0:
+            newstr += line[start:breaks.pop(0)-1]
+            newstr += str(chunks.pop(0))
+            start = breaks.pop(0)+1
 
-    newstr += line[start:]
+        newstr += line[start:]
 
-    print(newstr)
+        return findSolutions(newstr)
 
-    return 1
+    else:
+        return solve(line)
 
 
 def solve(line):
