@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Mathematics.")
@@ -21,13 +22,13 @@ def main():
     answer = 0
     for prob in probs:
         answer += findSolutions(prob, solveLTR)
-    print(answer)
+    print(f"Part 1: {answer}")
 
     # Part 2
     answer = 0
     for prob in probs:
         answer += findSolutions(prob, solveAddFirst)
-    print(answer)
+    print(f"Part 2: {answer}")
 
     # Debug
     # printProbs()
@@ -135,33 +136,58 @@ def solveLTR(line):
 
 
 def solveAddFirst(line):
+    # print(f"In: {line}")
+
+    # If no mixed operators, solve as usual
+    oppos = defaultdict(int)
+    for i, cha in enumerate(line):
+        if cha in ops:
+            oppos[cha] += 1
+
+    if len(oppos) == 1:
+        return solveLTR(line)
+
+    # Else both present, resolve first addition
+    target = line.index("+")
     lhs = ''
     rhs = ''
-    op = ''
-    stop = 0
-    soln = 0
+    resolved = [0, 0]
 
-    for i, cha in enumerate(line):
-        if op not in ops and cha in nums:
-            lhs += cha
-        elif op not in ops and cha in ops:
-            op = cha
-        elif op in ops and cha in nums:
-            rhs += cha
-        elif op in ops and cha in ops:
-            stop = i
-            break
+    # LHS
+    seek = target
+    grab = True
+    while grab:
+        seek = seek - 1
+        if seek == 0:
+            grab = False
+            lhs = line[seek] + lhs
+            resolved[0] = seek
+        elif line[seek] in nums:
+            lhs = line[seek] + lhs
+        else:
+            grab = False
+            resolved[0] = seek+1
+    # RHS
+    seek = target
+    grab = True
+    while grab:
+        seek = seek + 1
+        if seek == len(line)-1:
+            grab = False
+            rhs += line[seek]
+            resolved[1] = seek
+        elif line[seek] in nums:
+            rhs += line[seek]
+        else:
+            grab = False
+            resolved[1] = seek-1
 
-    if op == '*':
-        soln = int(lhs) * int(rhs)
-    elif op == '+':
-        soln = int(lhs) + int(rhs)
+    # print(f"{lhs} + {rhs}")
+    # print(resolved)
 
-    if stop != 0:
-        line = str(soln) + line[stop:]
-        return solveAddFirst(line)
-    else:
-        return soln
+    newstr = line[:resolved[0]] + str(int(lhs) + int(rhs)) + line[resolved[1]+1:]
+
+    return solveAddFirst(newstr)
 
 
 def printProbs():
