@@ -72,7 +72,7 @@ def findMatches():
                                 done = False
 
                     if done:
-                        # print(f"{key} part {i} is done.")
+                        # print(f"In {rules[key]}:\n{opt} can be solved.")
                         # Update
                         if len(opt) > 1:
                             update = mergeKeys(opt)
@@ -81,21 +81,24 @@ def findMatches():
                             if isinstance(opt[0], int):
                                 update = rules[opt[0]]
                         rules[key][i] = update
+                        # print(f"Result: {rules[key]}\n")
                     else:
                         solve = False
 
                 if solve:
+                    # print(f"Solving {rules[key]}:")
                     opts = []
                     for chunk in rules[key]:
                         for opt in chunk:
                             opts.append(opt)
                     rules[key] = opts
+                    # print(f"Result: {rules[key]}\n")
                     solved.append(key)
 
-        printRules()
-        print("")
+        # printRules()
+        # print("")
 
-    print(rules[0])
+    # print(rules[0])
 
     count = 0
     for img in images:
@@ -109,8 +112,13 @@ def mergeKeys(keylist):
     # Work through tuples
     for append in keylist:
         update = []
+        if isinstance(append, int):
+            conjoin = rules[append]
+        else:
+            conjoin = [append]
+        # print(f"Merging {ret} with {conjoin}...")
         for first in ret:
-            for last in rules[append]:
+            for last in conjoin:
                 update.append(first + last)
         ret = update
 
