@@ -18,7 +18,7 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    findMatches()
+    print(findMatches())
 
     # Part 2
 
@@ -77,7 +77,9 @@ def findMatches():
                         if len(opt) > 1:
                             update = mergeKeys(opt)
                         else:
-                            update = rules[opt[0]]
+                            # if this opt not already solved
+                            if isinstance(opt[0], int):
+                                update = rules[opt[0]]
                         rules[key][i] = update
                     else:
                         solve = False
@@ -90,17 +92,28 @@ def findMatches():
                     rules[key] = opts
                     solved.append(key)
 
-        # solved.append(0)
         printRules()
         print("")
 
+    print(rules[0])
+
+    count = 0
+    for img in images:
+        if img in rules[0]:
+            count += 1
+    return count
+
 
 def mergeKeys(keylist):
-    ret = []
-    # Always tuples?
-    for first in rules[keylist[0]]:
-        for last in rules[keylist[1]]:
-            ret.append(first + last)
+    ret = ['']
+    # Work through tuples
+    for append in keylist:
+        update = []
+        for first in ret:
+            for last in rules[append]:
+                update.append(first + last)
+        ret = update
+
     return ret
 
 
