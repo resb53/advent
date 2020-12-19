@@ -80,6 +80,8 @@ def findMatches():
                             # if this opt not already solved
                             if isinstance(opt[0], int):
                                 update = rules[opt[0]]
+                            else:
+                                update = opt
                         rules[key][i] = update
                         # print(f"Result: {rules[key]}\n")
                     else:
