@@ -76,7 +76,7 @@ def parseInput(inp):
             row += 1
 
 
-# For each pass, identify its seat
+# Calculate edge possibilities for tiles
 def findEdges():
     global edges
 
