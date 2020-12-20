@@ -1,0 +1,32 @@
+=Day 18=
+
+Rewrite this, use some of the code before, but structure data differently.
+
+e.g. for: 3: 4 5 | 6 5, where 5: 'ab' or 'ba'
+
+3: [[4, 5], [6, 5]]
+3: [[4, 'ab'], [4, 'ba'], [6, 'ab'], [6, 'ba']]
+
+then, 4: 'a', and 6: 'aa' or 'bb'
+
+3: ['aab', 'aba', 'aaab', 'bbbb', 'aaba', 'bbba']
+
+i.e. once an opt is known, it is of type str
+     when any parts of opt are unknown, it is of type list, with int references to the unknown bits.
+     each list is always a list of all options, either complete or incomplete, with new options added as discovered.
+
+=Day 19=
+
+Treat all directions of edges as left -> right, top -> bottom
+
+Have tiles = {} and edges = {}
+
+For tiles:
+key: {0: '#', 0+1j: '.', 0+2j...}
+
+For edges:
+key: ['North edge as int', 'East edge as int', 'South edge as int', West edge as int']
+
+On rotation be aware of South and West flipping.
+
+Compare edges, find any uniques which must be outer edges. If 2x unique, must be outer edges. Else... ? Explore.
