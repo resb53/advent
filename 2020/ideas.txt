@@ -25,7 +25,9 @@ For tiles:
 key: {0: '#', 0+1j: '.', 0+2j...}
 
 For edges:
-key: ['North edge as int', 'East edge as int', 'South edge as int', West edge as int']
+# key: ['North edge as int', 'East edge as int', 'South edge as int', West edge as int']
+
+edge value for each side, big and small endian: [list of tiles that match]
 
 On rotation be aware of South and West flipping.
 
