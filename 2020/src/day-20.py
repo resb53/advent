@@ -39,9 +39,8 @@ def main():
     for corner in uniq:
         if uniq[corner] == 4:
             answer *= corner
-    
-    print(answer)
 
+    print(answer)
 
     # Part 2
 
