@@ -15,6 +15,7 @@ foods = {}
 allergens = {}
 allpoint = defaultdict(list)
 known = {}
+candidates = defaultdict(list)
 
 
 def main():
@@ -24,6 +25,9 @@ def main():
     print(findAllergenFree())
 
     # Part 2
+    findKnown()
+    sortedkeys = sorted(known.keys())
+    print(",".join([known[i] for i in sortedkeys]))
 
     # Debug
     # printAllergens()
@@ -48,8 +52,7 @@ def parseInput(inp):
 
 # Find list of ingredients without listed allergens
 def findAllergenFree():
-    global known
-    candidates = defaultdict(list)
+    global known, candidates
 
     for allergen in allpoint:
         # print(f"{allergen}:")
@@ -77,7 +80,10 @@ def findAllergenFree():
         if len(candidates[allergen]) == 1:
             known[allergen] = candidates[allergen][0]
 
-    # print(candidates)
+    for allergen in candidates:
+        print(f"{allergen}: {candidates[allergen]}")
+
+    print(known)
 
     candlist = []
     for alllist in candidates.values():
@@ -92,6 +98,30 @@ def findAllergenFree():
                 appearances += 1
 
     return appearances
+
+
+def findKnown():
+    while len(candidates) > 0:
+        remkey = []
+
+        for allergen in candidates:
+            remove = []
+
+            for ing in candidates[allergen]:
+                if ing in known.values():
+                    remove.append(ing)
+
+            for bye in remove:
+                candidates[allergen].remove(bye)
+
+            if len(candidates[allergen]) == 1:
+                known[allergen] = candidates[allergen][0]
+
+            elif len(candidates[allergen]) == 0:
+                remkey.append(allergen)
+
+        while len(remkey) > 0:
+            candidates.pop(remkey.pop(0))
 
 
 def printAllergens():
