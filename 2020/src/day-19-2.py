@@ -23,7 +23,7 @@ def main():
     # Part 2
 
     # Debug
-    printSeats()
+    printRules()
 
 
 # Parse the input file
@@ -59,10 +59,44 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def evalRules():
-    return True
+    global rules, solved
+
+    for key in rules:
+        if key not in solved:
+            update = []
+
+            for i, opt in enumerate(rules[key]):
+                solve = True
+                for bit in opt:
+                    if bit not in solved:
+                        solve = False
+
+                if solve:
+                    update.append(i)
+
+            if len(update) > 0:
+                    rules[key] = updateRule(rules[key], update)
 
 
-def printSeats():
+# For the sections with all parts solved, update the rule
+def updateRule(rule, sections):
+    update = []
+
+    for i, opt in enumerate(rule):
+        if i in sections:
+            newopts = []
+
+            # Work through tuples, combining
+
+            update.extend(newopts)
+
+        else:
+            update.append(opt)
+
+    return update
+
+
+def printRules():
     for key in rules:
         print(f"{key}: {rules[key]}")
 
