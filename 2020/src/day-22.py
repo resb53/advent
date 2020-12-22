@@ -59,7 +59,7 @@ def parseInput(inp):
 def playCombat():
     global cards
 
-    while len(cards[0]) > 0 and len(cards[0]) > 0:
+    while len(cards[0]) > 0 and len(cards[1]) > 0:
         p1card = cards[0].pop(0)
         p2card = cards[1].pop(0)
 
@@ -73,37 +73,42 @@ def playCombat():
 def playRecursiveCombat(hands) -> int:
     cache = set()
 
-    while len(hands[0]) > 0 and len(hands[0]) > 0:
-        state = updateCache(cache)
+    while len(hands[0]) > 0 and len(hands[1]) > 0:
+        state = updateCache(hands)
         if state in cache:
             return 0
         else:
-            cache.add(updateCache(cache))
+            cache.add(state)
 
             p1card = hands[0].pop(0)
             p2card = hands[1].pop(0)
+            winner = None
 
             if len(hands[0]) >= p1card and len(hands[1]) >= p2card:
                 minihands = []
                 minihands.append(hands[0][:p1card])
                 minihands.append(hands[1][:p2card])
                 winner = playRecursiveCombat(minihands)
-
-                if winner == 0:
-                    hands[0].extend([p1card, p2card])
-                else:
-                    hands[1].extend([p2card, p1card])
-
             else:
                 if p1card > p2card:
-                    return 0
+                    winner = 0
                 else:
-                    return 1
+                    winner = 1
+
+            if winner == 0:
+                hands[0].extend([p1card, p2card])
+            else:
+                hands[1].extend([p2card, p1card])
+
+    if len(hands[0]) == 0:
+        return 1
+    else:
+        return 0
 
 
-def updateCache(cache):
-    p1str = ",".join([str(i) for i in cards[0]])
-    p2str = ",".join([str(i) for i in cards[1]])
+def updateCache(hands):
+    p1str = ",".join([str(i) for i in hands[0]])
+    p2str = ",".join([str(i) for i in hands[1]])
 
     return p1str + "-" + p2str
 
