@@ -24,6 +24,14 @@ def main():
     print("".join([str(i) for i in cups]))
         
     # Part 2
+    parseInput(args.input)
+    embiggenCups(1000000)
+
+    for turn in range(100):
+        moveCups()
+
+    one = cups.index(1)
+    print((cups[one + 1], cups[one + 2]))
 
     # Debug
     # printCups()
@@ -79,6 +87,18 @@ def moveCups():
     curpos = cups.index(current)
     nextpos = (curpos + 1) % 9
     current = cups[nextpos]
+
+
+def embiggenCups(size):
+    global cups
+
+    biggest = max(cups)
+
+    while biggest < size:
+        biggest += 1
+        cups.append(biggest)
+
+    print(len(cups))
 
 
 def printCups():
