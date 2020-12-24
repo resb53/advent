@@ -22,7 +22,7 @@ def main():
         moveCups()
 
     print("".join([str(i) for i in cups]))
-        
+
     # Part 2
     parseInput(args.input)
     embiggenCups(1000000)
