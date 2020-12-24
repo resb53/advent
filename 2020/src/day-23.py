@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from itertools import cycle
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Check your Cups.")
@@ -11,9 +12,13 @@ args = parser.parse_args()
 
 cups = []
 current = 0
+cupdict = {}
+cupcount = 0
 
 
 def main():
+    global current, cupcount
+    
     parseInput(args.input)
 
     # Part 1
@@ -26,12 +31,13 @@ def main():
     # Part 2
     parseInput(args.input)
     embiggenCups(1000000)
+    cupcount = len(cups)
+    prepCupDict()
+    current = cups[0]
+    for turn in range(10000000):
+        moveCupDict()
 
-    for turn in range(100):
-        moveCups()
-
-    one = cups.index(1)
-    print((cups[one + 1], cups[one + 2]))
+    print(cupdict[1] * cupdict[cupdict[1]])
 
     # Debug
     # printCups()
@@ -98,7 +104,39 @@ def embiggenCups(size):
         biggest += 1
         cups.append(biggest)
 
-    print(len(cups))
+
+def prepCupDict():
+    circle = cycle(cups)
+    nextcup = next(circle)
+
+    for _ in range(len(cups)):
+        thiscup, nextcup = nextcup, next(circle)
+        cupdict[thiscup] = nextcup
+
+
+def moveCupDict():
+    global current
+
+    one = cupdict[current]
+    two = cupdict[one]
+    three = cupdict[two]
+    four = cupdict[three]
+
+    dest = (current - 1) % cupcount
+    if dest == 0:
+        dest = cupcount
+
+    while dest in (one, two, three):
+        dest = dest - 1 % cupcount
+        if dest == 0:
+            dest = cupcount
+
+    newend = cupdict[dest]
+    cupdict[dest] = one
+    cupdict[three] = newend
+
+    cupdict[current] = four
+    current = four
 
 
 def printCups():

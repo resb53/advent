@@ -30,7 +30,7 @@ def main():
     printBlack()
 
     # Part 2
-    livingArt(1)
+    livingArt(100)
     printBlack()
 
     # Debug
@@ -70,10 +70,12 @@ def livingArt(count):
 
     # Actual day == day + 1
     for day in range(count):
-        toflip=set()
+        toflip = set()
 
         # State only changes if next to a black tile.
-        for tile in tiles:
+        blacktiles = [i for i in tiles if tiles[i]]
+
+        for tile in blacktiles:
             # If black
             if tiles[tile]:
                 # Check adjacents
