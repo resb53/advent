@@ -27,15 +27,11 @@ def main():
 
     # Part 1
     flipTiles(instr)
-
-    black = 0
-    for tile in tiles:
-        if tiles[tile]:
-            black += 1
-
-    print(black)
+    printBlack()
 
     # Part 2
+    livingArt(1)
+    printBlack()
 
     # Debug
     # printTiles()
@@ -67,6 +63,49 @@ def flipTiles(flips):
                 drn = ''
 
         tiles[tar] = not tiles[tar]
+
+
+def livingArt(count):
+    global tiles
+
+    # Actual day == day + 1
+    for day in range(count):
+        toflip=set()
+
+        # State only changes if next to a black tile.
+        for tile in tiles:
+            # If black
+            if tiles[tile]:
+                # Check adjacents
+                adj = 0
+                for check in adjust.values():
+                    if tiles[tile + check]:
+                        adj += 1
+                    else:
+                        # If neighbour white, check its neighbours
+                        blk = 0
+                        for dblcheck in adjust.values():
+                            if tiles[tile + check + dblcheck]:
+                                blk += 1
+                        # Flip if exactly 2
+                        if blk == 2:
+                            toflip.add(tile + check)
+                # Flip if 0 or more than 2
+                if adj == 0 or adj > 2:
+                    toflip.add(tile)
+
+        # Flip tiles
+        for tile in toflip:
+            tiles[tile] = not tiles[tile]
+
+
+def printBlack():
+    black = 0
+    for tile in tiles:
+        if tiles[tile]:
+            black += 1
+
+    print(black)
 
 
 def printTiles():
