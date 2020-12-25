@@ -10,13 +10,25 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 keys = []
+cycles = [17580934, 19976408]  # from findCycles()
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    findHandshake()
+    # findCycles()
+
+    count = 0
+    value = 1
+    subject = keys[1]
+
+    while count < cycles[0]:
+        value = (value * subject) % 20201227
+        count += 1
+
+    print(value)
+
 
     # Part 2
 
@@ -36,8 +48,9 @@ def parseInput(inp):
         keys.append(int(line.strip("\n")))
 
 
-# For the keys, identify its cycle and handshake
-def findHandshake():
+# For the keys, identify their cycles
+def findCycles():
+    global cycles
     subject = 7
 
     # Card
@@ -48,7 +61,7 @@ def findHandshake():
         value = (value * subject) % 20201227
         loop += 1
 
-    print(loop)
+    cycles.append(loop)
 
     # Door
     value = 1
@@ -58,7 +71,7 @@ def findHandshake():
         value = (value * subject) % 20201227
         loop += 1
 
-    print(loop)
+    cycles.append(loop)
 
 
 def printKeys():
