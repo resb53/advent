@@ -18,7 +18,7 @@ cupcount = 0
 
 def main():
     global current, cupcount
-    
+
     parseInput(args.input)
 
     # Part 1
