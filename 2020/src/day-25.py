@@ -29,7 +29,6 @@ def main():
 
     print(value)
 
-
     # Part 2
 
     # Debug
