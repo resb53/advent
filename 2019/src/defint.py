@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import argparse
 import sys
 
@@ -10,7 +10,7 @@ parser.add_argument('code', metavar='code', type=str, help='Int code file.')
 args = parser.parse_args()
 
 def main():
-    prog = intCode.Program(args.code)
+    prog = intCodeClass.Program(args.code)
     prog.run(i=instr_in, o=instr_out)
 
 def instr_out(p):

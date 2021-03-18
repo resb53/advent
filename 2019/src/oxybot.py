@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import curses
 import sys
 import time
@@ -49,7 +49,7 @@ def main():
     # Draw grid
     drawin()
     # Prepare intcode computer
-    prog = intCode.Program('inputs/oxygen.txt')
+    prog = intCodeClass.Program('inputs/oxygen.txt')
     prog.run(i=instr_in,o=instr_out)
     # Cleanup
     termios.tcsetattr(fh, termios.TCSADRAIN, old)

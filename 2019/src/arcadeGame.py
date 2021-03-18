@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import curses
 import sys
 import time
@@ -24,7 +24,7 @@ def main():
     curses.cbreak()
     curses.curs_set(0)
     # Prepare intcode computer
-    prog = intCode.Program('inputs/arcade.txt')
+    prog = intCodeClass.Program('inputs/arcade.txt')
     # insert coin
     prog.mem[0] = 2
     prog.run(i=instr_in,o=instr_out)

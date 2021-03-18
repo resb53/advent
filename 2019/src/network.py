@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import argparse
 import sys
 
@@ -15,7 +15,7 @@ network = {} # List of awaiting packets for each computer
 
 def main():
     global comp, network
-    prog = intCode.Program(args.code)
+    prog = intCodeClass.Program(args.code)
     # Prep network messages
     for i in range(50):
         network[i] = i

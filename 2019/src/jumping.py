@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import argparse
 import sys
 
@@ -25,7 +25,7 @@ instr = list('NOT A J\nNOT B T\nOR T J\nNOT C T\nOR T J\nAND D J\nNOT E T\nNOT T
 instr.extend(list('RUN\n'))
 
 def main():
-    prog = intCode.Program(args.code)
+    prog = intCodeClass.Program(args.code)
     prog.run(i=instr_in, o=instr_out)
 
 def instr_out(p):

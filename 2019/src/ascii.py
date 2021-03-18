@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import curses
 import sys
 import time
@@ -15,7 +15,7 @@ instr = [   'A',',','B',',','A',',','C',',','B',',','C',',','B',',','A',',','C',
 
 def main():
     # Prepare intcode computer
-    prog = intCode.Program('inputs/ascii.txt')
+    prog = intCodeClass.Program('inputs/ascii.txt')
     # Do part 1: Find intersections and calculate alignment parameters
     #prog.run(o=instr_out)
     #cleanGrid()

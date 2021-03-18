@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import intCode
+import intCodeClass
 import argparse
 import sys
 from collections import deque
@@ -22,7 +22,7 @@ def main():
     #    grid[y] = {}
     #    for x in range(50):
     #        io['inp'] = [x, y]
-    #        prog = intCode.Program(args.code)
+    #        prog = intCodeClass.Program(args.code)
     #        prog.run(i=instr_in, o=instr_out)
     #        grid[y][x] = io['out'].pop(0)
     #        count += grid[y][x]
@@ -46,7 +46,7 @@ def main():
             x += 1
             print(str(x) + ':', end='')
             io['inp'] = [x, y]
-            prog = intCode.Program(args.code)
+            prog = intCodeClass.Program(args.code)
             prog.run(i=instr_in, o=instr_out)
             test = io['out'].pop(0)
             print(str(test) + '; ', end='')
