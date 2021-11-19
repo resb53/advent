@@ -12,16 +12,6 @@ args = parser.parse_args()
 data = []
 
 
-def main():
-    parseInput(args.input)
-
-    # Part 1
-    processData()
-
-    # Part 2
-    processMore()
-
-
 # Parse the input file
 def parseInput(inp):
     try:
@@ -42,6 +32,16 @@ def processData():
 # Process harder
 def processMore():
     return False
+
+
+def main():
+    parseInput(args.input)
+
+    # Part 1
+    processData()
+
+    # Part 2
+    processMore()
 
 
 if __name__ == "__main__":
