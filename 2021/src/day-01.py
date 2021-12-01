@@ -42,7 +42,7 @@ def slidingWindow():
         right = data[i+1] + data[i+2] + data[i+3]
         if right > left:
             bigger += 1
-    print(bigger)
+    print(f"Sliding Window increasees: {bigger}")
 
 
 def main():
