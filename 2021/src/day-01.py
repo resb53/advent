@@ -20,7 +20,7 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.strip("\n"))
+        data.append(int(line.strip("\n")))
 
 
 # For each pass, identify its seat
@@ -30,6 +30,7 @@ def increasingDepth():
     for element in data:
         if element > current:
             deeper += 1
+        print(f"Current: {current}, Next: {element}, Deeper: {deeper}")
         current = element
     print(f"Depth increases: {deeper}")
 
