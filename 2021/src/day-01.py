@@ -30,14 +30,19 @@ def increasingDepth():
     for element in data:
         if element > current:
             deeper += 1
-        print(f"Current: {current}, Next: {element}, Deeper: {deeper}")
         current = element
     print(f"Depth increases: {deeper}")
 
 
 # Process harder
-def processMore():
-    return False
+def slidingWindow():
+    bigger = 0
+    for i in range(len(data)-3):
+        left = data[i] + data[i+1] + data[i+2]
+        right = data[i+1] + data[i+2] + data[i+3]
+        if right > left:
+            bigger += 1
+    print(bigger)
 
 
 def main():
@@ -47,7 +52,7 @@ def main():
     increasingDepth()
 
     # Part 2
-    processMore()
+    slidingWindow()
 
 
 if __name__ == "__main__":
