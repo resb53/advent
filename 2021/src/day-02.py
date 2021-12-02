@@ -43,8 +43,19 @@ def followDirections():
 
 
 # Process harder
-def processMore():
-    return False
+def followAim():
+
+    location = 0
+    aim = 0
+
+    for direction in data:
+        (dirn, dist) = direction.split(' ')
+        aim += int(dist) * bearing[dirn].imag
+        if bearing[dirn].real:
+            location += int(dist) + (int(dist) * aim * 1j)
+
+    print(f"Range: {location.real}, Depth: {location.imag * -1}")
+    print(f"Answer 2: {location.real * location.imag * -1}")
 
 
 def main():
@@ -54,7 +65,7 @@ def main():
     followDirections()
 
     # Part 2
-    processMore()
+    followAim()
 
 
 if __name__ == "__main__":
