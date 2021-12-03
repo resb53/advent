@@ -54,33 +54,47 @@ def processData():
     return (gamma, epsilon)
 
 
+# Breakout function for most common bit value in string
+def mostPopular(i, arr):
+    count = {'0': 0, '1': 0}
+    for scan in arr:
+        count[scan[i]] += 1
+
+    if count['0'] > count['1']:
+        return '0'
+    else:
+        return '1'
+
+
 # Process harder
-def processMore(gamma, epsilon):
+def processMore(length):
     oxy = data.copy()
     co2 = data.copy()
 
     # Oxygen
     oxydel = []
-    for i, bit in enumerate(gamma):
+    for i in range(length):
         if (len(oxy) > 1):
+            bit = mostPopular(i, oxy)
             for j, val in enumerate(oxy):
                 if (val[i] != bit):
                     oxydel.append(j)
             for k in range(len(oxydel)-1, -1, -1):
                 oxy.pop(oxydel[k])
             oxydel = []
-    
-    # CO2 Scrubbing
+
+    # CO2
     co2del = []
-    for i, bit in enumerate(epsilon):
+    for i in range(length):
         if (len(co2) > 1):
+            bit = mostPopular(i, co2)
             for j, val in enumerate(co2):
-                if (val[i] != bit):
+                if (val[i] == bit):
                     co2del.append(j)
             for k in range(len(co2del)-1, -1, -1):
                 co2.pop(co2del[k])
             co2del = []
-    
+
     oxydec = int(oxy[0], 2)
     co2dec = int(co2[0], 2)
 
@@ -88,15 +102,14 @@ def processMore(gamma, epsilon):
     print(f"Solution 2: {oxydec * co2dec}")
 
 
-
 def main():
     parseInput(args.input)
 
     # Part 1
-    (g, e) = processData()
+    processData()
 
     # Part 2
-    processMore(g, e)
+    processMore(len(data[0]))
 
 
 if __name__ == "__main__":
