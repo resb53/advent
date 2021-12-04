@@ -51,37 +51,42 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def processData(call, criteria):
-    latestscore = -1
+    done = []
+    scores = []
 
     for element in call:
         # Mark off elements
-        for board in rows:
+        for id, board in enumerate(rows):
             for row in rows[board]:
                 total = 0
                 for item in row:
                     if item[0] == element:
                         item[1] = 1
                     total += item[1]
-                if criteria == 'first':
-                    if total == 5:
+                if total == 5:
+                    if criteria == 'first':
                         return element * sumZeroes(rows[board])
-                if criteria == 'last':
-                    latestscore = element * sumZeroes(rows[board])
+                    elif criteria == 'last':
+                        if id not in done:
+                            done.append(id)
+                            scores.append(element * sumZeroes(rows[board]))
 
-        for board in cols:
+        for id, board in enumerate(cols):
             for col in cols[board]:
                 total = 0
                 for item in col:
                     if item[0] == element:
                         item[1] = 1
                     total += item[1]
-                if criteria == 'first':
-                    if total == 5:
+                if total == 5:
+                    if criteria == 'first':
                         return element * sumZeroes(cols[board])
-                if criteria == 'last':
-                    latestscore = element * sumZeroes(cols[board])
+                    elif criteria == 'last':
+                        if id not in done:
+                            done.append(id)
+                            scores.append(element * sumZeroes(rows[board]))
 
-    return latestscore
+    return scores[-1]
 
 
 # Sum zeroes on board
@@ -94,13 +99,27 @@ def sumZeroes(board):
     return sum
 
 
+# Reset board
+def resetBoard():
+    for board in rows:
+        for row in rows[board]:
+            for item in row:
+                item[1] = 0
+
+    for board in cols:
+        for col in cols[board]:
+            for item in col:
+                item[1] = 0
+
+
 def main():
     call = parseInput(args.input)
 
-    # Part 1
+    # Part 1, use 'first', Part 2, use 'last'
     print(f"Solution 1: {processData(call, 'first')}")
 
     # Part 2
+    resetBoard()
     print(f"Solution 2: {processData(call, 'last')}")
 
 
