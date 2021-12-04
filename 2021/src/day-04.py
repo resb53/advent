@@ -22,7 +22,9 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     # Get call list
-    call = input_fh.readline().strip("\n").split(',')
+    call = []
+    for i in input_fh.readline().strip("\n").split(','):
+        call.append(int(i))
 
     # Generate rows per board
     count = -1
@@ -50,7 +52,26 @@ def parseInput(inp):
 # For each pass, identify its seat
 def processData(call):
     for element in call:
-        print(f"{element}", end=", ")
+        # Mark off elements
+        for board in rows:
+            for row in rows[board]:
+                total = 0
+                for item in row:
+                    if item[0] == element:
+                        item[1] = 1
+                    total += item[1]
+                if total == 5:
+                    return([element, rows[board]])
+
+        for board in cols:
+            for col in cols[board]:
+                total = 0
+                for item in col:
+                    if item[0] == element:
+                        item[1] = 1
+                    total += item[1]
+                if total == 5:
+                    return([element, cols[board]])
 
 
 # Process harder
@@ -62,7 +83,13 @@ def main():
     call = parseInput(args.input)
 
     # Part 1
-    processData(call)
+    winner = processData(call)
+    sum = 0
+    for line in winner[1]:
+        for val in line:
+            if val[1] == 0:
+                sum += val[0]
+    print(f"Solution 1: {winner[0] * sum}")
 
     # Part 2
     # processMore()
