@@ -50,7 +50,9 @@ def parseInput(inp):
 
 
 # For each pass, identify its seat
-def processData(call):
+def processData(call, criteria):
+    latestscore = -1
+
     for element in call:
         # Mark off elements
         for board in rows:
@@ -60,8 +62,11 @@ def processData(call):
                     if item[0] == element:
                         item[1] = 1
                     total += item[1]
-                if total == 5:
-                    return([element, rows[board]])
+                if criteria == 'first':
+                    if total == 5:
+                        return element * sumZeroes(rows[board])
+                if criteria == 'last':
+                    latestscore = element * sumZeroes(rows[board])
 
         for board in cols:
             for col in cols[board]:
@@ -70,29 +75,33 @@ def processData(call):
                     if item[0] == element:
                         item[1] = 1
                     total += item[1]
-                if total == 5:
-                    return([element, cols[board]])
+                if criteria == 'first':
+                    if total == 5:
+                        return element * sumZeroes(cols[board])
+                if criteria == 'last':
+                    latestscore = element * sumZeroes(cols[board])
+
+    return latestscore
 
 
-# Process harder
-def processMore():
-    return False
+# Sum zeroes on board
+def sumZeroes(board):
+    sum = 0
+    for line in board:
+        for val in line:
+            if val[1] == 0:
+                sum += val[0]
+    return sum
 
 
 def main():
     call = parseInput(args.input)
 
     # Part 1
-    winner = processData(call)
-    sum = 0
-    for line in winner[1]:
-        for val in line:
-            if val[1] == 0:
-                sum += val[0]
-    print(f"Solution 1: {winner[0] * sum}")
+    print(f"Solution 1: {processData(call, 'first')}")
 
     # Part 2
-    # processMore()
+    print(f"Solution 2: {processData(call, 'last')}")
 
 
 if __name__ == "__main__":
