@@ -43,13 +43,38 @@ def processHorizontals():
             stop = int(max(temp[0].real, temp[1].real))
             for v in range(start, stop + 1):
                 grid[v + temp[0].imag * 1j] += 1
+        # Process Diagonals
+        else:
+            # TLBR
+            if (temp[0].real < temp[1].real) and (temp[0].imag < temp[1].imag):
+                for step in range(int(temp[1].real - temp[0].real) + 1):
+                    grid[temp[0].real + step + (temp[0].imag + step) * 1j] += 1
+            elif (temp[0].real > temp[1].real) and (temp[0].imag > temp[1].imag):
+                for step in range(int(temp[0].real - temp[1].real) + 1):
+                    grid[temp[1].real + step + (temp[1].imag + step) * 1j] += 1
+            # TRBL
+            elif (temp[0].real < temp[1].real) and (temp[0].imag > temp[1].imag):
+                for step in range(int(temp[1].real - temp[0].real) + 1):
+                    grid[temp[0].real + step + (temp[0].imag - step) * 1j] += 1
+            elif (temp[0].real > temp[1].real) and (temp[0].imag < temp[1].imag):
+                for step in range(int(temp[0].real - temp[1].real) + 1):
+                    grid[temp[1].real + step + (temp[1].imag - step) * 1j] += 1
+
+    # Debug visualisation for test input
+    """for y in range(10):
+        for x in range(10):
+            if (grid[x + y * 1j] == 0):
+                print(".", end="")
+            else:
+                print(grid[x + y * 1j], end="")
+        print("\n", end="")"""
 
     count = 0
     for loc in grid:
         if (grid[loc] > 1):
             count += 1
 
-    print(f"Solution to part 1: {count}")
+    print(f"Solution: {count}")
 
 
 # Process diagonals
