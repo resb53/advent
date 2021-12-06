@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
+from os import spawnve
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -9,7 +11,7 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-data = []
+fish = defaultdict(int)
 
 
 # Parse the input file
@@ -20,13 +22,27 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.strip("\n"))
+        line = line.strip("\n")
+        for f in line.split(","):
+            fish[int(f)] += 1
 
 
 # For each pass, identify its seat
-def processData():
-    for element in data:
-        print(f"{element}")
+def reproduceFish(period):
+    while period > 0:
+        diff = min(fish) + 1
+        period -= diff
+
+        # Age fish
+        for f in sorted(fish.keys()):
+            fish[f - diff] = fish.pop(f)
+
+        # Reset 0's and spawn new fish
+        spawn = fish.pop(-1)
+        fish[6] += spawn
+        fish[8] += spawn
+
+    print(f"Solution to part 1: {sum(fish.values())}")
 
 
 # Process harder
@@ -38,7 +54,7 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    processData()
+    reproduceFish(80)
 
     # Part 2
     processMore()
