@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-from os import spawnve
 import sys
 from collections import defaultdict
 
