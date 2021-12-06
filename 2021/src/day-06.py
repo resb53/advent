@@ -11,7 +11,7 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-fish = defaultdict(int)
+data = defaultdict(int)
 
 
 # Parse the input file
@@ -24,13 +24,16 @@ def parseInput(inp):
     for line in input_fh:
         line = line.strip("\n")
         for f in line.split(","):
-            fish[int(f)] += 1
+            data[int(f)] += 1
 
 
 # For each pass, identify its seat
-def reproduceFish(period):
-    while period > 0:
-        diff = min(fish) + 1
+def reproduceFish(part, period):
+    # Prepare fish
+    fish = data.copy()
+    # Calculate
+    diff = min(fish) + 1
+    while period - diff >= 0:
         period -= diff
 
         # Age fish
@@ -42,22 +45,19 @@ def reproduceFish(period):
         fish[6] += spawn
         fish[8] += spawn
 
-    print(f"Solution to part 1: {sum(fish.values())}")
+        diff = min(fish) + 1
 
-
-# Process harder
-def processMore():
-    return False
+    print(f"Solution to part {part}: {sum(fish.values())}")
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    reproduceFish(80)
+    reproduceFish(1, 80)
 
     # Part 2
-    processMore()
+    reproduceFish(2, 256)
 
 
 if __name__ == "__main__":
