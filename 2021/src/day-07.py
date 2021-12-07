@@ -52,9 +52,32 @@ def processData():
     print(f"Solution to part 1: {min(fuelcost.values())}")
 
 
-# Process harder
+# Process triangle fuel consumption
 def processMore():
-    return False
+    sd = ceil(numpy.std(crabs))
+    mean = int(numpy.mean(crabs))
+    minv = min(crabs)
+    maxv = max(crabs)
+    start = minv
+    stop = maxv
+
+    # Calculate within a standard deviation of the mean to begin
+    if mean - sd > start:
+        start = mean - sd
+    if mean + sd < stop:
+        stop = mean + sd
+
+    fuelcost = {}
+
+    # for test in range(start, stop+1, 1):
+    for test in range(minv, maxv+1, 1):
+        fuel = 0
+        for c in crabs:
+            n = abs(c - test)
+            fuel += int((n * (n + 1) / 2))
+        fuelcost[test] = fuel
+
+    print(f"Solution to part 2: {min(fuelcost.values())}")
 
 
 def main():
