@@ -10,24 +10,6 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-segs = {
-    0: 6,
-    1: 2,
-    2: 5,
-    3: 5,
-    4: 4,
-    5: 5,
-    6: 6,
-    7: 3,
-    8: 7,
-    9: 6,
-}
-univals = {
-    2: 1,
-    4: 4,
-    3: 7,
-    7: 8
-}
 poss = ["a", "b", "c", "d", "e", "f", "g"]
 nums = []
 outs = []
@@ -51,10 +33,17 @@ def processEasy():
     uniques = 0
     for output in outs:
         for digit in output:
-            if len(digit) in univals:
+            if len(digit) in [2, 3, 4, 7]:
                 uniques += 1
 
     print(f"Solution to part 1: {uniques}")
+
+
+def removePossibility(segs, pos, value):
+    try:
+        segs[pos].remove(value)
+    except ValueError:
+        pass
 
 
 # Process harder
@@ -62,7 +51,6 @@ def processHard():
     totaloutput = 0
 
     for i, all in enumerate(nums):
-        mapping = {}
         segments = {
             't': poss.copy(),
             'tl': poss.copy(),
@@ -76,27 +64,21 @@ def processHard():
         fives = []
 
         for val in all:
-            # Get 1, 4, 7, 8
+            # Get 1, 4, 7, (8)
             if len(val) == 2:
-                mapping[val] = 1
                 for letter in val:
                     for p in ["t", "tl", "m", "bl", "b"]:
                         removePossibility(segments, p, letter)
 
             elif len(val) == 4:
-                mapping[val] = 4
                 for letter in val:
                     for p in ["t", "bl", "b"]:
                         removePossibility(segments, p, letter)
 
             elif len(val) == 3:
-                mapping[val] = 7
                 for letter in val:
                     for p in ["tl", "m", "bl", "b"]:
                         removePossibility(segments, p, letter)
-
-            elif len(val) == 7:
-                mapping[val] = 8
 
             # Analyse 5 length's (2, 3, 5)
             # t m b always in all 3
@@ -130,14 +112,45 @@ def processHard():
                 segments["tr"] = [two[0]]
                 removePossibility(segments, "br", segments["tr"][0])
 
-        print(segments)
+        rev = {}
+        for x in segments:
+            rev[segments[x][0]] = x
 
+        # Segments found! Analyse output
+        output = ""
+        for num in outs[i]:
+            light = []
+            for x in num:
+                light.append(rev[x])
 
-def removePossibility(segs, pos, value):
-    try:
-        segs[pos].remove(value)
-    except ValueError:
-        pass
+            if len(light) == 2:
+                output += "1"
+            elif len(light) == 4:
+                output += "4"
+            elif len(light) == 3:
+                output += "7"
+            elif len(light) == 7:
+                output += "8"
+            elif len(light) == 5:
+                if "bl" in light:
+                    output += "2"
+                elif "tl" in light:
+                    output += "5"
+                else:
+                    output += "3"
+            elif len(light) == 6:
+                if "m" not in light:
+                    output += "0"
+                elif "tr" not in light:
+                    output += "6"
+                else:
+                    output += "9"
+            else:
+                sys.exit("ERROR WITH LIGHTS!")
+
+        totaloutput += int(output)
+
+    print(f"Solution to part 2: {totaloutput}")
 
 
 def main():
