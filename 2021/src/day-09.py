@@ -35,18 +35,10 @@ def findLows():
     risk = 0
     for pos in grid:
         low = True
-        if (pos - 1j) in grid:
-            if grid[pos - 1j] < grid[pos]:
-                low = False
-        if (pos - 1) in grid:
-            if grid[pos - 1] < grid[pos]:
-                low = False
-        if (pos + 1j) in grid:
-            if grid[pos + 1j] < grid[pos]:
-                low = False
-        if (pos + 1) in grid:
-            if grid[pos + 1] < grid[pos]:
-                low = False
+        for check in ((pos - 1j), (pos - 1), (pos + 1j), (pos + 1)):
+            if check in grid:
+                if grid[check] <= grid[pos]:
+                    low = False
         if low:
             risk += 1 + grid[pos]
 
