@@ -22,6 +22,12 @@ scoring = {
     "}": 1197,
     ">": 25137
 }
+completing = {
+    ")": 1,
+    "]": 2,
+    "}": 3,
+    ">": 4
+}
 
 
 # Parse the input file
@@ -37,11 +43,12 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def syntaxCheck():
-    syntax = []
     score = 0
+    completes = []
     for line in code:
         # First error found
         fef = False
+        syntax = []
         for char in line:
             if char in ("(", "[", "{", "<"):
                 syntax.append(char)
@@ -52,22 +59,34 @@ def syntaxCheck():
                         fef = char
                         # print(f"Expected {closing[check]}, but found {char} instead")
                         score += scoring[char]
-    print(f"Solution to part 1: {score}")         
+        # If no error found, check completeness
+        if not fef:
+            # print("Complete by adding ", end="")
+            compscore = 0
+            while len(syntax) > 0:
+                # print(closing[syntax.pop()], end="")
+                char = syntax.pop()
+                compscore *= 5
+                compscore += completing[closing[char]]
+            # print("")
+            completes.append(compscore)
+
+    print(f"Solution to part 1: {score}")
+    print(f"Solution to part 2: {sorted(completes)[int(len(completes)/2)]}")
 
 
 # Process harder
-def processMore():
-    return False
+def completeCheck():
+    for line in code:
+        if not code[line]:
+            print(line)
 
 
 def main():
     parseInput(args.input)
 
-    # Part 1
+    # Part 1 and 2
     syntaxCheck()
-
-    # Part 2
-    processMore()
 
 
 if __name__ == "__main__":
