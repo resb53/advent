@@ -65,11 +65,6 @@ def flash(pos, flashed):
     return countall
 
 
-# Process harder
-def processMore():
-    return False
-
-
 def main():
     parseInput(args.input)
 
@@ -80,7 +75,16 @@ def main():
     print(f"Solution to part 1: {flashes}")
 
     # Part 2
-    processMore()
+    allflash = False
+    rounds = 100
+    while not allflash:
+        rounds += 1
+        check = buildCharge()
+        if check == 100:
+            allflash = True
+        flashes += check
+
+    print(f"Solution to part 2: {rounds}")
 
 
 if __name__ == "__main__":
