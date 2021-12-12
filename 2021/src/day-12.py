@@ -84,13 +84,11 @@ def main():
     for plot in journeys:
         findRoutes(plot, plots)
 
-    count = 0
+    uniset = set()
     for route in plots:
         if route[-1] == "end":
-            count += 1
-    print(f"Solution to part 2: {count}")
-    for x in plots:
-        print(x)
+            uniset.add(route[1:])
+    print(f"Solution to part 2: {len(uniset)}")
 
 
 if __name__ == "__main__":
