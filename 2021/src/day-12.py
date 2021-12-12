@@ -27,7 +27,7 @@ def parseInput(inp):
 
 
 # For each pass, identify its seat
-def findRoutes(plot, plots, magic):
+def findRoutes(plot, plots):
     newplots = []
     for next in routes[plot[-1]]:
         if next not in plot:
@@ -38,13 +38,22 @@ def findRoutes(plot, plots, magic):
             newplot = plot.copy()
             newplot.append(next)
             newplots.append(newplot)
+        elif next in plot[0] and plot.count(next) < 2:
+            newplot = plot.copy()
+            newplot.append(next)
+            newplots.append(newplot)
+
     # Check for repeat routes
     for check in newplots:
-        if check not in plots:
+        repeat = False
+        for validate in plots:
+            if check[1:] == validate[1:]:
+                repeat = True
+        if not repeat:
             plots.append(check)
 
     for x in newplots:
-        findRoutes(x, plots, magic)
+        findRoutes(x, plots)
 
 
 def main():
@@ -53,11 +62,11 @@ def main():
     # Part 1
     plots = []
     for x in routes["start"]:
-        plots.append(["start", x])
+        plots.append(["*", "start", x])
 
     journeys = plots.copy()
     for plot in journeys:
-        findRoutes(plot, plots, None)
+        findRoutes(plot, plots)
 
     count = 0
     for route in plots:
@@ -71,15 +80,15 @@ def main():
     for loc in routes:
         if loc.islower() and loc != "start" and loc != "end":
             smalls.append(loc)
-    print(smalls)
 
     for x in routes["start"]:
-        plots.append(["start", x])
+        for double in smalls:
+            plots.append([double + "*", "start", x])
 
-    for double in smalls:
-        journeys = plots.copy()
-        for plot in journeys:
-            findRoutes(plot, plots, double)
+    journeys = plots.copy()
+
+    for plot in journeys:
+        findRoutes(plot, plots)       
 
     count = 0
     for route in plots:
