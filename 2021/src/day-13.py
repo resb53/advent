@@ -39,7 +39,7 @@ def processFolds():
             foldHorizontally(fold[1])
         else:
             foldVertically(fold[1])
-        print(len(grid))
+        # print(len(grid))
 
 
 def foldHorizontally(fold):
@@ -58,11 +58,27 @@ def foldVertically(fold):
             grid[(2 * fold - dot.real) + dot.imag * 1j] = 1
 
 
+def visualiseGrid():
+    maxx = int(max(grid.keys(), key=lambda k: k.real).real)
+    maxy = int(max(grid.keys(), key=lambda k: k.imag).imag)
+
+    for y in range(maxy + 1):
+        for x in range(maxx + 1):
+            if x + y * 1j in grid:
+                print("█", end="")
+            else:
+                print(" ", end="")
+        print("")
+
+
 def main():
     parseInput(args.input)
 
-    # Part 1 (and 2?)
+    # Part 1
     processFolds()
+
+    # Part 2
+    visualiseGrid()
 
 
 if __name__ == "__main__":
