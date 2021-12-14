@@ -32,39 +32,43 @@ def parseInput(inp):
     for i in range(len(pattern) - 1):
         paircount[pattern[i] + pattern[i+1]] += 1
 
+    # Return first character in chain
+    return pattern[0]
+
 
 # For each pass, identify its seat
-def stepThrough(iters):
+def stepThrough(iters, paircount, first):
+    countpairs = paircount
+
     for _ in range(iters):
-        initcount = paircount.copy()
+        tmpcount = Counter()
 
-        for pair in initcount:
-            paircount[pair] -= 1
-            for gen in generate[pair]:
-                paircount[gen] += initcount[pair]
+        for pair in countpairs:
+            for new_pair in generate[pair]:
+                tmpcount[new_pair] += countpairs[pair]
 
-        # Delete 0's
-        delpair = []
-        for check in paircount:
-            if paircount[check] == 0:
-                delpair.append(check)
-        for x in delpair:
-            paircount.pop(x)
+        countpairs = tmpcount
+
+    # Count individuals
+    indivs = Counter()
+    indivs[first] += 1
+    for x in countpairs:
+        indivs[x[1]] += countpairs[x]
+
+    # print(indivs)
+    freq = indivs.most_common()
+
+    return freq[0][1] - freq[-1][1]
 
 
 def main():
-    parseInput(args.input)
+    first = parseInput(args.input)
 
-    # Part 1
-    stepThrough(10)
-
-    print(paircount)
-
-    freq = paircount.most_common()
-    print(f"Solution to part 1: {freq[0][1] - freq[-1][1]}")
+    # Part 1   
+    print(f"Solution to part 1: {stepThrough(10, paircount, first)}")
 
     # Part 2
-    return
+    print(f"Solution to part 1: {stepThrough(40, paircount, first)}")
 
 
 if __name__ == "__main__":
