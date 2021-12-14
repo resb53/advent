@@ -34,31 +34,34 @@ def parseInput(inp):
 
 
 # For each pass, identify its seat
-def stepThrough(polymer):
-    '''startnode = polymer.head
-    nextnode = startnode.next
+def stepThrough(iters):
+    for _ in range(iters):
+        initcount = paircount.copy()
 
-    while nextnode is not None:
-        newval = recipe[startnode.data][nextnode.data]
-        counter[newval] += 1
-        newnode = Node(newval)
-        startnode.next = newnode
-        newnode.next = nextnode
+        for pair in initcount:
+            paircount[pair] -= 1
+            for gen in generate[pair]:
+                paircount[gen] += initcount[pair]
 
-        startnode = nextnode
-        nextnode = startnode.next'''
+        # Delete 0's
+        delpair = []
+        for check in paircount:
+            if paircount[check] == 0:
+                delpair.append(check)
+        for x in delpair:
+            paircount.pop(x)
 
 
 def main():
     parseInput(args.input)
 
+    # Part 1
+    stepThrough(10)
+
     print(paircount)
 
-    # Part 1
-    '''for _ in range(10):
-        stepThrough(poly)
-
-    print(f"Solution to part 1: {max(counter.values()) - min(counter.values())}")'''
+    freq = paircount.most_common()
+    print(f"Solution to part 1: {freq[0][1] - freq[-1][1]}")
 
     # Part 2
     return
