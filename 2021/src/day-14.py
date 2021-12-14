@@ -2,8 +2,7 @@
 
 import argparse
 import sys
-from collections import defaultdict
-from types import NoneType
+from collections import Counter
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,25 +10,9 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-recipe = defaultdict(dict)
-counter = defaultdict(int)
-
-
-class Node:
-    def __init__(self, dataval=None):
-        self.data = dataval
-        self.next = None
-
-
-class SLL:
-    def __init__(self):
-        self.head = None
-
-    def print(self):
-        val = self.head
-        while val is not None:
-            print(val.data, end="")
-            val = val.next
+# Rather than recipe, give new pairings it produces
+generate = {}
+paircount = Counter()
 
 
 # Parse the input file
@@ -44,27 +27,15 @@ def parseInput(inp):
 
     for line in input_fh:
         (pair, result) = line.strip("\n").split(" -> ")
-        recipe[pair[0]][pair[1]] = result
+        generate[pair] = (pair[0] + result, result + pair[1])
 
-    polymer = SLL()
-    lastnode = None
-
-    for x in pattern:
-        counter[x] += 1
-        if polymer.head is None:
-            polymer.head = Node(x)
-            lastnode = polymer.head
-        else:
-            y = Node(x)
-            lastnode.next = y
-            lastnode = y
-
-    return polymer
+    for i in range(len(pattern) - 1):
+        paircount[pattern[i] + pattern[i+1]] += 1
 
 
 # For each pass, identify its seat
 def stepThrough(polymer):
-    startnode = polymer.head
+    '''startnode = polymer.head
     nextnode = startnode.next
 
     while nextnode is not None:
@@ -75,17 +46,19 @@ def stepThrough(polymer):
         newnode.next = nextnode
 
         startnode = nextnode
-        nextnode = startnode.next
+        nextnode = startnode.next'''
 
 
 def main():
-    poly = parseInput(args.input)
+    parseInput(args.input)
+
+    print(paircount)
 
     # Part 1
-    for _ in range(10):
+    '''for _ in range(10):
         stepThrough(poly)
 
-    print(f"Solution to part 1: {max(counter.values()) - min(counter.values())}")
+    print(f"Solution to part 1: {max(counter.values()) - min(counter.values())}")'''
 
     # Part 2
     return
