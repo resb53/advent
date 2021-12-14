@@ -65,7 +65,7 @@ def stepThrough(iters, paircount, first):
 def main():
     first = parseInput(args.input)
 
-    # Part 1   
+    # Part 1
     print(f"Solution to part 1: {stepThrough(10, paircount, first)}")
 
     # Part 2
