@@ -38,16 +38,17 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def stepThrough(iters, paircount, first):
+    # This makes a copy due to pass by object reference
     countpairs = paircount
 
     for _ in range(iters):
-        tmpcount = Counter()
+        newcount = Counter()
 
         for pair in countpairs:
             for new_pair in generate[pair]:
-                tmpcount[new_pair] += countpairs[pair]
+                newcount[new_pair] += countpairs[pair]
 
-        countpairs = tmpcount
+        countpairs = newcount
 
     # Count individuals
     indivs = Counter()
