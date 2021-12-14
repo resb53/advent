@@ -64,23 +64,31 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def stepThrough(polymer):
-    print(recipe)
-    print(counter)
+    startnode = polymer.head
+    nextnode = startnode.next
 
+    while nextnode is not None:
+        newval = recipe[startnode.data][nextnode.data]
+        counter[newval] += 1
+        newnode = Node(newval)
+        startnode.next = newnode
+        newnode.next = nextnode
 
-# Process harder
-def processMore():
-    return False
+        startnode = nextnode
+        nextnode = startnode.next
 
 
 def main():
     poly = parseInput(args.input)
 
     # Part 1
-    stepThrough(poly)
+    for _ in range(10):
+        stepThrough(poly)
+
+    print(f"Solution to part 1: {max(counter.values()) - min(counter.values())}")
 
     # Part 2
-    processMore()
+    return
 
 
 if __name__ == "__main__":
