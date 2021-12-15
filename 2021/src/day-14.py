@@ -69,7 +69,7 @@ def main():
     print(f"Solution to part 1: {stepThrough(10, paircount, first)}")
 
     # Part 2
-    print(f"Solution to part 1: {stepThrough(40, paircount, first)}")
+    print(f"Solution to part 2: {stepThrough(40, paircount, first)}")
 
 
 if __name__ == "__main__":
