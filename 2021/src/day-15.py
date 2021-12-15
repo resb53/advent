@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 grid = {}
 gridmax = []
-FULL = 1
+FULL = 5
 
 
 # Parse the input file
@@ -73,7 +73,10 @@ def getWeight(loc):
     magy = loc[1] // gridmax[1]
     remy = loc[1] % gridmax[1]
 
-    weight = (grid[(remx, remy)] + magx + magy) % 10
+    weight = (grid[(remx, remy)] + magx + magy)
+
+    while weight > 9:
+        weight -= 9
 
     return weight
 
