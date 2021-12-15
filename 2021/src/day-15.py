@@ -12,6 +12,7 @@ args = parser.parse_args()
 
 G = nx.DiGraph()
 grid = {}
+FULL = 1
 
 
 # Parse the input file
@@ -27,15 +28,16 @@ def parseInput(inp):
     for line in input_fh:
         line = line.strip("\n")
         for val in line:
-            G.add_node((x, y))
             grid[(x, y)] = int(val)
             x += 1
         x = 0
         y += 1
 
     # Create network of nodes between grid positions to use those as edges
-    maxx = int(max(grid.keys(), key=lambda k: k[0])[0])
-    maxy = int(max(grid.keys(), key=lambda k: k[1])[1])
+    maxx = (max(grid.keys(), key=lambda k: k[0])[0] + 1) * FULL - 1
+    maxy = (max(grid.keys(), key=lambda k: k[1])[1] + 1) * FULL - 1
+
+    print(maxx, maxy)
 
     # Set edges attributes right and down for each node unless node is right or bottom edge
     for node in G.nodes:
@@ -47,6 +49,19 @@ def parseInput(inp):
             nodedown = (node[0], node[1] + 1)
             G.add_edge(node, nodedown, weight=grid[nodedown])
             G.add_edge(nodedown, node, weight=grid[node])
+
+    for y in range(maxy + 1):
+        for x in range(maxx + 1):
+            node = (x, y)
+            G.add_node(node)
+            if x != maxx:
+                noderight = (x + 1, y)
+                G.add_edge(node, noderight, weight=grid[noderight])
+                G.add_edge(noderight, node, weight=grid[node])
+            if y != maxy:
+                nodedown = (x, y + 1)
+                G.add_edge(node, nodedown, weight=grid[nodedown])
+                G.add_edge(nodedown, node, weight=grid[node])
 
     return (maxx, maxy)
 
