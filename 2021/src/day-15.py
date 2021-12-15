@@ -87,7 +87,7 @@ def shortestPath(G, start, end):
     cost = 0
     for a, b in zip(sp, sp[1:]):
         cost += G[a][b]["weight"]
-    print(cost)
+    return cost
 
 
 # Process harder
@@ -100,10 +100,10 @@ def main():
     Graph = buildGraph(maxx, maxy)
 
     # Part 1
-    shortestPath(Graph, (0, 0), (maxx, maxy))
+    print(f"Solution to part 1: {shortestPath(Graph, (0, 0), (gridmax[0] - 1, gridmax[1] - 1))}")
 
     # Part 2
-    processMore()
+    print(f"Solution to part 2: {shortestPath(Graph, (0, 0), (maxx, maxy))}")
 
 
 if __name__ == "__main__":
