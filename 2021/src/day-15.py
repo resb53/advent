@@ -40,16 +40,6 @@ def parseInput(inp):
     print(maxx, maxy)
 
     # Set edges attributes right and down for each node unless node is right or bottom edge
-    for node in G.nodes:
-        if node[0] != maxx:
-            noderight = (node[0] + 1, node[1])
-            G.add_edge(node, noderight, weight=grid[noderight])
-            G.add_edge(noderight, node, weight=grid[node])
-        if node[1] != maxy:
-            nodedown = (node[0], node[1] + 1)
-            G.add_edge(node, nodedown, weight=grid[nodedown])
-            G.add_edge(nodedown, node, weight=grid[node])
-
     for y in range(maxy + 1):
         for x in range(maxx + 1):
             node = (x, y)
