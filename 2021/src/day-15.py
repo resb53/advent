@@ -10,8 +10,8 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-G = nx.DiGraph()
 grid = {}
+gridmax = []
 FULL = 1
 
 
@@ -34,30 +34,40 @@ def parseInput(inp):
         y += 1
 
     # Create network of nodes between grid positions to use those as edges
-    maxx = (max(grid.keys(), key=lambda k: k[0])[0] + 1) * FULL - 1
-    maxy = (max(grid.keys(), key=lambda k: k[1])[1] + 1) * FULL - 1
+    gridmax.append(max(grid.keys(), key=lambda k: k[0])[0] + 1)
+    gridmax.append(max(grid.keys(), key=lambda k: k[1])[1] + 1)
+    maxx = gridmax[0] * FULL - 1
+    maxy = gridmax[1] * FULL - 1
 
-    print(maxx, maxy)
+    return (maxx, maxy)
 
-    # Set edges attributes right and down for each node unless node is right or bottom edge
+
+# Build nx graph
+def buildGraph(maxx, maxy):
+    G = nx.DiGraph()
+
     for y in range(maxy + 1):
         for x in range(maxx + 1):
             node = (x, y)
             G.add_node(node)
             if x != maxx:
                 noderight = (x + 1, y)
-                G.add_edge(node, noderight, weight=grid[noderight])
-                G.add_edge(noderight, node, weight=grid[node])
+                weightout = grid[noderight]
+                weightback = grid[node]
+                G.add_edge(node, noderight, weight=weightout)
+                G.add_edge(noderight, node, weight=weightback)
             if y != maxy:
                 nodedown = (x, y + 1)
-                G.add_edge(node, nodedown, weight=grid[nodedown])
-                G.add_edge(nodedown, node, weight=grid[node])
+                weightout = grid[nodedown]
+                weightback = grid[node]
+                G.add_edge(node, nodedown, weight=weightout)
+                G.add_edge(nodedown, node, weight=weightback)
 
-    return (maxx, maxy)
+    return G
 
 
 # For each pass, identify its seat
-def shortestPath(start, end):
+def shortestPath(G, start, end):
     sp = nx.shortest_path(G, source=start, target=end, weight="weight")
     cost = 0
     for x in sp[1:]:
@@ -72,9 +82,10 @@ def processMore():
 
 def main():
     (maxx, maxy) = parseInput(args.input)
+    Graph = buildGraph(maxx, maxy)
 
     # Part 1
-    shortestPath((0, 0), (maxx, maxy))
+    shortestPath(Graph, (0, 0), (maxx, maxy))
 
     # Part 2
     processMore()
