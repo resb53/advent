@@ -52,26 +52,38 @@ def buildGraph(maxx, maxy):
             G.add_node(node)
             if x != maxx:
                 noderight = (x + 1, y)
-                weightout = grid[noderight]
-                weightback = grid[node]
+                weightout = getWeight(noderight)
+                weightback = getWeight(node)
                 G.add_edge(node, noderight, weight=weightout)
                 G.add_edge(noderight, node, weight=weightback)
             if y != maxy:
                 nodedown = (x, y + 1)
-                weightout = grid[nodedown]
-                weightback = grid[node]
+                weightout = getWeight(nodedown)
+                weightback = getWeight(node)
                 G.add_edge(node, nodedown, weight=weightout)
                 G.add_edge(nodedown, node, weight=weightback)
 
     return G
 
 
+# Get edge weight
+def getWeight(loc):
+    magx = loc[0] // gridmax[0]
+    remx = loc[0] % gridmax[0]
+    magy = loc[1] // gridmax[1]
+    remy = loc[1] % gridmax[1]
+
+    weight = (grid[(remx, remy)] + magx + magy) % 10
+
+    return weight
+
+
 # For each pass, identify its seat
 def shortestPath(G, start, end):
     sp = nx.shortest_path(G, source=start, target=end, weight="weight")
     cost = 0
-    for x in sp[1:]:
-        cost += grid[x]
+    for a, b in zip(sp, sp[1:]):
+        cost += G[a][b]["weight"]
     print(cost)
 
 
