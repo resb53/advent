@@ -26,9 +26,7 @@ def parseInput(inp):
 def processData(data):
     hexpos = 0
     versum = 0
-
-    # Take first two hex for headers
-    (bits, hexpos) = convHex(data, hexpos, 2)
+    bits = ""
 
     # Process packets
     done = False
@@ -44,9 +42,16 @@ def processData(data):
 
 # Process a new packet
 def processPacket(hexdata, next, bits):
-    # Process headers
+    print(f"Processing: {hexdata}, {next}, {bits}")
+
+    # Process headers (make sure at least 8 bits for safety)
+    while len(bits) < 8:
+        (newbits, next) = convHex(hexdata, next, 1)
+        bits += newbits
+
     ver = int(bits[0:3], 2)
     typ = int(bits[3:6], 2)
+    print(f"V: {ver}, T:{typ}")
 
     # Send for futher processing
     if typ == 4:
@@ -85,10 +90,9 @@ def convLiteral(hexdata, next, bits):
 def convOperator(hexdata, next, bits):
     mode = int(bits[0])
     bits = bits[1:]
+    subversum = 0
 
     if mode == 0:
-        subversum = 0
-
         while len(bits) < 15:
             (newbits, next) = convHex(hexdata, next, 1)
             bits += newbits
@@ -103,6 +107,17 @@ def convOperator(hexdata, next, bits):
 
         while (len(subpacket) > 0):
             (ver, value, next, subpacket) = processPacket(hexdata, next, subpacket)
+            subversum += ver
+
+    else:
+        while len(bits) < 11:
+            (newbits, next) = convHex(hexdata, next, 1)
+            bits += newbits
+        subpacketcount = int(bits[0:11], 2)
+        bits = bits[11:]
+
+        for _ in range(subpacketcount):
+            (ver, value, next, bits) = processPacket(hexdata, next, bits)
             subversum += ver
 
     return (0, next, bits, subversum)
