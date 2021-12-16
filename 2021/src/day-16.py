@@ -30,11 +30,13 @@ def processData(data):
 
     # Process packets
     done = False
-    while hexpos < len(data) and not done:
+    while not done:
         (ver, value, hexpos, bits) = processPacket(data, hexpos, bits)
         versum += ver
-        # Check if it's only padding remaining
-        if (bits.find("1") == -1) and (int(data[hexpos:], 16) == 0):
+        # Check if it anything is remaining and if it is only padding
+        if hexpos == len(data):
+            done = True
+        elif (bits.find("1") == -1) and (int(data[hexpos:], 16) == 0):
             done = True
 
     print(f"Solution to part 1: {versum}")
@@ -42,8 +44,6 @@ def processData(data):
 
 # Process a new packet
 def processPacket(hexdata, next, bits):
-    print(f"Processing: {hexdata}, {next}, {bits}")
-
     # Process headers (make sure at least 8 bits for safety)
     while len(bits) < 8:
         (newbits, next) = convHex(hexdata, next, 1)
@@ -51,7 +51,6 @@ def processPacket(hexdata, next, bits):
 
     ver = int(bits[0:3], 2)
     typ = int(bits[3:6], 2)
-    print(f"V: {ver}, T:{typ}")
 
     # Send for futher processing
     if typ == 4:
