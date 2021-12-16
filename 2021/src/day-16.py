@@ -25,15 +25,38 @@ def parseInput(inp):
 # For each pass, identify its seat
 def processData(data):
     hexpos = 0
+    versum = 0
+
     # Take first two hex for headers
     (bits, hexpos) = convHex(data, hexpos, 2)
+
     # Process headers
     ver = int(bits[0:3], 2)
     typ = int(bits[3:6], 2)
+    # Update sum of versions
+    versum += ver
     # Send for futher processing
     if typ == 4:
-        (value, hexpos) = convLiteral(data, hexpos, bits[6:])
+        (value, hexpos, bits) = convLiteral(data, hexpos, bits[6:])
         print(value)
+    else:
+        (value, hexpos, bits) = convOperator(data, hexpos, bits[6:])
+        print(value)
+
+
+# Process a new packet
+def processPacket(hex, next, bits):
+    # Process headers
+    ver = int(bits[0:3], 2)
+    typ = int(bits[3:6], 2)
+
+    # Send for futher processing
+    if typ == 4:
+        (value, next, bits) = convLiteral(hex, next, bits[6:])
+    else:
+        (value, next, bits) = convOperator(hex, next, bits[6:])
+
+    return (ver, value, next, bits)
 
 
 # Parse hex into binary representation
@@ -57,7 +80,33 @@ def convLiteral(hex, next, bits):
         literal += bits[1:5]
         bits = bits[5:]
 
-    return(int(literal, 2), next)
+    return(int(literal, 2), next, bits)
+
+
+def convOperator(hex, next, bits):
+    mode = int(bits[0])
+    bits = bits[1:]
+
+    if mode == 0:
+        while len(bits) < 15:
+            (newbits, next) = convHex(hex, next, 1)
+            bits += newbits
+        subpacketlength = int(bits[0:15], 2)
+        bits = bits[15:]
+
+        while len(bits) < subpacketlength:
+            (newbits, next) = convHex(hex, next, 1)
+            bits += newbits
+        subpacket = bits[0:subpacketlength]
+        bits = bits[subpacketlength:]
+
+        while (len(subpacket) > 0):
+            (ver, value, next, subpacket) = processPacket(hex, next, subpacket)
+            #if subpacket.find("1") == -1:
+            #    subpacket = ""
+            print(f"V:{ver} -- {value} -- {subpacket}")
+
+    return (0, next, bits)
 
 
 # Process harder
