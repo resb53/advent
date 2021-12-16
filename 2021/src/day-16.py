@@ -27,6 +27,7 @@ def processData(data):
     hexpos = 0
     versum = 0
     bits = ""
+    value = None
 
     # Process packets
     done = False
@@ -40,6 +41,7 @@ def processData(data):
             done = True
 
     print(f"Solution to part 1: {versum}")
+    print(f"Solution to part 2: {value}")
 
 
 # Process a new packet
@@ -51,13 +53,31 @@ def processPacket(hexdata, next, bits):
 
     ver = int(bits[0:3], 2)
     typ = int(bits[3:6], 2)
+    value = None
 
     # Send for futher processing
     if typ == 4:
         (value, next, bits) = convLiteral(hexdata, next, bits[6:])
     else:
-        (value, next, bits, subversum) = convOperator(hexdata, next, bits[6:])
+        (values, next, bits, subversum) = convOperator(hexdata, next, bits[6:])
         ver += subversum
+
+        if typ == 0:
+            value = sum(values)
+        elif typ == 1:
+            value = values.pop(0)
+            for val in values:
+                value *= val
+        elif typ == 2:
+            value = min(values)
+        elif typ == 3:
+            value = max(values)
+        elif typ == 5:
+            value = int(values[0] > values[1])
+        elif typ == 6:
+            value = int(values[0] < values[1])
+        elif typ == 7:
+            value = int(values[0] == values[1])
 
     return (ver, value, next, bits)
 
@@ -90,6 +110,7 @@ def convOperator(hexdata, next, bits):
     mode = int(bits[0])
     bits = bits[1:]
     subversum = 0
+    subvalues = []
 
     if mode == 0:
         while len(bits) < 15:
@@ -106,6 +127,7 @@ def convOperator(hexdata, next, bits):
 
         while (len(subpacket) > 0):
             (ver, value, next, subpacket) = processPacket(hexdata, next, subpacket)
+            subvalues.append(value)
             subversum += ver
 
     else:
@@ -117,9 +139,10 @@ def convOperator(hexdata, next, bits):
 
         for _ in range(subpacketcount):
             (ver, value, next, bits) = processPacket(hexdata, next, bits)
+            subvalues.append(value)
             subversum += ver
 
-    return (0, next, bits, subversum)
+    return (subvalues, next, bits, subversum)
 
 
 # Process harder
