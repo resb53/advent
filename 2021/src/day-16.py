@@ -24,11 +24,16 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def processData(data):
-    pos = 0
+    hexpos = 0
     # Take first two hex for headers
-    while pos < len(data):
-        (bits, pos) = convHex(data, pos, 2)
-        print(bits)
+    (bits, hexpos) = convHex(data, hexpos, 2)
+    # Process headers
+    ver = int(bits[0:3], 2)
+    typ = int(bits[3:6], 2)
+    # Send for futher processing
+    if typ == 4:
+        (value, hexpos) = convLiteral(data, hexpos, bits[6:])
+        print(value)
 
 
 # Parse hex into binary representation
@@ -38,6 +43,21 @@ def convHex(hex, start, size):
     form = "0>" + str(size * 4) + "b"
     binrep = format(int(data, 16), form)
     return (binrep, endpos)
+
+
+def convLiteral(hex, next, bits):
+    done = False
+    literal = ""
+    while not done:
+        while len(bits) < 5:
+            (newbits, next) = convHex(hex, next, 1)
+            bits += newbits
+        if bits[0] == "0":
+            done = True
+        literal += bits[1:5]
+        bits = bits[5:]
+
+    return(int(literal, 2), next)
 
 
 # Process harder
