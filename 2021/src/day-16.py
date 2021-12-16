@@ -30,50 +30,49 @@ def processData(data):
     # Take first two hex for headers
     (bits, hexpos) = convHex(data, hexpos, 2)
 
-    # Process headers
-    ver = int(bits[0:3], 2)
-    typ = int(bits[3:6], 2)
-    # Update sum of versions
-    versum += ver
-    # Send for futher processing
-    if typ == 4:
-        (value, hexpos, bits) = convLiteral(data, hexpos, bits[6:])
-        print(value)
-    else:
-        (value, hexpos, bits) = convOperator(data, hexpos, bits[6:])
-        print(value)
+    # Process packets
+    done = False
+    while hexpos < len(data) and not done:
+        (ver, value, hexpos, bits) = processPacket(data, hexpos, bits)
+        versum += ver
+        # Check if it's only padding remaining
+        if (bits.find("1") == -1) and (int(data[hexpos:], 16) == 0):
+            done = True
+
+    print(f"Solution to part 1: {versum}")
 
 
 # Process a new packet
-def processPacket(hex, next, bits):
+def processPacket(hexdata, next, bits):
     # Process headers
     ver = int(bits[0:3], 2)
     typ = int(bits[3:6], 2)
 
     # Send for futher processing
     if typ == 4:
-        (value, next, bits) = convLiteral(hex, next, bits[6:])
+        (value, next, bits) = convLiteral(hexdata, next, bits[6:])
     else:
-        (value, next, bits) = convOperator(hex, next, bits[6:])
+        (value, next, bits, subversum) = convOperator(hexdata, next, bits[6:])
+        ver += subversum
 
     return (ver, value, next, bits)
 
 
 # Parse hex into binary representation
-def convHex(hex, start, size):
+def convHex(hexdata, start, size):
     endpos = start+size
-    data = hex[start:endpos]
+    data = hexdata[start:endpos]
     form = "0>" + str(size * 4) + "b"
     binrep = format(int(data, 16), form)
     return (binrep, endpos)
 
 
-def convLiteral(hex, next, bits):
+def convLiteral(hexdata, next, bits):
     done = False
     literal = ""
     while not done:
         while len(bits) < 5:
-            (newbits, next) = convHex(hex, next, 1)
+            (newbits, next) = convHex(hexdata, next, 1)
             bits += newbits
         if bits[0] == "0":
             done = True
@@ -83,30 +82,30 @@ def convLiteral(hex, next, bits):
     return(int(literal, 2), next, bits)
 
 
-def convOperator(hex, next, bits):
+def convOperator(hexdata, next, bits):
     mode = int(bits[0])
     bits = bits[1:]
 
     if mode == 0:
+        subversum = 0
+
         while len(bits) < 15:
-            (newbits, next) = convHex(hex, next, 1)
+            (newbits, next) = convHex(hexdata, next, 1)
             bits += newbits
         subpacketlength = int(bits[0:15], 2)
         bits = bits[15:]
 
         while len(bits) < subpacketlength:
-            (newbits, next) = convHex(hex, next, 1)
+            (newbits, next) = convHex(hexdata, next, 1)
             bits += newbits
         subpacket = bits[0:subpacketlength]
         bits = bits[subpacketlength:]
 
         while (len(subpacket) > 0):
-            (ver, value, next, subpacket) = processPacket(hex, next, subpacket)
-            #if subpacket.find("1") == -1:
-            #    subpacket = ""
-            print(f"V:{ver} -- {value} -- {subpacket}")
+            (ver, value, next, subpacket) = processPacket(hexdata, next, subpacket)
+            subversum += ver
 
-    return (0, next, bits)
+    return (0, next, bits, subversum)
 
 
 # Process harder
