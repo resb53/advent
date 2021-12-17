@@ -47,9 +47,7 @@ def processData(data):
 # Process a new packet
 def processPacket(hexdata, next, bits):
     # Process headers (make sure at least 8 bits for safety)
-    while len(bits) < 8:
-        (newbits, next) = convHex(hexdata, next, 1)
-        bits += newbits
+    (bits, next) = getBits(hexdata, next, 8, bits)
 
     ver = int(bits[0:3], 2)
     typ = int(bits[3:6], 2)
@@ -82,22 +80,22 @@ def processPacket(hexdata, next, bits):
     return (ver, value, next, bits)
 
 
-# Parse hex into binary representation
-def convHex(hexdata, start, size):
-    endpos = start+size
-    data = hexdata[start:endpos]
-    form = "0>" + str(size * 4) + "b"
-    binrep = format(int(data, 16), form)
-    return (binrep, endpos)
+# Add more bits by parsing hex into binary representation
+def getBits(hexdata, next, size, bits):
+    while len(bits) < size:
+        data = hexdata[next:next+1]
+        newbits = format(int(data, 16), "0>4b")
+        bits += newbits
+        next += 1
+
+    return (bits, next)
 
 
 def convLiteral(hexdata, next, bits):
     done = False
     literal = ""
     while not done:
-        while len(bits) < 5:
-            (newbits, next) = convHex(hexdata, next, 1)
-            bits += newbits
+        (bits, next) = getBits(hexdata, next, 5, bits)
         if bits[0] == "0":
             done = True
         literal += bits[1:5]
@@ -113,15 +111,11 @@ def convOperator(hexdata, next, bits):
     subvalues = []
 
     if mode == 0:
-        while len(bits) < 15:
-            (newbits, next) = convHex(hexdata, next, 1)
-            bits += newbits
+        (bits, next) = getBits(hexdata, next, 15, bits)
         subpacketlength = int(bits[0:15], 2)
         bits = bits[15:]
 
-        while len(bits) < subpacketlength:
-            (newbits, next) = convHex(hexdata, next, 1)
-            bits += newbits
+        (bits, next) = getBits(hexdata, next, subpacketlength, bits)
         subpacket = bits[0:subpacketlength]
         bits = bits[subpacketlength:]
 
@@ -131,9 +125,7 @@ def convOperator(hexdata, next, bits):
             subversum += ver
 
     else:
-        while len(bits) < 11:
-            (newbits, next) = convHex(hexdata, next, 1)
-            bits += newbits
+        (bits, next) = getBits(hexdata, next, 11, bits)
         subpacketcount = int(bits[0:11], 2)
         bits = bits[11:]
 
