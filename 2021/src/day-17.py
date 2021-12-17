@@ -19,7 +19,7 @@ def calculateTrajectory():
 
 
 # Process harder
-def calculateAll():
+def calculateBounds():
     # Min velx must reach minx, do in reverse
     posx = 0
     velx = 0
@@ -32,7 +32,7 @@ def calculateAll():
     miny = target["y"][1]
     maxy = (target["y"][1] * -1) - 1
 
-    return False
+    return ((minx, maxx), (miny, maxy))
 
 
 def main():
@@ -40,7 +40,8 @@ def main():
     calculateTrajectory()
 
     # Part 2
-    calculateAll()
+    bounds = calculateBounds()
+    print(bounds)
 
 
 if __name__ == "__main__":
