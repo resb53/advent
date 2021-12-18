@@ -25,13 +25,12 @@ def parseInput(inp):
 
 
 # Work through snail numbers and add them together
-def processData():
+def doSums():
     result = data[0]
     for snumber in data[1:]:
-        print(f"{result} + {snumber}")
         result = sadd(result, snumber)
 
-    print(result)
+    return result
 
 
 # Add snail numbers
@@ -42,9 +41,8 @@ def sadd(left, right):
 # Reduce snail number
 def reduce(snumber):
     depthlist = calcdepths(snumber, 0)
-    print(depthlist)
-
     reduced = False
+
     while not reduced:
         # Check for explodes
         needexplode = False
@@ -58,8 +56,6 @@ def reduce(snumber):
                 break
         if needexplode:
             depthlist = explode(depthlist, oni)
-            print(depthlist)
-            print(rebuild(depthlist))
             continue
 
         for i, depthpair in enumerate(depthlist):
@@ -69,8 +65,6 @@ def reduce(snumber):
                 break
         if needsplit:
             depthlist = split(depthlist, oni)
-            print(depthlist)
-            print(rebuild(depthlist))
             continue
 
         reduced = True
@@ -118,7 +112,6 @@ def split(depthlist, spli):
 def rebuild(depthlist):
     while len(depthlist) > 1:
         for i in range(len(depthlist) - 1):
-            # print(f"Compare: {depthlist[i]} and {depthlist[i+1]}")
             if depthlist[i][0] == depthlist[i + 1][0]:
                 stackeddepth = [(depthlist[i][0] - 1, [depthlist[i][1], depthlist[i + 1][1]])]
                 depthlist = (depthlist[:i] + stackeddepth + depthlist[(i + 2):])
@@ -127,19 +120,28 @@ def rebuild(depthlist):
     return depthlist[0][1]
 
 
-# Process harder
-def processMore():
-    return False
+def magnitude(snumber):
+    (left, right) = snumber
+
+    if isinstance(left, int):
+        left *= 3
+    else:
+        left = magnitude(left) * 3
+
+    if isinstance(right, int):
+        right *= 2
+    else:
+        right = magnitude(right) * 2
+
+    return left + right
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    processData()
-
-    # Part 2
-    processMore()
+    answer = doSums()
+    print(f"Solution to part 1: {magnitude(answer)}")
 
 
 if __name__ == "__main__":
