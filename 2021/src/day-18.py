@@ -28,6 +28,7 @@ def parseInput(inp):
 def processData():
     result = data[0]
     for snumber in data[1:]:
+        print(f"{result} + {snumber}")
         result = sadd(result, snumber)
 
     print(result)
@@ -38,8 +39,45 @@ def sadd(left, right):
     return reduce([left, right])
 
 
+# Reduce snail number
 def reduce(snumber):
-    return snumber
+    depthlist = calcdepths(snumber, 0)
+    print(depthlist)
+
+    # Check for explodes
+    #for depthpair in depthlist:
+    #    if depthpair[0] >= 4:
+
+    # Rebuild for depthlist
+    return rebuild(depthlist)
+
+
+def calcdepths(snumber, depth):
+    (left, right) = snumber
+
+    if isinstance(left, int):
+        left = [(depth, left)]
+    else:
+        left = calcdepths(left, depth + 1)
+
+    if isinstance(right, int):
+        right = [(depth, right)]
+    else:
+        right = calcdepths(right, depth + 1)
+
+    return (left + right)
+
+
+def rebuild(depthlist):
+    while len(depthlist) > 1:
+        for i in range(len(depthlist) - 1):
+            # print(f"Compare: {depthlist[i]} and {depthlist[i+1]}")
+            if depthlist[i][0] == depthlist[i + 1][0]:
+                stackeddepth = [(depthlist[i][0] - 1, [depthlist[i][1], depthlist[i + 1][1]])]
+                depthlist = (depthlist[:i] + stackeddepth + depthlist[(i + 2):])
+                break
+
+    return depthlist[0][1]
 
 
 # Process harder
