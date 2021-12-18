@@ -44,9 +44,20 @@ def reduce(snumber):
     depthlist = calcdepths(snumber, 0)
     print(depthlist)
 
-    # Check for explodes
-    #for depthpair in depthlist:
-    #    if depthpair[0] >= 4:
+    reduced = False
+    while not reduced:
+        # Check for explodes
+        needexplode = False
+        expi = None
+        for i, depthpair in enumerate(depthlist):
+            if depthpair[0] >= 4:
+                needexplode = True
+                expi = i
+                break
+        if needexplode:
+            depthlist = explode(depthlist, expi)
+        else:
+            reduced = True
 
     # Rebuild for depthlist
     return rebuild(depthlist)
@@ -66,6 +77,17 @@ def calcdepths(snumber, depth):
         right = calcdepths(right, depth + 1)
 
     return (left + right)
+
+
+# Explode element boom of depthlist
+def explode(depthlist, boom):
+    if boom > 0:
+        depthlist[boom - 1] = (depthlist[boom - 1][0], depthlist[boom - 1][1] + depthlist[boom][1])
+    if boom < len(depthlist) - 2:
+        depthlist[boom + 2] = (depthlist[boom + 2][0], depthlist[boom + 1][1] + depthlist[boom + 2][1])
+    depthlist[boom] = (depthlist[boom][0] - 1, 0)
+    depthlist.pop(boom + 1)
+    return depthlist
 
 
 def rebuild(depthlist):
