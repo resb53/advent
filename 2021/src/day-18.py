@@ -3,6 +3,7 @@
 import argparse
 import sys
 import json
+from itertools import permutations
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -25,9 +26,9 @@ def parseInput(inp):
 
 
 # Work through snail numbers and add them together
-def doSums():
-    result = data[0]
-    for snumber in data[1:]:
+def doSums(snumbers):
+    result = snumbers[0]
+    for snumber in snumbers[1:]:
         result = sadd(result, snumber)
 
     return result
@@ -140,8 +141,18 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    answer = doSums()
+    answer = doSums(data)
     print(f"Solution to part 1: {magnitude(answer)}")
+
+    # Part 2
+    maxmag = 0
+
+    for pair in list(permutations(data, 2)):
+        mag = magnitude(doSums(pair))
+        if mag > maxmag:
+            maxmag = mag
+
+    print(f"Solution to part 2: {maxmag}")
 
 
 if __name__ == "__main__":
