@@ -48,16 +48,32 @@ def reduce(snumber):
     while not reduced:
         # Check for explodes
         needexplode = False
-        expi = None
+        needsplit = False
+        oni = None
+
         for i, depthpair in enumerate(depthlist):
             if depthpair[0] >= 4:
                 needexplode = True
-                expi = i
+                oni = i
                 break
         if needexplode:
-            depthlist = explode(depthlist, expi)
-        else:
-            reduced = True
+            depthlist = explode(depthlist, oni)
+            print(depthlist)
+            print(rebuild(depthlist))
+            continue
+
+        for i, depthpair in enumerate(depthlist):
+            if depthpair[1] >= 10:
+                needsplit = True
+                oni = i
+                break
+        if needsplit:
+            depthlist = split(depthlist, oni)
+            print(depthlist)
+            print(rebuild(depthlist))
+            continue
+
+        reduced = True
 
     # Rebuild for depthlist
     return rebuild(depthlist)
@@ -87,6 +103,15 @@ def explode(depthlist, boom):
         depthlist[boom + 2] = (depthlist[boom + 2][0], depthlist[boom + 1][1] + depthlist[boom + 2][1])
     depthlist[boom] = (depthlist[boom][0] - 1, 0)
     depthlist.pop(boom + 1)
+    return depthlist
+
+
+def split(depthlist, spli):
+    depth = depthlist[spli][0] + 1
+    left = depthlist[spli][1] // 2
+    right = depthlist[spli][1] - left
+    depthlist[spli] = (depth, left)
+    depthlist.insert(spli + 1, (depth, right))
     return depthlist
 
 
