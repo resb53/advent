@@ -13,7 +13,7 @@ args = parser.parse_args()
 reports = defaultdict(list)
 # All orientations relative to scanner 0
 orientation = {0: 0}
-position = {0: (0, 0, 0)}
+offsets = {0: (0, 0, 0)}
 done = []
 
 
@@ -52,9 +52,6 @@ def orientScanners():
 
         findOverlap(nextup)
 
-    print(orientation)
-    print(position)
-
 
 # Find overlaps with specified scanner
 def findOverlap(scanner):
@@ -69,17 +66,11 @@ def findOverlap(scanner):
                 for check in checks:
                     if checks[check] >= 12:
                         orientation[compare] = orient
-                        position[compare] = (check[0] + position[scanner][0], check[1] + position[scanner][1], check[2] + position[scanner][2])
+                        offsets[compare] = (check[0] + offsets[scanner][0],
+                                            check[1] + offsets[scanner][1],
+                                            check[2] + offsets[scanner][2])
                         reports[compare] = relposses
     done.append(scanner)
-
-
-# Translate a location
-def translate(loc, diff):
-    x = loc[0] + diff[0]
-    y = loc[1] + diff[1]
-    z = loc[2] + diff[2]
-    return (x, y, z)
 
 
 # Rotate axes
@@ -92,41 +83,63 @@ def rotateAxes(locs):
     ]
     for pos in locs:
         rotatedPos[0].append(pos)
-        rotatedPos[1].append((pos[1]     , pos[0] * -1, pos[2]     ))
-        rotatedPos[2].append((pos[0] * -1, pos[1] * -1, pos[2]     ))
-        rotatedPos[3].append((pos[1] * -1, pos[0]     , pos[2]     ))
+        rotatedPos[1].append((pos[1], pos[0] * -1, pos[2]))
+        rotatedPos[2].append((pos[0] * -1, pos[1] * -1, pos[2]))
+        rotatedPos[3].append((pos[1] * -1, pos[0], pos[2]))
 
-        rotatedPos[4].append((pos[0]     , pos[1] * -1, pos[2] * -1))
-        rotatedPos[5].append((pos[1]     , pos[0]     , pos[2] * -1))
-        rotatedPos[6].append((pos[0] * -1, pos[1]     , pos[2] * -1))
+        rotatedPos[4].append((pos[0], pos[1] * -1, pos[2] * -1))
+        rotatedPos[5].append((pos[1], pos[0], pos[2] * -1))
+        rotatedPos[6].append((pos[0] * -1, pos[1], pos[2] * -1))
         rotatedPos[7].append((pos[1] * -1, pos[0] * -1, pos[2] * -1))
 
-        rotatedPos[8].append((pos[0]     , pos[2]     , pos[1] * -1))
-        rotatedPos[9].append((pos[1]     , pos[2]     , pos[0]     ))
-        rotatedPos[10].append((pos[0] * -1, pos[2]     , pos[1]     ))
-        rotatedPos[11].append((pos[1] * -1, pos[2]     , pos[0] * -1))
+        rotatedPos[8].append((pos[0], pos[2], pos[1] * -1))
+        rotatedPos[9].append((pos[1], pos[2], pos[0]))
+        rotatedPos[10].append((pos[0] * -1, pos[2], pos[1]))
+        rotatedPos[11].append((pos[1] * -1, pos[2], pos[0] * -1))
 
-        rotatedPos[12].append((pos[0]     , pos[2] * -1, pos[1]     ))
-        rotatedPos[13].append((pos[1]     , pos[2] * -1, pos[0] * -1))
+        rotatedPos[12].append((pos[0], pos[2] * -1, pos[1]))
+        rotatedPos[13].append((pos[1], pos[2] * -1, pos[0] * -1))
         rotatedPos[14].append((pos[0] * -1, pos[2] * -1, pos[1] * -1))
-        rotatedPos[15].append((pos[1] * -1, pos[2] * -1, pos[0]     ))
+        rotatedPos[15].append((pos[1] * -1, pos[2] * -1, pos[0]))
 
-        rotatedPos[16].append((pos[2]     , pos[0]     , pos[1]     ))
-        rotatedPos[17].append((pos[2]     , pos[1]     , pos[0] * -1))
-        rotatedPos[18].append((pos[2]     , pos[0] * -1, pos[1] * -1))
-        rotatedPos[19].append((pos[2]     , pos[1] * -1, pos[0]     ))
+        rotatedPos[16].append((pos[2], pos[0], pos[1]))
+        rotatedPos[17].append((pos[2], pos[1], pos[0] * -1))
+        rotatedPos[18].append((pos[2], pos[0] * -1, pos[1] * -1))
+        rotatedPos[19].append((pos[2], pos[1] * -1, pos[0]))
 
-        rotatedPos[20].append((pos[2] * -1, pos[0]     , pos[1] * -1))
-        rotatedPos[21].append((pos[2] * -1, pos[1]     , pos[0]     ))
-        rotatedPos[22].append((pos[2] * -1, pos[0] * -1, pos[1]     ))
+        rotatedPos[20].append((pos[2] * -1, pos[0], pos[1] * -1))
+        rotatedPos[21].append((pos[2] * -1, pos[1], pos[0]))
+        rotatedPos[22].append((pos[2] * -1, pos[0] * -1, pos[1]))
         rotatedPos[23].append((pos[2] * -1, pos[1] * -1, pos[0] * -1))
 
     return rotatedPos
 
 
-# Process harder
-def processMore():
-    return False
+# Translate each report to be relative position to scanner 0
+def translateReports():
+    for i in reports:
+        newreport = []
+        for pos in reports[i]:
+            newreport.append(translate(pos, offsets[i]))
+        reports[i] = newreport
+
+
+# Translate a location
+def translate(loc, diff):
+    x = loc[0] + diff[0]
+    y = loc[1] + diff[1]
+    z = loc[2] + diff[2]
+    return (x, y, z)
+
+
+# Get set of beacons
+def getBeacons():
+    beacons = set()
+    for scanner in reports:
+        for pos in reports[scanner]:
+            beacons.add(pos)
+
+    return beacons
 
 
 def main():
@@ -134,9 +147,10 @@ def main():
 
     # Part 1
     orientScanners()
+    translateReports()
+    beacons = getBeacons()
 
-    # Part 2
-    processMore()
+    print(f"Solution to part 1: {len(beacons)}")
 
 
 if __name__ == "__main__":
