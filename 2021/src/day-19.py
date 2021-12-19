@@ -40,21 +40,18 @@ def parseInput(inp):
 def findOverlap():
     # For each beacon seen by scanner 0, compare to next scanner
     for orient, relposses in enumerate(rotateAxes(reports[1])):
+        checks = Counter()
         for compare in reports[0]:
             for relpos in relposses:
                 diff = (compare[0] - relpos[0], compare[1] - relpos[1], compare[2] - relpos[2])
-                if diff[0] == 68:
-                    print(diff)
-                if abs(diff[0]) > 1000 or abs(diff[1]) > 1000 or abs(diff[2]) > 1000:
-                    continue
-                else:
-                    hits = 0
-                    for loc in reports[0]:
-                        check = translate(loc, diff)
-                        if check in relposses:
-                            hits += 1
-                    if hits >= 12:
-                        print(hits)
+                checks[diff] += 1
+        for check in checks:
+            if checks[check] >= 12:
+                orientation[1] = orient
+                position[1] = check
+
+    print(orientation)
+    print(position)
 
 
 # Translate a location
