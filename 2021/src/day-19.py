@@ -14,6 +14,7 @@ reports = defaultdict(list)
 # All orientations relative to scanner 0
 orientation = {0: 0}
 position = {0: (0, 0, 0)}
+done = []
 
 
 # Parse the input file
@@ -31,28 +32,46 @@ def parseInput(inp):
             scanner = int(line.split(" ")[2])
         elif len(line) == 0:
             continue
-        else:           
+        else:
             (x, y, z) = line.split(",")
             reports[scanner].append((int(x), int(y), int(z)))
 
 
 # For each pass, identify its seat
-def findOverlap():
+def orientScanners():
     # For each beacon seen by scanner 0, compare to next scanner
-    for compare in range(1, len(reports)):
-        for orient, relposses in enumerate(rotateAxes(reports[compare])):
-            checks = Counter()
-            for base in reports[0]:
-                for relpos in relposses:
-                    diff = (base[0] - relpos[0], base[1] - relpos[1], base[2] - relpos[2])
-                    checks[diff] += 1
-            for check in checks:
-                if checks[check] >= 12:
-                    orientation[1] = orient
-                    position[1] = check
+    findOverlap(0)
+
+    while len(orientation) < len(reports):
+        nextup = None
+
+        for i in orientation:
+            if i not in done:
+                nextup = i
+                break
+
+        findOverlap(nextup)
 
     print(orientation)
     print(position)
+
+
+# Find overlaps with specified scanner
+def findOverlap(scanner):
+    for compare in range(len(reports)):
+        if compare not in orientation:
+            for orient, relposses in enumerate(rotateAxes(reports[compare])):
+                checks = Counter()
+                for base in reports[scanner]:
+                    for relpos in relposses:
+                        diff = (base[0] - relpos[0], base[1] - relpos[1], base[2] - relpos[2])
+                        checks[diff] += 1
+                for check in checks:
+                    if checks[check] >= 12:
+                        orientation[compare] = orient
+                        position[compare] = (check[0] + position[scanner][0], check[1] + position[scanner][1], check[2] + position[scanner][2])
+                        reports[compare] = relposses
+    done.append(scanner)
 
 
 # Translate a location
@@ -114,7 +133,7 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    findOverlap()
+    orientScanners()
 
     # Part 2
     processMore()
