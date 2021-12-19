@@ -39,16 +39,17 @@ def parseInput(inp):
 # For each pass, identify its seat
 def findOverlap():
     # For each beacon seen by scanner 0, compare to next scanner
-    for orient, relposses in enumerate(rotateAxes(reports[1])):
-        checks = Counter()
-        for compare in reports[0]:
-            for relpos in relposses:
-                diff = (compare[0] - relpos[0], compare[1] - relpos[1], compare[2] - relpos[2])
-                checks[diff] += 1
-        for check in checks:
-            if checks[check] >= 12:
-                orientation[1] = orient
-                position[1] = check
+    for compare in range(1, len(reports)):
+        for orient, relposses in enumerate(rotateAxes(reports[compare])):
+            checks = Counter()
+            for base in reports[0]:
+                for relpos in relposses:
+                    diff = (base[0] - relpos[0], base[1] - relpos[1], base[2] - relpos[2])
+                    checks[diff] += 1
+            for check in checks:
+                if checks[check] >= 12:
+                    orientation[1] = orient
+                    position[1] = check
 
     print(orientation)
     print(position)
