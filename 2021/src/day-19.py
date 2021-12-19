@@ -3,6 +3,7 @@
 import argparse
 import sys
 from collections import defaultdict, Counter
+from itertools import combinations
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -142,6 +143,14 @@ def getBeacons():
     return beacons
 
 
+def manhattan(a, b):
+    distance = 0
+    distance += abs(a[0] - b[0])
+    distance += abs(a[1] - b[1])
+    distance += abs(a[2] - b[2])
+    return distance
+
+
 def main():
     parseInput(args.input)
 
@@ -151,6 +160,17 @@ def main():
     beacons = getBeacons()
 
     print(f"Solution to part 1: {len(beacons)}")
+
+    # Part 2
+    # print(manhattan((1105, -1205, 1229), (-92, -2380, -20)))
+    biggestdiff = 0
+
+    for pairs in combinations(beacons, 2):
+        distance = manhattan(pairs[0], pairs[1])
+        if distance > biggestdiff:
+            biggestdiff = distance
+
+    print(f"Solution to part 2: {biggestdiff}")
 
 
 if __name__ == "__main__":
