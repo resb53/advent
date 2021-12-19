@@ -162,10 +162,9 @@ def main():
     print(f"Solution to part 1: {len(beacons)}")
 
     # Part 2
-    # print(manhattan((1105, -1205, 1229), (-92, -2380, -20)))
     biggestdiff = 0
 
-    for pairs in combinations(beacons, 2):
+    for pairs in combinations(offsets.values(), 2):
         distance = manhattan(pairs[0], pairs[1])
         if distance > biggestdiff:
             biggestdiff = distance
