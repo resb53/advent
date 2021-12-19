@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -13,6 +13,7 @@ args = parser.parse_args()
 reports = defaultdict(list)
 # All orientations relative to scanner 0
 orientation = {0: 0}
+position = {0: (0, 0, 0)}
 
 
 # Parse the input file
@@ -41,8 +42,8 @@ def findOverlap():
     for orient, relposses in enumerate(rotateAxes(reports[1])):
         for compare in reports[0]:
             for relpos in relposses:
-                diff = (relpos[0]-compare[0], relpos[1]-compare[1], relpos[2]-compare[2])
-                if diff[0] == -68:
+                diff = (compare[0] - relpos[0], compare[1] - relpos[1], compare[2] - relpos[2])
+                if diff[0] == 68:
                     print(diff)
                 if abs(diff[0]) > 1000 or abs(diff[1]) > 1000 or abs(diff[2]) > 1000:
                     continue
