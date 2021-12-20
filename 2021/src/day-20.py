@@ -49,17 +49,29 @@ def parseInput(inp):
 
 
 # Move through entire image enhancing values
-def enhanceImage(grid):
+def enhanceImage(grid, infspace):
     newgrid = defaultdict(int)
 
     (minx, maxx, miny, maxy) = getBounds(grid)
+
+    # Add 2 rings of infinitespace, calculate using one of them, return grid and that 1
+    for y in (miny - 2, miny - 1, maxy + 1, maxy + 2):
+        for x in range(minx - 2, maxx + 3):
+            grid[x + y * 1j] = infspace
+    for x in (minx - 2, minx - 1, maxx + 1, maxx + 2):
+        for y in range(miny, maxy + 1):
+            grid[x + y * 1j] = infspace
+
+    # printGrid(grid)
 
     for y in range(miny - 1, maxy + 2):
         for x in range(minx - 1, maxx + 2):
             pos = x + y * 1j
             newgrid[pos] = enhanceValue(grid, pos)
 
-    return newgrid
+    infspace = lookup[int(str(infspace) * 9, 2)]
+
+    return (newgrid, infspace)
 
 
 def getBounds(grid):
@@ -91,8 +103,8 @@ def enhanceValue(grid, pos):
 def printGrid(grid):
     (minx, maxx, miny, maxy) = getBounds(grid)
 
-    for y in range(miny - 1, maxy + 2):
-        for x in range(minx - 1, maxx + 2):
+    for y in range(miny, maxy + 1):
+        for x in range(minx, maxx + 1):
             pos = x + y * 1j
             print(grid[pos], end="")
         print("")
@@ -100,12 +112,11 @@ def printGrid(grid):
 
 def main():
     grid = parseInput(args.input)
+    infspace = 0
 
     # Part 1
-    for _ in range(1):
-        grid = enhanceImage(grid)
-
-    printGrid(grid)
+    for _ in range(50):
+        (grid, infspace) = enhanceImage(grid, infspace)
 
     print(f"Solution to part 1: {sum(grid.values())}")
 
