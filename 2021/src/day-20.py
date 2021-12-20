@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -10,7 +11,6 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 lookup = {}
-grid = {}
 
 
 # Parse the input file
@@ -31,6 +31,7 @@ def parseInput(inp):
 
     _ = input_fh.readline()
 
+    grid = defaultdict(int)
     loc = 0j
 
     for line in input_fh:
@@ -44,26 +45,51 @@ def parseInput(inp):
         loc -= loc.real
         loc += 1j
 
-
-# For each pass, identify its seat
-def processData():
-    print(lookup)
-    print(grid)
+    return grid
 
 
-# Process harder
-def processMore():
-    return False
+# Move through entire image enhancing values
+def enhanceImage(grid):
+    newgrid = defaultdict(int)
+
+    locs = list(grid.keys())
+
+    (minx, maxx, miny, maxy) = (0, 0, 0, 0)
+
+    for pos in locs:
+        if pos.real < minx:
+            minx = int(pos.real)
+        if pos.real > maxx:
+            maxx = int(pos.real)
+        if pos.imag < miny:
+            miny = int(pos.imag)
+        if pos.imag > maxy:
+            maxy = int(pos.imag)
+
+    for y in range(miny - 1, maxy + 2):
+        for x in range(minx - 1, maxy + 2):
+            pos = x + y * 1j
+            newgrid[pos] = enhanceValue(grid, pos)
+
+    return newgrid
+
+
+# Enhave given value in image
+def enhanceValue(grid, pos):
+    niner = ""
+    for x in [-1-1j, 0-1j, 1-1j, -1-0j, 0j, 1-0j, -1+1j, 0+1j, 1+1j]:
+        niner += str(grid[pos + x])
+    return lookup[int(niner, 2)]
 
 
 def main():
-    parseInput(args.input)
+    grid = parseInput(args.input)
 
     # Part 1
-    processData()
+    for _ in range(2):
+        grid = enhanceImage(grid)
 
-    # Part 2
-    processMore()
+    print(f"Solution to part 1: {sum(grid.values())}")
 
 
 if __name__ == "__main__":
