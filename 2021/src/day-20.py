@@ -52,6 +52,17 @@ def parseInput(inp):
 def enhanceImage(grid):
     newgrid = defaultdict(int)
 
+    (minx, maxx, miny, maxy) = getBounds(grid)
+
+    for y in range(miny - 1, maxy + 2):
+        for x in range(minx - 1, maxx + 2):
+            pos = x + y * 1j
+            newgrid[pos] = enhanceValue(grid, pos)
+
+    return newgrid
+
+
+def getBounds(grid):
     locs = list(grid.keys())
 
     (minx, maxx, miny, maxy) = (0, 0, 0, 0)
@@ -66,28 +77,35 @@ def enhanceImage(grid):
         if pos.imag > maxy:
             maxy = int(pos.imag)
 
-    for y in range(miny - 1, maxy + 2):
-        for x in range(minx - 1, maxy + 2):
-            pos = x + y * 1j
-            newgrid[pos] = enhanceValue(grid, pos)
-
-    return newgrid
+    return (minx, maxx, miny, maxy)
 
 
 # Enhave given value in image
 def enhanceValue(grid, pos):
     niner = ""
-    for x in [-1-1j, 0-1j, 1-1j, -1-0j, 0j, 1-0j, -1+1j, 0+1j, 1+1j]:
+    for x in [-1-1j, 0-1j, 1-1j, -1, 0, 1, -1+1j, 0+1j, 1+1j]:
         niner += str(grid[pos + x])
     return lookup[int(niner, 2)]
+
+
+def printGrid(grid):
+    (minx, maxx, miny, maxy) = getBounds(grid)
+
+    for y in range(miny - 1, maxy + 2):
+        for x in range(minx - 1, maxx + 2):
+            pos = x + y * 1j
+            print(grid[pos], end="")
+        print("")
 
 
 def main():
     grid = parseInput(args.input)
 
     # Part 1
-    for _ in range(2):
+    for _ in range(1):
         grid = enhanceImage(grid)
+
+    printGrid(grid)
 
     print(f"Solution to part 1: {sum(grid.values())}")
 
