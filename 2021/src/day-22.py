@@ -58,6 +58,7 @@ def cubeIntersects():
     cores = Counter()
 
     for switch in data:
+        doIntersects(cores, switch[1])
         if switch[0]:
             minx = min(switch[1]["x"])
             maxx = max(switch[1]["x"])
@@ -65,27 +66,27 @@ def cubeIntersects():
             maxy = max(switch[1]["y"])
             minz = min(switch[1]["z"])
             maxz = max(switch[1]["z"])
-            reg = (minx, maxx, miny, maxy, minz, maxz)
-            cores[reg] += 1
-        doIntersects(cores, reg)
+            cores[(minx, maxx, miny, maxy, minz, maxz)] += 1
+            print(f"on: {(minx, maxx, miny, maxy, minz, maxz)}")
 
     return cores
 
 
 # Prevent double counting of intersects, delete for cubes already considered
-def doIntersects(cores, reg):
+def doIntersects(cores, switch):
     newregs = Counter()
     for region in cores:
-        xbigmin = max(reg[0], region[0])
-        xsmolmax = min(reg[1], region[1])
-        ybigmin = max(reg[2], region[2])
-        ysmolmax = min(reg[3], region[3])
-        zbigmin = max(reg[4], region[4])
-        zsmolmax = min(reg[5], region[5])
+        xbigmin = max(switch["x"][0], region[0])
+        xsmolmax = min(switch["x"][1], region[1])
+        ybigmin = max(switch["y"][0], region[2])
+        ysmolmax = min(switch["y"][1], region[3])
+        zbigmin = max(switch["z"][0], region[4])
+        zsmolmax = min(switch["z"][1], region[5])
 
         if zbigmin <= zsmolmax:
             if ybigmin <= ysmolmax:
                 if xbigmin <= xsmolmax:
+                    print(f"forget: {(xbigmin, xsmolmax, ybigmin, ysmolmax, zbigmin, zsmolmax)}")
                     newregs[(xbigmin, xsmolmax, ybigmin, ysmolmax, zbigmin, zsmolmax)] -= 1
 
     cores.update(newregs)
