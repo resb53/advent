@@ -35,29 +35,16 @@ def parseInput(inp):
         data.append([state, box])
 
 
-# Run through reactor startup instructions
-def startReactor():
-    cores = set()
-
-    for switch in data[0:20]:
-        for z in range(switch[1]["z"][0], switch[1]["z"][1] + 1):
-            for y in range(switch[1]["y"][0], switch[1]["y"][1] + 1):
-                for x in range(switch[1]["x"][0], switch[1]["x"][1] + 1):
-                    if switch[0] == "on":
-                        cores.add((x, y, z))
-                    else:
-                        if (x, y, z) in cores:
-                            cores.remove((x, y, z))
-
-    return len(cores)
-
-
 # New approach for part 2, track blocks and calculate any intersections
-def cubeIntersects():
+def cubeIntersects(n):
+    # Lines to work through:
+    if n == "all":
+        n = len(data)
+
     # Ignore off regions
     cores = Counter()
 
-    for switch in data:
+    for switch in data[0:n]:
         doIntersects(cores, switch[1])
         if switch[0]:
             minx = min(switch[1]["x"])
@@ -67,9 +54,14 @@ def cubeIntersects():
             minz = min(switch[1]["z"])
             maxz = max(switch[1]["z"])
             cores[(minx, maxx, miny, maxy, minz, maxz)] += 1
-            print(f"on: {(minx, maxx, miny, maxy, minz, maxz)}")
+            # print(f"on: {(minx, maxx, miny, maxy, minz, maxz)}")
 
-    return cores
+    counton = 0
+
+    for reg in cores:
+        counton += (reg[1] - reg[0] + 1) * (reg[3] - reg[2] + 1) * (reg[5] - reg[4] + 1) * cores[reg]
+
+    return counton
 
 
 # Prevent double counting of intersects, delete for cubes already considered
@@ -86,8 +78,8 @@ def doIntersects(cores, switch):
         if zbigmin <= zsmolmax:
             if ybigmin <= ysmolmax:
                 if xbigmin <= xsmolmax:
-                    print(f"forget: {(xbigmin, xsmolmax, ybigmin, ysmolmax, zbigmin, zsmolmax)}")
-                    newregs[(xbigmin, xsmolmax, ybigmin, ysmolmax, zbigmin, zsmolmax)] -= 1
+                    # print(f"forget: {(xbigmin, xsmolmax, ybigmin, ysmolmax, zbigmin, zsmolmax)}")
+                    newregs[(xbigmin, xsmolmax, ybigmin, ysmolmax, zbigmin, zsmolmax)] -= cores[region]
 
     cores.update(newregs)
 
@@ -96,11 +88,11 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    print(f"Solution to part 1: {startReactor()}")
+    print(f"Solution to part 1: {cubeIntersects(20)}")
 
     # Part 2
-    print(f"Solution to part 2: {cubeIntersects()}")
-
+    solution = cubeIntersects("all")
+    print(f"Solution to part 2: {solution}")
 
 
 if __name__ == "__main__":
