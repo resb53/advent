@@ -5,6 +5,7 @@ import sys
 import networkx as nx
 import string
 import re
+from collections import Counter
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -12,6 +13,45 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
+'''
+    #############
+    #ab.c.d.e.fg#
+    ###h#i#j#k###
+      #l#m#n#o#
+      #########
+'''
+edgeweights = {
+    ("a", "b"): 1,
+    ("b", "h"): 2,
+    ("b", "c"): 2,
+    ("c", "h"): 2,
+    ("c", "i"): 2,
+    ("c", "d"): 2,
+    ("d", "i"): 2,
+    ("d", "j"): 2,
+    ("d", "e"): 2,
+    ("e", "j"): 2,
+    ("e", "k"): 2,
+    ("e", "f"): 2,
+    ("f", "k"): 2,
+    ("f", "g"): 1,
+    ("h", "l"): 1,
+    ("i", "m"): 1,
+    ("j", "n"): 1,
+    ("k", "o"): 1,
+}
+targets = {
+    "A": ("h", "l"),
+    "B": ("i", "m"),
+    "C": ("j", "n"),
+    "D": ("k", "o")
+}
+weights = {
+    "A": 1,
+    "B": 10,
+    "C": 100,
+    "D": 1000
+}
 
 # Parse the input file
 def parseInput(inp):
@@ -20,75 +60,86 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
-    startingpos = []
+    orderedlets = []
 
     for line in input_fh:
         letters = re.findall("[A-Z]", line.strip("\n"))
         if len(letters) > 0:
-            startingpos.extend(letters)
+            orderedlets.extend(letters)
+
+    startingpos = []
+
+    for letter in orderedlets:
+        pod = letter + "1"
+        if pod in startingpos:
+            pod = letter[0] + "2"
+        startingpos.append(pod)
 
     return startingpos
 
 
 # Create grid
-def buildGrid(setup):
+def buildGrid(setup, pods):
     G = nx.Graph()
     G.add_nodes_from(string.ascii_lowercase[0:15], occupied=False, occupant=None)
-    '''
-    #############
-    #ab.c.d.e.fg#
-    ###h#i#j#k###
-      #l#m#n#o#
-      #########
-    '''
-    G.add_edge("a", "b", weight=1)
-    G.add_edge("b", "c", weight=2)
-    G.add_edge("c", "d", weight=2)
-    G.add_edge("d", "e", weight=2)
-    G.add_edge("e", "f", weight=2)
-    G.add_edge("f", "g", weight=1)
-    G.add_edge("b", "h", weight=2)
-    G.add_edge("c", "h", weight=2)
-    G.add_edge("c", "i", weight=2)
-    G.add_edge("d", "i", weight=2)
-    G.add_edge("d", "j", weight=2)
-    G.add_edge("e", "j", weight=2)
-    G.add_edge("e", "k", weight=2)
-    G.add_edge("f", "k", weight=2)
-    G.add_edge("h", "l", weight=1)
-    G.add_edge("i", "m", weight=1)
-    G.add_edge("j", "n", weight=1)
-    G.add_edge("k", "o", weight=1)
+    updateEdges(G)
 
-    # distances = nx.all_pairs_dijkstra_path_length(G)
-    # for node1 in distances:
-    #     for node2 in node1[1]:
-    #         print(f"{node1[0]} to {node2}: {node1[1][node2]}")
+    attrs = {}
 
-    attrs = {
-        "h": {"occupied": True, "occupant": setup[0]},
-        "i": {"occupied": True, "occupant": setup[1]},
-        "j": {"occupied": True, "occupant": setup[2]},
-        "k": {"occupied": True, "occupant": setup[3]},
-        "l": {"occupied": True, "occupant": setup[4]},
-        "m": {"occupied": True, "occupant": setup[5]},
-        "n": {"occupied": True, "occupant": setup[6]},
-        "o": {"occupied": True, "occupant": setup[7]}
-    }
+    for i, pod in enumerate(setup):
+        node = chr(ord("h") + i)
+        attrs[node] = {"occupied": True, "occupant": pod}
+        pods[pod] = node
 
     nx.set_node_attributes(G, attrs)
-
-    for node in G.nodes:
-        print(f"{node}: {G.nodes[node]}")
 
     return G
 
 
+def updateEdges(G):
+    for edge in edgeweights:
+        G.add_edge(*edge, weight=edgeweights[edge])
+
+
+def findCheapestPath(G, pods):
+    # Key = moves, Value = cost
+    solutions = Counter()
+
+    # For each pod, calculate each initial move
+    for pod in pods:
+        paths = {}
+        allpaths = nx.single_source_dijkstra_path(G, pods[pod])
+        for end in allpaths:
+            if validPath(allpaths[end], pods):
+                cost = nx.shortest_path_length(G, allpaths[end][0], allpaths[end][-1], weight="weight") * weights[pod[0]]
+                paths[pod + allpaths[end][0] + allpaths[end][-1]] = cost
+        print(paths)
+
+
+def validPath(points, pods):
+    if len(points) == 1:
+        return False
+    for p in points[1:]:
+        if p in pods.values():
+            return False
+    return True 
+
+
 def main():
     setup = parseInput(args.input)
-    G = buildGrid(setup)
+    pods = {}
+    G = buildGrid(setup, pods)
+
+    print(sys.argv)
+
+    # for pod in pods:
+    #     print(f"{pod}:")
+    #     print(nx.single_source_dijkstra_path(G, pods[pod]))
 
     # Part 1
+    cost = findCheapestPath(G, pods)
+
+    print("Got this far, solved manually, come back to finish")
 
 
 if __name__ == "__main__":
