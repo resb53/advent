@@ -5,7 +5,6 @@ import sys
 import networkx as nx
 import string
 import re
-from collections import Counter
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -52,6 +51,7 @@ weights = {
     "C": 100,
     "D": 1000
 }
+
 
 # Parse the input file
 def parseInput(inp):
@@ -103,17 +103,39 @@ def updateEdges(G):
 
 def findCheapestPath(G, pods):
     # Key = moves, Value = cost
-    solutions = Counter()
+    states = {stateTuple(pods): 0}
 
     # For each pod, calculate each initial move
-    for pod in pods:
-        paths = {}
-        allpaths = nx.single_source_dijkstra_path(G, pods[pod])
-        for end in allpaths:
-            if validPath(allpaths[end], pods):
-                cost = nx.shortest_path_length(G, allpaths[end][0], allpaths[end][-1], weight="weight") * weights[pod[0]]
-                paths[pod + allpaths[end][0] + allpaths[end][-1]] = cost
-        print(paths)
+    for _ in range(15):
+        newstates = states.copy()
+        for state in states:
+            podpos = podDict(state)
+            for pod in podpos:
+                newpods = podpos.copy()
+                allpaths = nx.single_source_dijkstra_path(G, pods[pod])
+                for end in allpaths:
+                    if validPath(allpaths[end], pods):
+                        newpods[pod] = allpaths[end][-1]
+                        cost = states[state] + nx.shortest_path_length(G, pods[pod], newpods[pod], weight="weight") * weights[pod[0]]
+                        newstate = stateTuple(newpods)
+                        if newstate not in newstates or cost < newstates[newstate]:
+                            newstates[newstate] = cost
+
+        states = newstates
+
+    print(states)
+
+
+def stateTuple(pods):
+    state = []
+    for pod in sorted(pods):
+        state.extend([pod, pods[pod]])
+    return tuple(state)
+
+
+def podDict(pods):
+    it = iter(pods)
+    return dict(zip(it, it))
 
 
 def validPath(points, pods):
@@ -122,7 +144,7 @@ def validPath(points, pods):
     for p in points[1:]:
         if p in pods.values():
             return False
-    return True 
+    return True
 
 
 def main():
@@ -130,16 +152,10 @@ def main():
     pods = {}
     G = buildGrid(setup, pods)
 
-    print(sys.argv)
+    findCheapestPath(G, pods)
 
-    # for pod in pods:
-    #     print(f"{pod}:")
-    #     print(nx.single_source_dijkstra_path(G, pods[pod]))
-
-    # Part 1
-    cost = findCheapestPath(G, pods)
-
-    print("Got this far, solved manually, come back to finish")
+    # print("Got this far, solved manually, come back to finish")
+    # print("Save states, update if cheaper cost, don't need to track every path")
 
 
 if __name__ == "__main__":
