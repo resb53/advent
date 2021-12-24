@@ -1,0 +1,283 @@
+inp w    - W = 1st digit
+mul x 0  - noop
+add x z  - noop
+mod x 26 - noop
+div z 1  - noop
+add x 14 - X = 14
+eql x w  - noop (W 1..9)
+eql x 0  - X = 1
+mul y 0  - noop
+add y 25 - Y = 25
+mul y x  - noop
+add y 1  - Y = 26
+mul z y  - noop
+mul y 0  - Y = 0
+add y w  - Y = 1st digit
+add y 16 - Y = 1st + 16
+mul y x  - noop
+add z y  - Z = 1st + 16
+inp w    - W = 2nd
+mul x 0  - X = 0
+add x z  - X = 1st + 16
+mod x 26 - noop
+div z 1  - noop
+add x 11 - X = 1st + 27
+eql x w  - X = 0
+eql x 0  - X = 1
+mul y 0  - Y = 0
+add y 25 - Y = 25
+mul y x  - noop
+add y 1  - Y = 26
+mul z y  - Z = 26 * (1st + 16)
+mul y 0  - Y = 0
+add y w  - Y = 2nd
+add y 3  - Y = 2nd + 3
+mul y x  - noop
+add z y  - Z = (26 * (1st + 16)) + (2nd + 3)
+inp w    - W = 3rd
+mul x 0  - X = 0
+add x z  - X = (26 * (1st + 16)) + (2nd + 3)
+mod x 26 - X = ((26 * (1st + 16)) + (2nd + 3)) % 26
+div z 1  - noop
+add x 12 - X = ((26 * (1st + 16)) + (2nd + 3)) % 26 + 12
+eql x w  - X = 0 (W 1..9)
+eql x 0  - X = 1
+mul y 0  - Y = 0
+add y 25 - Y = 25
+mul y x  - noop
+add y 1  - Y = 26
+mul z y  - Z = (26 * ((26 * (1st + 16)) + (2nd + 3))
+mul y 0  - Y = 0
+add y w  - Y = 3rd
+add y 2  * Y = 3rd + 2
+mul y x  - noop
+add z y  * Z = (26 * ((26 * (1st + 16)) + (2nd + 3)) + (3rd + 2)
+inp w    * W = 4th
+mul x 0  * X = 0
+add x z
+mod x 26
+div z 1
+add x 11
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 7
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -10
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 13
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 15
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -14
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 10
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 10
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 11
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -4
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -3
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 5
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 13
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 11
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -3
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 4
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -9
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 4
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -12
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
+
+--
+
+Block 1:
+4: 1, 5: 14, 15: 14
+Block 2:
+4: 1, 5: 11, 15: 11
+Block 3:
+4: 1, 5: 12, 15: 12
+Block 4:
+4: 1, 5: 11, 15: 11
+Block 5:
+4: 26, 5: -10, 15: -10
+Block 6:
+4: 1, 5: 15, 15: 15
+Block 7:
+4: 26, 5: -14, 15: -14
+Block 8:
+4: 1, 5: 10, 15: 10
+Block 9:
+4: 26, 5: -4, 15: -4
+Block 10:
+4: 26, 5: -3, 15: -3
+Block 11:
+4: 1, 5: 13, 15: 13
+Block 12:
+4: 26, 5: -3, 15: -3
+Block 13:
+4: 26, 5: -9, 15: -9
+Block 14:
+4: 26, 5: -12, 15: -12

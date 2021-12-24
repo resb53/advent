@@ -11,6 +11,7 @@ args = parser.parse_args()
 
 vars = ["w", "x", "y", "z"]
 
+
 # Parse the input file
 def parseInput(inp):
     instr = []
@@ -71,10 +72,10 @@ def doeql(reg, a, b):
 
 # Run loaded program
 def runProgram(instr, vals):
-    register = {"w": 0, "x": 0, "y": 0, "z": 0}
+    register = {"w": 10, "x": 11, "y": 12, "z": 13}
 
-    for ins in instr:
-        print(register)
+    for i, ins in enumerate(instr):
+        print(f"{i}: {register}")
         if ins[0] == 'inp':
             doinp(register, ins[1], vals.pop(0))
         elif ins[0] == "add":
@@ -88,15 +89,92 @@ def runProgram(instr, vals):
         elif ins[0] == "eql":
             doeql(register, ins[1], ins[2])
 
-    print(register)
+    return register
+
+
+# Analyse Ops
+def analyseOps(instr):
+    analyse = instr.copy()
+    # Manual observation, blocks of 18 similar instructions. Check this:
+    n = 1
+    while len(analyse) > 0:
+        block, analyse = analyse[0:18], analyse[18:]
+        print(f"Block {n}:")
+        # Read next value into W
+        if block[0] != ["inp", "w"]:
+            print(f"{n}, 0: {block[0]}")
+        # Set X = 0
+        if block[1] != ["mul", "x", 0]:
+            print(f"{n}, 1: {block[1]}")
+        # Set X = prevZ
+        if block[2] != ["add", "x", "z"]:
+            print(f"{n}, 2: {block[2]}")
+        # X = prevZ mod 26
+        if block[3] != ["mod", "x", 26]:
+            print(f"{n}, 3: {block[3]}")
+        # Z = prevZ OR prevZ // 26
+        if block[4][0:2] != ["div", "z"]:
+            print(f"{n}, 4: {block[4]}")
+        else:
+            print(f"4: {block[4][2]}", end="")
+        # X = (Z mod 26 + A)
+        if block[5][0:2] != ["add", "x"]:
+            print(f"{n}, 5: {block[5]}")
+        else:
+            print(f", 5: {block[5][2]}", end="")
+        # X = 1 if (Z mod 26 + A) == W else 0
+        if block[6] != ["eql", "x", "w"]:
+            print(f"{n}, 6: {block[6]}")
+        # X = 1 if (Z mod 26 + A) != W else 0
+        if block[7] != ["eql", "x", 0]:
+            print(f"{n}, 7: {block[7]}")
+        # Y = 0
+        if block[8] != ["mul", "y", 0]:
+            print(f"{n}, 8: {block[8]}")
+        # Y = 25
+        if block[9] != ["add", "y", 25]:
+            print(f"{n}, 9: {block[9]}")
+        # Y = 25 if (Z mod 26 + A) != W else 0
+        if block[10] != ["mul", "y", "x"]:
+            print(f"{n}, 10: {block[10]}")
+        # Y = 26 if (Z mod 26 + A) != W else 1
+        if block[11] != ["add", "y", 1]:
+            print(f"{n}, 11: {block[11]}")
+        # Z = (26 * Z) if (Z mod 26 + A) != W else Z
+        if block[12] != ["mul", "z", "y"]:
+            print(f"{n}, 12: {block[12]}")
+        # Y = 0
+        if block[13] != ["mul", "y", 0]:
+            print(f"{n}, 13: {block[13]}")
+        # Y = W
+        if block[14] != ["add", "y", "w"]:
+            print(f"{n}, 14: {block[14]}")
+        # Y = W + B
+        if block[15][0:2] != ["add", "y"]:
+            print(f"{n}, 15: {block[15]}")
+        else:
+            print(f", 15: {block[5][2]}")
+        # Y = (W + B) if (Z mod 26 + A) != W else 0
+        if block[16] != ["mul", "y", "x"]:
+            print(f"{n}, 16: {block[16]}")
+        # Z = ((26 * Z) + (W + B)) if (Z mod 26 + A) != W else Z
+        if block[17] != ["add", "z", "y"]:
+            print(f"{n}, 17: {block[17]}")
+        n += 1
 
 
 def main():
     instr = parseInput(args.input)
-    vals = [13, 39]
 
     # Part 1
-    runProgram(instr, vals)
+    input = [
+        1, 2, 3, 4, 5,
+        6, 7, 8, 9, 1,
+        2, 3, 4, 5
+    ]
+
+    # analyseOps(instr)
+    print(runProgram(instr, input))
 
 
 if __name__ == "__main__":
