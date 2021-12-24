@@ -290,3 +290,12 @@ else:
     Z = prevZ // 26
 if (Z mod 26 + A) != W:
     Z = ((26 * Z) + (W + B))
+
+--
+
+Make simple == 0
+
+val is always [1..9]
+vars[2] is always +ve
+remainder is always +ve or 0
+z -> 0 when a is 26 if z < 6

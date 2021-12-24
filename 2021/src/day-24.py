@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -177,17 +178,46 @@ def simplifyInput(instr):
 
 
 def runSimply(instr, input):
-    input = input.copy()
-    register = {"w": 0, "x": 0, "y": 0, "z": 0}
+    instr = instr.copy()
+    z = 0
 
-    for vars in instr:
-        register["w"] = input.pop(0)
-        register["x"] = register["z"] % 26
-        register["z"] = register["z"] // vars[0]
-        if register["x"] + vars[1] != register["w"]:
-            register["z"] = ((26 * register["z"]) + register["w"] + vars[2])
+    for val in input:
+        vars = instr.pop(0)
+        remainder = z % 26
+        z = z // vars[0]
+        if remainder + vars[1] != val:
+            z = ((26 * z) + val + vars[2])
 
-    return register["z"]
+    return z
+
+
+def traceStates(instr):
+    zeds = defaultdict(int)
+    for f in range(1, 10):
+        z = runSimply(instr, [f])
+        zeds[z] = f
+
+    for n in range(2, 15):
+        print(f"Processing for digit {n}...")
+        zeds = addInput(zeds, instr)
+
+    return zeds[0]
+
+
+def addInput(zeds, instr):
+    newzeds = defaultdict(int)
+    dupes = 0
+    for f in zeds.values():
+        for g in range(1, 10):
+            val = int(str(f) + str(g))
+            vals = [int(i) for i in list(str(val))]
+            z = runSimply(instr, vals)
+            if val > newzeds[z]:
+                newzeds[z] = val
+            else:
+                dupes += 1
+
+    return newzeds
 
 
 def main():
@@ -195,15 +225,7 @@ def main():
     simpl = simplifyInput(instr)
 
     # Part 1
-    input = [
-        1, 2, 3, 4, 5,
-        6, 7, 8, 9, 1,
-        2, 3, 4, 5
-    ]
-
-    # analyseOps(instr)
-    print(runProgram(instr, input))
-    print(runSimply(simpl, input))
+    print(f"Solution to part 1: {traceStates(simpl)}")
 
 
 if __name__ == "__main__":
