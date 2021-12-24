@@ -62,7 +62,7 @@ def domod(reg, a, b):
         reg[a] = reg[a] % reg[b]
 
 
-def doequ(reg, a, b):
+def doeql(reg, a, b):
     if type(b) == int:
         reg[a] = 1 if reg[a] == b else 0
     else:
@@ -74,6 +74,7 @@ def runProgram(instr, vals):
     register = {"w": 0, "x": 0, "y": 0, "z": 0}
 
     for ins in instr:
+        print(register)
         if ins[0] == 'inp':
             doinp(register, ins[1], vals.pop(0))
         elif ins[0] == "add":
@@ -84,15 +85,15 @@ def runProgram(instr, vals):
             dodiv(register, ins[1], ins[2])
         elif ins[0] == "mod":
             domod(register, ins[1], ins[2])
-        elif ins[0] == "equ":
-            doequ(register, ins[1], ins[2])
+        elif ins[0] == "eql":
+            doeql(register, ins[1], ins[2])
 
     print(register)
 
 
 def main():
     instr = parseInput(args.input)
-    vals = [10]
+    vals = [13, 39]
 
     # Part 1
     runProgram(instr, vals)
