@@ -281,3 +281,12 @@ Block 13:
 4: 26, 5: -9, 15: -9
 Block 14:
 4: 26, 5: -12, 15: -12
+
+Rewrite as:
+W = nextinput
+if A == 1:
+    Z = prevZ
+else:
+    Z = prevZ // 26
+if (Z mod 26 + A) != W:
+    Z = ((26 * Z) + (W + B))

@@ -72,7 +72,8 @@ def doeql(reg, a, b):
 
 # Run loaded program
 def runProgram(instr, vals):
-    register = {"w": 10, "x": 11, "y": 12, "z": 13}
+    vals = vals.copy()
+    register = {"w": 0, "x": 0, "y": 0, "z": 0}
 
     for i, ins in enumerate(instr):
         print(f"{i}: {register}")
@@ -88,8 +89,10 @@ def runProgram(instr, vals):
             domod(register, ins[1], ins[2])
         elif ins[0] == "eql":
             doeql(register, ins[1], ins[2])
+        if i % 18 == 0:
+            print(register["z"])
 
-    return register
+    return register["z"]
 
 
 # Analyse Ops
@@ -153,7 +156,7 @@ def analyseOps(instr):
         if block[15][0:2] != ["add", "y"]:
             print(f"{n}, 15: {block[15]}")
         else:
-            print(f", 15: {block[5][2]}")
+            print(f", 15: {block[15][2]}")
         # Y = (W + B) if (Z mod 26 + A) != W else 0
         if block[16] != ["mul", "y", "x"]:
             print(f"{n}, 16: {block[16]}")
@@ -163,8 +166,33 @@ def analyseOps(instr):
         n += 1
 
 
+def simplifyInput(instr):
+    analyse = instr.copy()
+    simplified = []
+    while len(analyse) > 0:
+        block, analyse = analyse[0:18], analyse[18:]
+        simplified.append([block[4][2], block[5][2], block[15][2]])
+
+    return simplified
+
+
+def runSimply(instr, input):
+    input = input.copy()
+    register = {"w": 0, "x": 0, "y": 0, "z": 0}
+
+    for vars in instr:
+        print(register["z"])
+        register["w"] = input.pop(0)
+        register["z"] = register["z"] // vars[0]
+        if (register["z"] % 26) + vars[1] != register["w"]:
+            register["z"] = ((26 * register["z"]) + register["w"] + vars[2])
+
+    return register["z"]
+
+
 def main():
     instr = parseInput(args.input)
+    simpl = simplifyInput(instr)
 
     # Part 1
     input = [
@@ -175,6 +203,7 @@ def main():
 
     # analyseOps(instr)
     print(runProgram(instr, input))
+    print(runSimply(simpl, input))
 
 
 if __name__ == "__main__":
