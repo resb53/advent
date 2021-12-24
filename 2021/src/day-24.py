@@ -76,7 +76,7 @@ def runProgram(instr, vals):
     register = {"w": 0, "x": 0, "y": 0, "z": 0}
 
     for i, ins in enumerate(instr):
-        print(f"{i}: {register}")
+        # print(f"{i}: {register}")
         if ins[0] == 'inp':
             doinp(register, ins[1], vals.pop(0))
         elif ins[0] == "add":
@@ -89,8 +89,8 @@ def runProgram(instr, vals):
             domod(register, ins[1], ins[2])
         elif ins[0] == "eql":
             doeql(register, ins[1], ins[2])
-        if i % 18 == 0:
-            print(register["z"])
+        # if i % 18 == 0:
+        #     print(register["z"])
 
     return register["z"]
 
@@ -181,10 +181,10 @@ def runSimply(instr, input):
     register = {"w": 0, "x": 0, "y": 0, "z": 0}
 
     for vars in instr:
-        print(register["z"])
         register["w"] = input.pop(0)
+        register["x"] = register["z"] % 26
         register["z"] = register["z"] // vars[0]
-        if (register["z"] % 26) + vars[1] != register["w"]:
+        if register["x"] + vars[1] != register["w"]:
             register["z"] = ((26 * register["z"]) + register["w"] + vars[2])
 
     return register["z"]
