@@ -116,7 +116,8 @@ def findCheapestPath(G, pods):
                 for end in allpaths:
                     if validPath(allpaths[end], pods):
                         newpods[pod] = allpaths[end][-1]
-                        cost = states[state] + nx.shortest_path_length(G, pods[pod], newpods[pod], weight="weight") * weights[pod[0]]
+                        cost = states[state] + \
+                            nx.shortest_path_length(G, pods[pod], newpods[pod], weight="weight") * weights[pod[0]]
                         newstate = stateTuple(newpods)
                         if newstate not in newstates or cost < newstates[newstate]:
                             newstates[newstate] = cost
