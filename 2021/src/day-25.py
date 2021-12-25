@@ -65,7 +65,7 @@ def moveAll(grid, x):
 
 
 def canMove(grid, loc):
-    check = wrapGrid(grid, loc)    
+    check = wrapGrid(grid, loc)
     if grid[check] == ".":
         return True
     else:
