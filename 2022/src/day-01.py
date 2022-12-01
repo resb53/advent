@@ -19,19 +19,28 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
+    newelf = True
+
     for line in input_fh:
-        data.append(line.strip("\n"))
+        line = line.strip("\n")
+        if len(line) == 0:
+            newelf = True
+        elif newelf:
+            newelf = False
+            data.append(int(line))
+        else:
+            data[-1] += int(line)
 
 
 # For each pass, identify its seat
 def processData():
-    for element in data:
-        print(f"{element}")
+    print(f"Part 1: {max(data)}")
 
 
 # Process harder
 def processMore():
-    return False
+    orderedData = sorted(data)
+    print(f"Part 2: {orderedData[-3] + orderedData[-2] + orderedData[-1]}")
 
 
 def main():
