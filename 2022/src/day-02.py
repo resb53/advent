@@ -37,6 +37,24 @@ score = {
     }
 }
 
+newscore = {
+    "A": {
+        "X": lose + scissors,
+        "Y": draw + rock,
+        "Z": win + paper
+    },
+    "B": {
+        "X": lose + rock,
+        "Y": draw + paper,
+        "Z": win + scissors
+    },
+    "C": {
+        "X": lose + paper,
+        "Y": draw + scissors,
+        "Z": win + rock
+    }
+}
+
 
 # Parse the input file
 def parseInput(inp):
@@ -61,7 +79,12 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    totalScore = 0
+
+    for choices in data:
+        totalScore += newscore[choices[0]][choices[1]]
+
+    print(f"Part 2: {totalScore}")
 
 
 def main():
