@@ -40,7 +40,13 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    intersects = 0
+
+    for pair in data:
+        if pair[0].intersection(pair[1]):
+            intersects += 1
+
+    print(f"Part 2: {intersects}")
 
 
 def main():
