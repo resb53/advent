@@ -33,15 +33,27 @@ def parseInput(inp):
                 if match[j] != "   ":
                     crates[j-1].append(match[j][1])
 
-    print(crates)
-
     for line in input_fh:
-        data.append(line.strip("\n"))
+        match = re.match(r"^move (\d+) from (\d+) to (\d+)", line)
+
+        if match is not None:
+            data.append({
+                "move": int(match[1]),
+                "from": int(match[2]),
+                "to": int(match[3])
+            })
 
 
 # Process crate instructions
 def processData():
-    return False
+    for instr in data:
+        for _ in range(instr["move"]):
+            crates[instr["to"] - 1].append(crates[instr["from"] - 1].pop())
+
+    print("Part 1: ")
+    for stack in crates:
+        print(stack[-1], end="")
+    print("")
 
 
 # Process harder
