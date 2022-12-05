@@ -3,6 +3,7 @@
 import argparse
 import sys
 import re
+import copy
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -45,30 +46,37 @@ def parseInput(inp):
 
 
 # Process crate instructions
-def processData():
+def processData(cratelist):
     for instr in data:
         for _ in range(instr["move"]):
-            crates[instr["to"] - 1].append(crates[instr["from"] - 1].pop())
+            cratelist[instr["to"] - 1].append(cratelist[instr["from"] - 1].pop())
 
     print("Part 1: ")
-    for stack in crates:
+    for stack in cratelist:
         print(stack[-1], end="")
     print("")
 
 
 # Process harder
-def processMore():
-    return False
+def processMore(cratelist):
+    for instr in data:
+        cratelist[instr["to"] - 1].extend(cratelist[instr["from"] - 1][-1 * instr["move"]:])
+        cratelist[instr["from"] - 1] = cratelist[instr["from"] - 1][:-1 * instr["move"]]
+    
+    print("Part 2: ")
+    for stack in cratelist:
+        print(stack[-1], end="")
+    print("")
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    processData()
+    processData(copy.deepcopy(crates))
 
     # Part 2
-    processMore()
+    processMore(copy.deepcopy(crates))
 
 
 if __name__ == "__main__":
