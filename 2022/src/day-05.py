@@ -62,7 +62,7 @@ def processMore(cratelist):
     for instr in data:
         cratelist[instr["to"] - 1].extend(cratelist[instr["from"] - 1][-1 * instr["move"]:])
         cratelist[instr["from"] - 1] = cratelist[instr["from"] - 1][:-1 * instr["move"]]
-    
+
     print("Part 2: ")
     for stack in cratelist:
         print(stack[-1], end="")
