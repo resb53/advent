@@ -25,42 +25,26 @@ def parseInput(inp):
         data = list(line.strip("\n"))
 
 
-# Find first element after 4 different elements
-def processData():
-    i = 4
+# Find first element after n different elements
+def commonElements(n):
+    i = n
+    uniques = 0
 
-    while True:
-        uniques = len(set(data[i-4:i]))
-        if uniques == 4:
-            break
-        else:
-            i += 1
+    while uniques < n:
+        uniques = len(set(data[i-n:i]))
+        i += 1
 
-    print(f"Part 1: {i}")
-
-
-# Process harder
-def processMore():
-    i = 14
-
-    while True:
-        uniques = len(set(data[i-14:i]))
-        if uniques == 14:
-            break
-        else:
-            i += 1
-
-    print(f"Part 2: {i}")
+    return i - 1 
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    processData()
+    print(f"Part 1: {commonElements(4)}")
 
     # Part 2
-    processMore()
+    print(f"Part 2: {commonElements(14)}")
 
 
 if __name__ == "__main__":
