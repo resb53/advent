@@ -34,7 +34,7 @@ def commonElements(n):
         uniques = len(set(data[i-n:i]))
         i += 1
 
-    return i - 1 
+    return i - 1
 
 
 def main():
