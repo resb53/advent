@@ -41,7 +41,16 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    i = 14
+
+    while True:
+        uniques = len(set(data[i-14:i]))
+        if uniques == 14:
+            break
+        else:
+            i += 1
+
+    print(f"Part 2: {i}")
 
 
 def main():
