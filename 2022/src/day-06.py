@@ -19,14 +19,24 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
+    global data
+
     for line in input_fh:
-        data.append(line.strip("\n"))
+        data = list(line.strip("\n"))
 
 
-# For each pass, identify its seat
+# Find first element after 4 different elements
 def processData():
-    for element in data:
-        print(f"{element}")
+    i = 4
+
+    while True:
+        uniques = len(set(data[i-4:i]))
+        if uniques == 4:
+            break
+        else:
+            i += 1
+
+    print(f"Part 1: {i}")
 
 
 # Process harder
