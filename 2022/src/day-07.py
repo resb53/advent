@@ -12,20 +12,20 @@ args = parser.parse_args()
 
 
 class File:
-    def __init__(self, name: str, size: int, parent: 'Dir' = None) -> 'File':
+    def __init__(self, name, size, parent=None):
         self.name = name
         self.size = size
         self.parent = parent
 
 
 class Dir:
-    def __init__(self, name: str, parent: 'Dir' = None) -> 'Dir':
+    def __init__(self, name, parent=None):
         self.name = name
         self.size = 0
         self.parent = parent
         self.contents = []
 
-    def add(self, entity: File) -> None:
+    def add(self, entity) -> None:
         if type(entity) == File:
             self.contents.append(entity)
             entity.parent = self
@@ -34,7 +34,7 @@ class Dir:
             self.contents.append(entity)
             entity.parent = self
 
-    def updateSize(self, size: int) -> None:
+    def updateSize(self, size) -> None:
         self.size += size
         if self.parent is not None:
             self.parent.updateSize(size)
@@ -119,8 +119,7 @@ def processMore(dirSizes):
 
 def main():
     rootfs = parseInput(args.input)
-    dirSizes = defaultdict(list)
-    dirSizes = dirSize(rootfs, dirSizes)
+    dirSizes = dirSize(rootfs, defaultdict(list))
 
     # Part 1
     processData(dirSizes)
