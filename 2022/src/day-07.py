@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-import json
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -16,6 +16,8 @@ data = {
     "contents": [],
     "parent": None
 }
+
+dirSizes = defaultdict(list)
 
 
 # Parse the input file
@@ -76,13 +78,15 @@ def parseInput(inp):
 # Calculate total size of a directory
 def dirSize(dir):
     size = 0
+    global sumLessTarget
     for entity in dir["contents"]:
         if entity["type"] == "f":
             size += entity["size"]
         else:
             size += dirSize(entity)
     dir["size"] = size
-    print(f'Size of {dir["name"]} is {dir["size"]}')
+    dirSizes[dir["name"]].append(size)
+
     return dir["size"]
 
 
@@ -90,10 +94,26 @@ def dirSize(dir):
 def processData():
     dirSize(data)
 
+    sumLessTarget = 0
+    for dir in dirSizes:
+        for size in dirSizes[dir]:
+            if size <= 100000:
+                sumLessTarget += size
 
-# Process harder
+    print(f"Part 1: {sumLessTarget}")
+
+
+# Find smallest directory that frees up 30000000 space out of 70000000
 def processMore():
-    return False
+    smallest = dirSizes["/"][0]
+
+    for dir in dirSizes:
+        for size in dirSizes[dir]:
+            if dirSizes["/"][0] - size <= 40000000:
+                if size < smallest:
+                    smallest = size
+
+    print(f"Part 2: {smallest}")
 
 
 def main():
