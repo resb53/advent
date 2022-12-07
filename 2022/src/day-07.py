@@ -10,12 +10,34 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-data = {
-    "type": "d",
-    "name": "/",
-    "contents": [],
-    "parent": None
-}
+
+class File:
+    def __init__(self, name: str, size: int, parent: 'Dir' = None) -> 'File':
+        self.name = name
+        self.size = size
+        self.parent = parent
+
+
+class Dir:
+    def __init__(self, name: str, parent: 'Dir' = None) -> 'Dir':
+        self.name = name
+        self.size = 0
+        self.parent = parent
+        self.contents = []
+
+    def add(self, entity: File) -> None:
+        if type(entity) == File:
+            self.contents.append(entity)
+            entity.parent = self
+            self.updateSize(entity.size)
+        elif type(entity) == Dir:
+            self.contents.append(entity)
+            entity.parent = self
+
+    def updateSize(self, size: int) -> None:
+        self.size += size
+        if self.parent is not None:
+            self.parent.updateSize(size)
 
 
 # Parse the input file
@@ -25,7 +47,8 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
-    pwd = data
+    root = Dir("/")
+    pwd = root
 
     for line in input_fh:
         line = line.strip("\n")
@@ -35,57 +58,38 @@ def parseInput(inp):
 
             if cmd[1] == "cd":
                 if cmd[2] == "/":
-                    pwd = data
+                    pwd = root
                 elif cmd[2] == "..":
-                    pwd = pwd["parent"]
+                    pwd = pwd.parent
                 else:
-                    done = False
-                    for dir in pwd["contents"]:
-                        if cmd[2] == dir["name"]:
+                    for dir in pwd.contents:
+                        if cmd[2] == dir.name and type(dir) == Dir:
                             pwd = dir
-                            done = True
-                    if not done:
-                        pwd["contents"].append({
-                            "type": "d",
-                            "name": cmd[2],
-                            "contents": [],
-                            "parent": pwd
-                        })
-                        pwd = pwd["contents"][-1]
+                            break
+                    else:
+                        sys.exit("Unable to find directory")
 
         # Else we're in an ls for the current directory
         else:
             listing = line.split(" ")
 
             if listing[0] == "dir":
-                pwd["contents"].append({
-                    "type": "d",
-                    "name": listing[1],
-                    "contents": [],
-                    "parent": pwd
-                })
+                pwd.add(Dir(listing[1]))
             else:
-                pwd["contents"].append({
-                    "type": "f",
-                    "name": listing[1],
-                    "size": int(listing[0]),
-                    "parent": pwd
-                })
+                pwd.add(File(listing[1], int(listing[0])))
+
+    return root
 
 
-# Calculate total size of a directory
-def dirSize(dir, dirSizes):
-    size = 0
+# Collect total size of directories
+def dirSize(dir, sizes):
+    sizes[dir.name].append(dir.size)
 
-    for entity in dir["contents"]:
-        if entity["type"] == "f":
-            size += entity["size"]
-        else:
-            size += dirSize(entity, dirSizes)
-    dir["size"] = size
-    dirSizes[dir["name"]].append(size)
+    for entity in dir.contents:
+        if type(entity) == Dir:
+            dirSize(entity, sizes)
 
-    return dir["size"]
+    return sizes
 
 
 # Calculate total size for all directories
@@ -114,9 +118,9 @@ def processMore(dirSizes):
 
 
 def main():
-    parseInput(args.input)
+    rootfs = parseInput(args.input)
     dirSizes = defaultdict(list)
-    dirSize(data, dirSizes)
+    dirSizes = dirSize(rootfs, dirSizes)
 
     # Part 1
     processData(dirSizes)
