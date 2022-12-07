@@ -17,8 +17,6 @@ data = {
     "parent": None
 }
 
-dirSizes = defaultdict(list)
-
 
 # Parse the input file
 def parseInput(inp):
@@ -76,14 +74,14 @@ def parseInput(inp):
 
 
 # Calculate total size of a directory
-def dirSize(dir):
+def dirSize(dir, dirSizes):
     size = 0
-    global sumLessTarget
+
     for entity in dir["contents"]:
         if entity["type"] == "f":
             size += entity["size"]
         else:
-            size += dirSize(entity)
+            size += dirSize(entity, dirSizes)
     dir["size"] = size
     dirSizes[dir["name"]].append(size)
 
@@ -91,10 +89,9 @@ def dirSize(dir):
 
 
 # Calculate total size for all directories
-def processData():
-    dirSize(data)
-
+def processData(dirSizes):
     sumLessTarget = 0
+
     for dir in dirSizes:
         for size in dirSizes[dir]:
             if size <= 100000:
@@ -104,7 +101,7 @@ def processData():
 
 
 # Find smallest directory that frees up 30000000 space out of 70000000
-def processMore():
+def processMore(dirSizes):
     smallest = dirSizes["/"][0]
 
     for dir in dirSizes:
@@ -118,12 +115,14 @@ def processMore():
 
 def main():
     parseInput(args.input)
+    dirSizes = defaultdict(list)
+    dirSize(data, dirSizes)
 
     # Part 1
-    processData()
+    processData(dirSizes)
 
     # Part 2
-    processMore()
+    processMore(dirSizes)
 
 
 if __name__ == "__main__":
