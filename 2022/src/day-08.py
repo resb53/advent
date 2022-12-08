@@ -12,6 +12,8 @@ args = parser.parse_args()
 
 # data[y][x], top-left (0,0)
 data = []
+maxy = 0
+maxx = 0
 
 
 # Parse the input file
@@ -27,8 +29,8 @@ def parseInput(inp):
 
 # For each column / row / direction, count the visible trees
 def processData():
+    global maxx, maxy
     visible = defaultdict(int)
-
     maxy = len(data)
     maxx = len(data[0])
 
@@ -71,9 +73,46 @@ def processData():
     print(f"Part 1: {len(visible)}")
 
 
-# Process harder
+# Calculate scenic score for a given tree
+def scenicScore(x, y):
+    height = data[y][x]
+    distances = [0, 0, 0, 0]
+
+    # Right
+    for col in range(x+1, maxx):
+        distances[0] += 1
+        if data[y][col] >= height:
+            break
+    # Up
+    for row in range(y-1, -1, -1):
+        distances[1] += 1
+        if data[row][x] >= height:
+            break
+    # Left
+    for col in range(x-1, -1, -1):
+        distances[2] += 1
+        if data[y][col] >= height:
+            break
+    # Down
+    for row in range(y+1, maxy):
+        distances[3] += 1
+        if data[row][x] >= height:
+            break
+
+    return distances[0] * distances[1] * distances[2] * distances[3]
+
+
+# Calculate highest possible scenic score
 def processMore():
-    return False
+    maxScore = 0
+
+    for y in range(maxy):
+        for x in range(maxx):
+            score = scenicScore(x, y)
+            if score > maxScore:
+                maxScore = score
+
+    print(f"Part 2: {maxScore}")
 
 
 def main():
