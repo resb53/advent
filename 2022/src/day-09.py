@@ -42,7 +42,9 @@ def singleMove(dir, pos, visits=None, movehead=True):
             pos[1] += round(diff.real/2) + round(diff.imag/2) * 1j
         # Diagonal
         else:
-            if abs(diff.real) > 1:
+            if abs(diff.real) > 1 and abs(diff.imag) > 1:
+                pos[1] += round(diff.real/2) + round(diff.imag/2) * 1j
+            elif abs(diff.real) > 1:
                 pos[1] += round(diff.real/2) + diff.imag * 1j
             else:
                 pos[1] += diff.real + round(diff.imag/2) * 1j
