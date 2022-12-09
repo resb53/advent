@@ -30,7 +30,7 @@ def parseInput(inp):
         data.append([dir, int(mag)])
 
 
-def singleMove(dir, pos, visits):
+def singleMove(dir, pos, visits=None):
     # Move the head
     pos[0] += direction[dir]
     # Check the tail
@@ -46,9 +46,10 @@ def singleMove(dir, pos, visits):
             else:
                 pos[1] += diff.real + diff.imag/2 * 1j
         # Add new tail position
-        visits.add(pos[1])
-        return True
-    return False
+        if visits:
+            visits.add(pos[1])
+
+    return pos
 
 
 # Tail follows the head
@@ -65,7 +66,20 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    headtail = [0j] * 10
+    visits = {headtail[9]}
+
+    for move in data:
+        for _ in range(move[1]):
+            # For each adjacent pair of knots (Head to 8)
+            for i in range(9):
+                (headtail[i], headtail[i+1]) = singleMove(move[0], [headtail[i], headtail[i+1]])
+                print(f"After part: {headtail}")
+            # For the last pair of knots (8 and 9)
+            (headtail[8], headtail[9]) = singleMove(move[0], [headtail[8], headtail[9]], visits)
+            print(f"After Move: {headtail} - {visits}")
+
+    print(f"Part 2: {len(visits)}")
 
 
 def main():
