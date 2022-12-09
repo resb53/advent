@@ -39,13 +39,13 @@ def singleMove(dir, pos, visits=None, movehead=True):
     if abs(diff.real) > 1 or abs(diff.imag) > 1:
         # Horizontal / Vertical
         if diff.real == 0 or diff.imag == 0:
-            pos[1] += diff/2
+            pos[1] += round(diff.real/2) + round(diff.imag/2) * 1j
         # Diagonal
         else:
             if abs(diff.real) > 1:
-                pos[1] += diff.real/2 + diff.imag * 1j
+                pos[1] += round(diff.real/2) + diff.imag * 1j
             else:
-                pos[1] += diff.real + diff.imag/2 * 1j
+                pos[1] += diff.real + round(diff.imag/2) * 1j
         # Add new tail position
         if visits:
             visits.add(pos[1])
@@ -79,8 +79,6 @@ def processMore():
                 (headtail[i], headtail[i+1]) = singleMove(move[0], [headtail[i], headtail[i+1]], movehead=False)
             # For the last pair of knots (8 and 9)
             (headtail[8], headtail[9]) = singleMove(move[0], [headtail[8], headtail[9]], visits=visits, movehead=False)
-
-    print(visits)
 
     print(f"Part 2: {len(visits)}")
 
