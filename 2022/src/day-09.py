@@ -30,9 +30,10 @@ def parseInput(inp):
         data.append([dir, int(mag)])
 
 
-def singleMove(dir, pos, visits=None):
+def singleMove(dir, pos, visits=None, movehead=True):
     # Move the head
-    pos[0] += direction[dir]
+    if movehead:
+        pos[0] += direction[dir]
     # Check the tail
     diff = pos[0] - pos[1]
     if abs(diff.real) > 1 or abs(diff.imag) > 1:
@@ -59,7 +60,7 @@ def processData():
 
     for move in data:
         for _ in range(move[1]):
-            singleMove(move[0], headtail, visits)
+            singleMove(move[0], headtail, visits=visits)
 
     print(f"Part 1: {len(visits)}")
 
@@ -71,13 +72,15 @@ def processMore():
 
     for move in data:
         for _ in range(move[1]):
+            # For head and knot 1
+            (headtail[0], headtail[1]) = singleMove(move[0], [headtail[0], headtail[1]])
             # For each adjacent pair of knots (Head to 8)
-            for i in range(9):
-                (headtail[i], headtail[i+1]) = singleMove(move[0], [headtail[i], headtail[i+1]])
-                print(f"After part: {headtail}")
+            for i in range(1, 8):
+                (headtail[i], headtail[i+1]) = singleMove(move[0], [headtail[i], headtail[i+1]], movehead=False)
             # For the last pair of knots (8 and 9)
-            (headtail[8], headtail[9]) = singleMove(move[0], [headtail[8], headtail[9]], visits)
-            print(f"After Move: {headtail} - {visits}")
+            (headtail[8], headtail[9]) = singleMove(move[0], [headtail[8], headtail[9]], visits=visits, movehead=False)
+
+    print(visits)
 
     print(f"Part 2: {len(visits)}")
 
