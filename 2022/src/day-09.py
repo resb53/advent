@@ -35,13 +35,13 @@ def singleMove(dir, pos, visits):
     pos[0] += direction[dir]
     # Check the tail
     diff = pos[0] - pos[1]
-    if diff.real > 1 or diff.imag > 1:
+    if abs(diff.real) > 1 or abs(diff.imag) > 1:
         # Horizontal / Vertical
         if diff.real == 0 or diff.imag == 0:
             pos[1] += diff/2
         # Diagonal
         else:
-            if diff.real > 1:
+            if abs(diff.real) > 1:
                 pos[1] += diff.real/2 + diff.imag * 1j
             else:
                 pos[1] += diff.real + diff.imag/2 * 1j
