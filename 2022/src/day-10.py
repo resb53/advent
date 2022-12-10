@@ -10,8 +10,6 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 instr = []
-cycle = [1]
-sprite = [0, 1, 2]
 
 
 # Parse the input file
@@ -34,25 +32,41 @@ def processData():
         "noop": 1,
         "addx": 2
     }
+    cycle = [1]
+    sprite = [0, 1, 2]
 
     while ptr < len(instr) or exe is not None:
-        tick += 1
         if exe is None:
             exe = instr[ptr]
             exe.insert(0, dur[exe[0]])
             ptr += 1
         exe[0] -= 1
 
+        # Draw a pixel during this cycle
+        if tick in sprite:
+            print("#", end="")
+        else:
+            print(".", end="")
+        # New row?
+        if tick == 39:
+            print("")
+            tick = -1
+
+        # End of cycle
+        tick += 1
         if exe[0] == 0:
             # Complete action
             if exe[1] == "noop":
                 cycle.append(cycle[-1])
+                sprite = [cycle[-1] - 1, cycle[-1], cycle[-1] + 1]
             elif exe[1] == "addx":
                 cycle.append(cycle[-1] + int(exe[2]))
+                sprite = [cycle[-1] - 1, cycle[-1], cycle[-1] + 1]
             exe = None
         else:
             # No action this tick
             cycle.append(cycle[-1])
+            sprite = [cycle[-1] - 1, cycle[-1], cycle[-1] + 1]
 
     # During 20th cycle always = end of 19th cycle
     signal = 20 * cycle[19] \
