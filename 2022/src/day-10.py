@@ -44,9 +44,9 @@ def processData():
 
         # Draw a pixel during this cycle
         if tick in sprite:
-            print("#", end="")
+            print("█", end="")
         else:
-            print(".", end="")
+            print(" ", end="")
         # New row?
         if tick == 39:
             print("")
