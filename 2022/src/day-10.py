@@ -11,6 +11,7 @@ args = parser.parse_args()
 
 instr = []
 cycle = [1]
+sprite = [0, 1, 2]
 
 
 # Parse the input file
@@ -26,12 +27,32 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def processData():
-    for call in instr:
-        if call[0] == "noop":
+    tick = 0
+    ptr = 0
+    exe = None
+    dur = {
+        "noop": 1,
+        "addx": 2
+    }
+
+    while ptr < len(instr) or exe is not None:
+        tick += 1
+        if exe is None:
+            exe = instr[ptr]
+            exe.insert(0, dur[exe[0]])
+            ptr += 1
+        exe[0] -= 1
+
+        if exe[0] == 0:
+            # Complete action
+            if exe[1] == "noop":
+                cycle.append(cycle[-1])
+            elif exe[1] == "addx":
+                cycle.append(cycle[-1] + int(exe[2]))
+            exe = None
+        else:
+            # No action this tick
             cycle.append(cycle[-1])
-        elif call[0] == "addx":
-            cycle.append(cycle[-1])
-            cycle.append(cycle[-1] + int(call[1]))
 
     # During 20th cycle always = end of 19th cycle
     signal = 20 * cycle[19] \
@@ -51,12 +72,7 @@ def processMore():
 
 def main():
     parseInput(args.input)
-
-    # Part 1
     processData()
-
-    # Part 2
-    processMore()
 
 
 if __name__ == "__main__":
