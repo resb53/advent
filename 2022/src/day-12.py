@@ -3,6 +3,7 @@
 import argparse
 import sys
 import networkx as nx
+from networkx import exception as nxex
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,6 +12,7 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 grid = {}
+alocs = []
 vectors = [-1j, 1, 1j, -1]
 start = 0j
 end = 0j
@@ -35,6 +37,9 @@ def parseInput(inp):
             elif x == "E":
                 grid[i + row * 1j] = "z"
                 end = i + row * 1j
+            elif x == "a":
+                grid[i + row * 1j] = x
+                alocs.append(i + row * 1j)
             else:
                 grid[i + row * 1j] = x
         row += 1
@@ -74,8 +79,17 @@ def processData(G):
 
 
 # Process harder
-def processMore():
-    return False
+def processMore(G):
+    minroute = 500
+
+    for begin in alocs:
+        try:
+            if len(nx.shortest_path(G, begin, end)) - 1 < minroute:
+                minroute = len(nx.shortest_path(G, begin, end)) - 1
+        except nxex.NetworkXNoPath:
+            continue
+
+    print(f"Part 2: {minroute}")
 
 
 def main():
@@ -86,7 +100,7 @@ def main():
     processData(G)
 
     # Part 2
-    processMore()
+    processMore(G)
 
 
 if __name__ == "__main__":
