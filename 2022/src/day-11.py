@@ -51,7 +51,7 @@ def parseInput(inp):
     monkeys.append(monkey)
 
 
-def throwAround():
+def throwAround(div):
     for i, monkey in enumerate(monkeys):
         for item in monkey["items"]:
             # Calculate new worry
@@ -62,12 +62,14 @@ def throwAround():
             else:
                 item *= int(monkey["op"][1])
             # Bored of item
-            item = math.floor(item / 3)
+            if div:
+                item = math.floor(item / 3)
             # Throw item
+            # Store only the result of the modulus: x * y % n = (x % n) * y % n
             if item % monkey["test"] == 0:
-                monkeys[monkey["true"]]["items"].append(item)
+                monkeys[monkey["true"]]["items"].append(item % monkey["test"])
             else:
-                monkeys[monkey["false"]]["items"].append(item)
+                monkeys[monkey["false"]]["items"].append(item % monkey["test"])
             # Record throw
             activity[i] += 1
         # All items thrown
@@ -79,7 +81,7 @@ def processData():
     round = 1
 
     while round <= 20:
-        throwAround()
+        throwAround(True)
         # print(f"After round {round}:")
         # for i, monkey in enumerate(monkeys):
         #     print(f'Monkey {id}: {monkey["items"]}')
