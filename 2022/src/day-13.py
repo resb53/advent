@@ -3,6 +3,7 @@
 import argparse
 import sys
 import json
+import copy
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -27,12 +28,16 @@ def parseInput(inp):
 
 
 def comparePair(left, right):
+    # print(f"Comparing {left} and {right}...")
     while True:
         if len(left) == 0 and len(right) == 0:
+            # print("Nothing to separate, move on...")
             return None
         elif len(left) == 0:
+            # print("Left empty")
             return True
         elif len(right) == 0:
+            # print("Right empty")
             return False
 
         lcmp = left.pop(0)
@@ -40,8 +45,10 @@ def comparePair(left, right):
 
         if type(lcmp) == int and type(rcmp) == int:
             if lcmp < rcmp:
+                # print("Left < Right")
                 return True
             elif rcmp < lcmp:
+                # print("Right < Left")
                 return False
         else:
             if type(lcmp) == int:
@@ -52,24 +59,25 @@ def comparePair(left, right):
             if lookDeeper is not None:
                 return lookDeeper
 
-        return True
-
 
 # For each pass, identify its seat
-def processData():
+def processData(input):
     index = 0
     correct = []
 
-    while len(data) > 0:
+    while len(input) > 0:
         index += 1
-        if comparePair(data.pop(0), data.pop(0)):
+        if comparePair(input.pop(0), input.pop(0)):
             correct.append(index)
 
-    print(correct)
+    print(f"Part 1: {sum(correct)}")
 
 
 # Process harder
-def processMore():
+def processMore(input):
+
+    print(input)
+
     return False
 
 
@@ -77,10 +85,10 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    processData()
+    processData(copy.deepcopy(data))
 
     # Part 2
-    processMore()
+    processMore(copy.deepcopy(data))
 
 
 if __name__ == "__main__":
