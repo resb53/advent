@@ -75,10 +75,35 @@ def processData(input):
 
 # Process harder
 def processMore(input):
+    newcheck = []
+    changed = True
 
-    print(input)
+    while changed:
+        changed = False
+        left = input.pop(0)
+        right = input.pop(0)
 
-    return False
+        while len(input) > 0:
+            if comparePair(copy.deepcopy(left), copy.deepcopy(right)):
+                newcheck.append(left)
+                left = right
+                right = input.pop(0)
+            else:
+                newcheck.append(right)
+                right = input.pop(0)
+                changed = True
+
+        if comparePair(copy.deepcopy(left), copy.deepcopy(right)):
+            newcheck.extend([left, right])
+        else:
+            newcheck.extend([right, left])
+            changed = True
+
+        if changed:
+            input = copy.deepcopy(newcheck)
+            newcheck = []
+
+    print(f"Part 2: {(newcheck.index([[2]]) + 1) * (newcheck.index([[6]]) + 1)}")
 
 
 def main():
@@ -88,7 +113,9 @@ def main():
     processData(copy.deepcopy(data))
 
     # Part 2
-    processMore(copy.deepcopy(data))
+    withdividers = copy.deepcopy(data)
+    withdividers.extend([[[2]], [[6]]])
+    processMore(withdividers)
 
 
 if __name__ == "__main__":
