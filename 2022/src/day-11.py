@@ -4,6 +4,7 @@ import argparse
 import sys
 import math
 from collections import defaultdict
+import copy
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,8 +12,7 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-monkeys = []
-activity = defaultdict(int)
+data = []
 
 
 # Parse the input file
@@ -29,7 +29,7 @@ def parseInput(inp):
 
         if line.startswith("Monkey"):
             if len(monkey) != 0:
-                monkeys.append(monkey)
+                data.append(monkey)
             monkey = {}
 
         if line.startswith("  Starting items"):
@@ -48,10 +48,12 @@ def parseInput(inp):
         if line.startswith("    If false"):
             monkey["false"] = int(line.split(" ")[9])
 
-    monkeys.append(monkey)
+    data.append(monkey)
+
+    return math.prod([x["test"] for x in data])
 
 
-def throwAround(div):
+def throwAround(monkeys, activity, div=True, magic=0):
     for i, monkey in enumerate(monkeys):
         for item in monkey["items"]:
             # Calculate new worry
@@ -61,15 +63,22 @@ def throwAround(div):
                 item *= item
             else:
                 item *= int(monkey["op"][1])
-            # Bored of item
+            # Part 1
             if div:
+                # Bored of item
                 item = math.floor(item / 3)
-            # Throw item
-            # Store only the result of the modulus: x * y % n = (x % n) * y % n
-            if item % monkey["test"] == 0:
-                monkeys[monkey["true"]]["items"].append(item % monkey["test"])
+                # Throw item
+                if item % monkey["test"] == 0:
+                    monkeys[monkey["true"]]["items"].append(item)
+                else:
+                    monkeys[monkey["false"]]["items"].append(item)
+            # Part 2
             else:
-                monkeys[monkey["false"]]["items"].append(item % monkey["test"])
+                # Throw item
+                if item % monkey["test"] == 0:
+                    monkeys[monkey["true"]]["items"].append(item % magic)
+                else:
+                    monkeys[monkey["false"]]["items"].append(item % magic)
             # Record throw
             activity[i] += 1
         # All items thrown
@@ -77,14 +86,12 @@ def throwAround(div):
 
 
 # For each pass, identify its seat
-def processData():
+def processData(monkeys):
     round = 1
+    activity = defaultdict(int)
 
     while round <= 20:
-        throwAround(True)
-        # print(f"After round {round}:")
-        # for i, monkey in enumerate(monkeys):
-        #     print(f'Monkey {id}: {monkey["items"]}')
+        throwAround(monkeys, activity)
         round += 1
 
     orderedact = sorted(activity.items(), key=lambda x: x[1])
@@ -92,18 +99,26 @@ def processData():
 
 
 # Process harder
-def processMore():
-    return False
+def processMore(monkeys, magic):
+    round = 1
+    activity = defaultdict(int)
+
+    while round <= 10000:
+        throwAround(monkeys, activity, div=False, magic=magic)
+        round += 1
+
+    orderedact = sorted(activity.items(), key=lambda x: x[1])
+    print(f"Part 2: {orderedact[-1][1] * orderedact[-2][1]}")
 
 
 def main():
-    parseInput(args.input)
+    magic = parseInput(args.input)
 
     # Part 1
-    processData()
+    processData(copy.deepcopy(data))
 
     # Part 2
-    processMore()
+    processMore(copy.deepcopy(data), magic)
 
 
 if __name__ == "__main__":
