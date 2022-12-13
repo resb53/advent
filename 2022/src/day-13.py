@@ -55,8 +55,7 @@ def comparePair(left, right):
                 lcmp = [lcmp]
             if type(rcmp) == int:
                 rcmp = [rcmp]
-            lookDeeper = comparePair(lcmp, rcmp)
-            if lookDeeper is not None:
+            if (lookDeeper := comparePair(lcmp, rcmp)) is not None:
                 return lookDeeper
 
 
