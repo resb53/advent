@@ -10,7 +10,6 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 walls = set()
-sands = set()
 
 
 # Parse the input file
@@ -41,7 +40,7 @@ def parseInput(inp):
 
 
 # Find where a grain of sand will come to rest
-def sandfall(sand, voidy):
+def sandfall(sand, voidy, sands, continuous=False):
     if sand + 1j not in walls and sand + 1j not in sands:
         newsand = sand + 1j
     elif sand - 1 + 1j not in walls and sand - 1 + 1j not in sands:
@@ -51,26 +50,46 @@ def sandfall(sand, voidy):
     else:
         return sand
 
-    if int(newsand.imag) != voidy:
-        return sandfall(newsand, voidy)
+    if not continuous:
+        # Part 1
+        if int(newsand.imag) != voidy:
+            return sandfall(newsand, voidy, sands)
+        else:
+            return False
     else:
-        return False
+        # Part 2
+        if int(newsand.imag) != voidy:
+            return sandfall(newsand, voidy, sands, continuous=True)
+        else:
+            return sand
 
 
 # Let sand fall fro 500,0 till it reaches the void
 def processData():
     origin = 500 + 0j
     voidy = max([int(y.imag) for y in walls])
+    sands = set()
 
-    while sandrest := sandfall(origin, voidy):
+    while sandrest := sandfall(origin, voidy, sands):
         sands.add(sandrest)
 
     print(f"Part 1: {len(sands)}")
 
 
-# Process harder
+# No void, but a floor instead
 def processMore():
-    return False
+    origin = 500 + 0j
+    floor = max([int(y.imag) for y in walls]) + 2
+    sands = set()
+
+    while sandrest := sandfall(origin, floor, sands, continuous=True):
+        if sandrest == origin:
+            sands.add(sandrest)
+            break
+        else:
+            sands.add(sandrest)
+
+    print(f"Part 2: {len(sands)}")
 
 
 def main():
