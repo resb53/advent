@@ -62,8 +62,7 @@ def processMore():
     minvalue = 0
     maxvalue = 4000000
 
-    for rowno in range(minvalue, maxvalue + 1):
-        print(rowno, end="\r")
+    for rowno in range(maxvalue, minvalue - 1, -1):
         edges = set()
 
         for pair in data:
@@ -81,6 +80,8 @@ def processMore():
                 return (last + 1, rowno)
             elif ends[1] > last:
                 last = ends[1]
+            if last > maxvalue:
+                break
 
 
 def main():
