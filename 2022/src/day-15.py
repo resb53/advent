@@ -45,11 +45,8 @@ def processData():
         mdist = pair[4]
 
         # if dection range intersects the target row
-        if pair[1] <= rowno and pair[1] + mdist >= rowno:
-            halfwidth = mdist - (rowno - pair[1])
-            row.update(range(pair[0] - halfwidth, pair[0] + halfwidth + 1))
-        elif pair[1] > rowno and pair[1] - mdist <= rowno:
-            halfwidth = mdist - (pair[1] - rowno)
+        halfwidth = mdist - abs(rowno - pair[1])
+        if halfwidth >= 0:
             row.update(range(pair[0] - halfwidth, pair[0] + halfwidth + 1))
 
     # Remove tiles with known beacons
@@ -64,33 +61,26 @@ def processData():
 def processMore():
     minvalue = 0
     maxvalue = 4000000
-    available = set()
 
     for rowno in range(minvalue, maxvalue + 1):
-        print(rowno)
-        row = set()
+        print(rowno, end="\r")
+        edges = set()
 
         for pair in data:
             mdist = pair[4]
 
             # if dection range intersects the target row
-            if pair[1] <= rowno and pair[1] + mdist >= rowno:
-                halfwidth = mdist - (rowno - pair[1])
-                lowest = max(minvalue, pair[0] - halfwidth)
-                highest = min(maxvalue, pair[0] + halfwidth)
-                row.update(range(lowest, highest + 1))
-            elif pair[1] > rowno and pair[1] - mdist <= rowno:
-                halfwidth = mdist - (pair[1] - rowno)
-                lowest = max(minvalue, pair[0] - halfwidth)
-                highest = min(maxvalue, pair[0] + halfwidth)
-                row.update(range(pair[0] - halfwidth, pair[0] + halfwidth + 1))
+            halfwidth = mdist - abs(rowno - pair[1])
+            if halfwidth >= 0:
+                edges.add((max(minvalue, pair[0] - halfwidth), min(maxvalue, pair[0] + halfwidth)))
 
-        for x in range(minvalue, maxvalue+1):
-            if x not in row:
-                available.add(x + rowno * 1j)
-
-    print(available)
-
+        # See if there's a gap:
+        last = 0
+        for ends in sorted(edges):
+            if ends[0] > last + 1:
+                return (last + 1, rowno)
+            elif ends[1] > last:
+                last = ends[1]
 
 
 def main():
@@ -100,7 +90,9 @@ def main():
     processData()
 
     # Part 2
-    processMore()
+    location = processMore()
+    if location is not None:
+        print(f"Part 2: {4000000 * location[0] + location[1]}")
 
 
 if __name__ == "__main__":
