@@ -23,7 +23,9 @@ def parseInput(inp):
     for line in input_fh:
         match = re.match(r"^Sensor at x=(\-?\d+), y=(\-?\d+): closest beacon is at x=(\-?\d+), y=(\-?\d+)", line)
         if match is not None:
-            data.append([int(x) for x in (match[1], match[2], match[3], match[4])])
+            coords = [int(x) for x in (match[1], match[2], match[3], match[4])]
+            coords.append(getManhattan(coords))
+            data.append([int(x) for x in coords])
         else:
             print(f"Error parsing {line}")
 
@@ -34,13 +36,13 @@ def getManhattan(coords):
     return abs(p1x - p2x) + abs(p1y - p2y)
 
 
-# For each pass, identify its seat
+# For given row, calculate how many positions a beacon can't be in
 def processData():
     row = set()
     rowno = 2000000
 
     for pair in data:
-        mdist = getManhattan(pair)
+        mdist = pair[4]
 
         # if dection range intersects the target row
         if pair[1] <= rowno and pair[1] + mdist >= rowno:
@@ -58,9 +60,37 @@ def processData():
     print(f"Part 1: {len(row)}")
 
 
-# Process harder
+# Find the only possible location of the hidden beacon
 def processMore():
-    return False
+    minvalue = 0
+    maxvalue = 4000000
+    available = set()
+
+    for rowno in range(minvalue, maxvalue + 1):
+        print(rowno)
+        row = set()
+
+        for pair in data:
+            mdist = pair[4]
+
+            # if dection range intersects the target row
+            if pair[1] <= rowno and pair[1] + mdist >= rowno:
+                halfwidth = mdist - (rowno - pair[1])
+                lowest = max(minvalue, pair[0] - halfwidth)
+                highest = min(maxvalue, pair[0] + halfwidth)
+                row.update(range(lowest, highest + 1))
+            elif pair[1] > rowno and pair[1] - mdist <= rowno:
+                halfwidth = mdist - (pair[1] - rowno)
+                lowest = max(minvalue, pair[0] - halfwidth)
+                highest = min(maxvalue, pair[0] + halfwidth)
+                row.update(range(pair[0] - halfwidth, pair[0] + halfwidth + 1))
+
+        for x in range(minvalue, maxvalue+1):
+            if x not in row:
+                available.add(x + rowno * 1j)
+
+    print(available)
+
 
 
 def main():
