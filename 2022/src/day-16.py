@@ -5,7 +5,7 @@ import sys
 import networkx as nx
 import re
 import copy
-from itertools import combinations, permutations
+from itertools import combinations
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -51,53 +51,102 @@ def caveMap():
                 print(f"Check {connect}")
         G.remove_node(node)
 
-    # print(G.nodes())
-    # for edge in G.edges():
-    #     print(f'{edge}: {G.edges[edge]["weight"]}')
-
     return G
 
 
 # Find route that releases the most pressure in 30 minutes
 def processData(caves: nx.Graph):
-    routes = [[["AA"], 0, 0, 0, set(caves.nodes())]]
+    routes = [["AA", 0, 0, 0, set(caves.nodes())]]
     routes[0][4].remove("AA")
     results = []
+    maxtime = 30
 
     for _ in range(len(caves.nodes())):
         previous = routes
         routes = []
         for route in previous:
-            change = False
-            for node in route[4]:
-                change = True
-                elapsed = nx.shortest_path_length(caves, route[0][-1], node, "weight") + 1
-                time = route[1] + elapsed
-                if time > 30:
-                    results.append(route[2] + ((30 - route[1]) * route[3]))
+            if len(route[4]) > 0:
+                for node in route[4]:
+                    elapsed = nx.shortest_path_length(caves, route[0], node, "weight") + 1
+                    time = route[1] + elapsed
+                    if time > maxtime:
+                        results.append(route[2] + ((maxtime - route[1]) * route[3]))
+                    else:
+                        released = route[2] + route[3] * elapsed
+                        notopen = copy.deepcopy(route[4])
+                        notopen.remove(node)
+                        flow = route[3] + caves.nodes[node]["flow"]
+                        routes.append([node, time, released, flow, notopen])
+            else:
+                results.append(route[2] + ((maxtime - route[1]) * route[3]))
+
+    print(f"Part 1: {max(results)}")
+
+
+# Work with an elephant for 26 minutes
+def processMore(caves):
+    routes = [[["AA", 0], ["AA", 0], 0, 0, 0, set(caves.nodes())]]
+    routes[0][5].remove("AA")
+    results = []
+    maxtime = 26
+
+    for _ in range(len(caves.nodes())):
+        previous = routes
+        routes = []
+        for route in previous:
+            if len(route[5]) > 0:
+                # Advance time by shortest distance moved/opened
+                advance = min(route[0][1], route[1][1], maxtime - route[2])
+                me = [route[0][0], route[0][1] - advance]
+                ele = [route[1][0], route[1][1] - advance]
+                time = route[2] + advance
+                released = route[3] + route[4] * advance
+                flow = route[4]
+                if me[1] == 0:
+                    flow += caves.nodes[me[0]]["flow"]
+                if ele[1] == 0:
+                    flow += caves.nodes[ele[0]]["flow"]
+                # Check time
+                if time >= maxtime:
+                    results.append(route[3] + ((maxtime - route[2]) * route[4]))
+                # Get new destinations
                 else:
-                    released = route[2] + route[3] * elapsed
-                    notopen = copy.deepcopy(route[4])
-                    notopen.remove(node)
-                    flow = route[3] + caves.nodes[node]["flow"]
-                    path = copy.deepcopy(route[0])
-                    path.append(node)
-                    routes.append([path, time, released, flow, notopen])
-            if not change:
-                final = route[2] + ((30 - route[1]) * route[3])
-                results.append(final)
+                    if ele[1] != 0:
+                        for node in route[4]:
+                            notopen = copy.deepcopy(route[5])
+                            notopen.remove(node)
+                            me[0] = node
+                            me[1] = nx.shortest_path_length(caves, me[0], node, "weight") + 1
+                            routes.append([me, ele, time, released, flow, notopen])
+                    elif me[1] != 0:
+                        for node in route[4]:
+                            notopen = copy.deepcopy(route[5])
+                            notopen.remove(node)
+                            ele[0] = node
+                            ele[1] = nx.shortest_path_length(caves, ele[0], node, "weight") + 1
+                            routes.append([me, ele, time, released, flow, notopen])
+                    else:
+                        for pair in combinations(route[5], 2):
+                            notopen = copy.deepcopy(route[5])
+                            notopen.remove(pair[0])
+                            notopen.remove(pair[1])
+                            me[0] = pair[0]
+                            me[1] = nx.shortest_path_length(caves, me[0], pair[0], "weight") + 1
+                            ele[0] = pair[1]
+                            ele[1] = nx.shortest_path_length(caves, ele[0], pair[1], "weight") + 1
+                            routes.append([me, ele, time, released, flow, notopen])
 
-        # for x in routes:
-        #     print(x)
+                            notopen = copy.deepcopy(notopen)
+                            me[0] = pair[1]
+                            me[1] = nx.shortest_path_length(caves, me[0], pair[1], "weight") + 1
+                            ele[0] = pair[0]
+                            ele[1] = nx.shortest_path_length(caves, ele[0], pair[0], "weight") + 1
+                            routes.append([me, ele, time, released, flow, notopen])
 
-        # print("======")
+            else:
+                results.append(route[3] + ((maxtime - route[2]) * route[4]))
 
-    print(max(results))
-
-
-# Process harder
-def processMore():
-    return False
+    print(f"Part 2: {max(results)}")
 
 
 def main():
@@ -108,7 +157,7 @@ def main():
     processData(caves)
 
     # Part 2
-    processMore()
+    processMore(caves)
 
 
 if __name__ == "__main__":
