@@ -112,39 +112,37 @@ def processMore(caves):
                 # Get new destinations
                 else:
                     if ele[1] != 0:
-                        for node in route[4]:
+                        for node in route[5]:
                             notopen = copy.deepcopy(route[5])
                             notopen.remove(node)
-                            me[0] = node
-                            me[1] = nx.shortest_path_length(caves, me[0], node, "weight") + 1
-                            routes.append([me, ele, time, released, flow, notopen])
+                            path = [node, nx.shortest_path_length(caves, me[0], node, "weight") + 1]
+                            routes.append([path, ele, time, released, flow, notopen])
                     elif me[1] != 0:
-                        for node in route[4]:
+                        for node in route[5]:
                             notopen = copy.deepcopy(route[5])
                             notopen.remove(node)
-                            ele[0] = node
-                            ele[1] = nx.shortest_path_length(caves, ele[0], node, "weight") + 1
-                            routes.append([me, ele, time, released, flow, notopen])
+                            path = [node, nx.shortest_path_length(caves, ele[0], node, "weight") + 1]
+                            routes.append([me, path, time, released, flow, notopen])
                     else:
                         for pair in combinations(route[5], 2):
                             notopen = copy.deepcopy(route[5])
                             notopen.remove(pair[0])
                             notopen.remove(pair[1])
-                            me[0] = pair[0]
-                            me[1] = nx.shortest_path_length(caves, me[0], pair[0], "weight") + 1
-                            ele[0] = pair[1]
-                            ele[1] = nx.shortest_path_length(caves, ele[0], pair[1], "weight") + 1
-                            routes.append([me, ele, time, released, flow, notopen])
+                            a = [pair[0], nx.shortest_path_length(caves, me[0], pair[0], "weight") + 1]
+                            b = [pair[1], nx.shortest_path_length(caves, ele[0], pair[1], "weight") + 1]
+                            routes.append([a, b, time, released, flow, notopen])
 
                             notopen = copy.deepcopy(notopen)
-                            me[0] = pair[1]
-                            me[1] = nx.shortest_path_length(caves, me[0], pair[1], "weight") + 1
-                            ele[0] = pair[0]
-                            ele[1] = nx.shortest_path_length(caves, ele[0], pair[0], "weight") + 1
-                            routes.append([me, ele, time, released, flow, notopen])
+                            c = [pair[1], nx.shortest_path_length(caves, me[0], pair[1], "weight") + 1]
+                            d = [pair[0], nx.shortest_path_length(caves, ele[0], pair[0], "weight") + 1]
+                            routes.append([c, d, time, released, flow, notopen])
 
             else:
                 results.append(route[3] + ((maxtime - route[2]) * route[4]))
+
+        for x in routes:
+            print(x)
+        print("======")
 
     print(f"Part 2: {max(results)}")
 
