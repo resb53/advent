@@ -90,40 +90,47 @@ def processMore(caves):
     results = []
     maxtime = 26
 
-    for _ in range(len(caves.nodes())):
+    for depth in range(len(caves.nodes())):
+        print(f"{depth + 1}/{len(caves.nodes())}...")
         previous = routes
         routes = []
         for route in previous:
-            if len(route[5]) > 0:
-                # Advance time by shortest distance moved/opened
-                advance = min(route[0][1], route[1][1], maxtime - route[2])
-                me = [route[0][0], route[0][1] - advance]
-                ele = [route[1][0], route[1][1] - advance]
-                time = route[2] + advance
-                released = route[3] + route[4] * advance
-                flow = route[4]
-                if me[1] == 0:
-                    flow += caves.nodes[me[0]]["flow"]
-                if ele[1] == 0:
-                    flow += caves.nodes[ele[0]]["flow"]
-                # Check time
-                if time >= maxtime:
-                    results.append(route[3] + ((maxtime - route[2]) * route[4]))
-                # Get new destinations
-                else:
-                    if ele[1] != 0:
+            # Advance time by shortest distance moved/opened
+            advance = min(route[0][1], route[1][1], maxtime - route[2])
+            me = [route[0][0], route[0][1] - advance]
+            ele = [route[1][0], route[1][1] - advance]
+            time = route[2] + advance
+            released = route[3] + route[4] * advance
+            flow = route[4]
+            if me[1] == 0:
+                flow += caves.nodes[me[0]]["flow"]
+            if ele[1] == 0:
+                flow += caves.nodes[ele[0]]["flow"]
+            # Check time
+            if time >= maxtime:
+                results.append(route[3] + ((maxtime - route[2]) * route[4]))
+            # Get new destinations
+            else:
+                if ele[1] != 0:
+                    if len(route[5]) > 0:
                         for node in route[5]:
                             notopen = copy.deepcopy(route[5])
                             notopen.remove(node)
                             path = [node, nx.shortest_path_length(caves, me[0], node, "weight") + 1]
                             routes.append([path, ele, time, released, flow, notopen])
-                    elif me[1] != 0:
+                    else:
+                        routes.append([["Done", maxtime], ele, time, released, flow, set()])
+                elif me[1] != 0:
+                    if len(route[5]) > 0:
                         for node in route[5]:
                             notopen = copy.deepcopy(route[5])
                             notopen.remove(node)
                             path = [node, nx.shortest_path_length(caves, ele[0], node, "weight") + 1]
                             routes.append([me, path, time, released, flow, notopen])
                     else:
+                        routes.append([me, ["Done", maxtime], time, released, flow, set()])
+                else:
+                    if len(route[5]) > 1:
                         for pair in combinations(route[5], 2):
                             notopen = copy.deepcopy(route[5])
                             notopen.remove(pair[0])
@@ -136,13 +143,14 @@ def processMore(caves):
                             c = [pair[1], nx.shortest_path_length(caves, me[0], pair[1], "weight") + 1]
                             d = [pair[0], nx.shortest_path_length(caves, ele[0], pair[0], "weight") + 1]
                             routes.append([c, d, time, released, flow, notopen])
-
-            else:
-                results.append(route[3] + ((maxtime - route[2]) * route[4]))
-
-        for x in routes:
-            print(x)
-        print("======")
+                    elif len(route[5]) == 1:
+                        path = list(route[5])[0]
+                        a = [path, nx.shortest_path_length(caves, me[0], pair[1], "weight") + 1]
+                        b = [path, nx.shortest_path_length(caves, ele[0], pair[1], "weight") + 1]
+                        routes.append([a, ["Done", maxtime], time, released, flow, set()])
+                        routes.append([["Done", maxtime], b, time, released, flow, set()])
+                    elif len(route[5]) == 0:
+                        results.append(released + ((maxtime - time - 1) * flow))
 
     print(f"Part 2: {max(results)}")
 
