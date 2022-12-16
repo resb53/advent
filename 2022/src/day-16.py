@@ -51,16 +51,58 @@ def caveMap():
                 print(f"Check {connect}")
         G.remove_node(node)
 
-    print(G.nodes())
-    for edge in G.edges():
-        print(f'{edge}: {G.edges[edge]["weight"]}')
+    # print(G.nodes())
+    # for edge in G.edges():
+    #     print(f'{edge}: {G.edges[edge]["weight"]}')
 
     return G
 
 
 # Find route that releases the most pressure in 30 minutes
 def processData(caves: nx.Graph):
-    print(list(nx.all_pairs_shortest_path(caves)))
+    routes = [[["AA"], 0, 0, 0, set(caves.nodes())]]
+    routes[0][4].remove("AA")
+    results = []
+
+    for _ in range(2):
+        previous = routes
+        routes = []
+        for route in previous:
+            change = False
+            for node in caves.neighbors(route[0][-1]):
+                if node in route[4]:
+                    change = True
+                    elapsed = nx.shortest_path_length(caves, route[0][-1], node) + 1
+                    time = route[1] + elapsed
+                    released = route[2] + route[3] * elapsed
+                    notopen = copy.deepcopy(route[4])
+                    notopen.remove(node)
+                    flow = route[3] + caves.nodes[node]["flow"]
+                    path = copy.deepcopy(route[0])
+                    path.append(node)
+                    routes.append([path, time, released, flow, notopen])
+            if not change:
+                for node in route[4]:
+                    change = True
+                    elapsed = nx.shortest_path_length(caves, route[0][-1], node) + 1
+                    time = route[1] + elapsed
+                    released = route[2] + route[3] * elapsed
+                    notopen = copy.deepcopy(route[4])
+                    notopen.remove(node)
+                    flow = route[3] + caves.nodes[node]["flow"]
+                    path = copy.deepcopy(route[0])
+                    path.append(node)
+                    routes.append([path, time, released, flow, notopen])
+            if not change:
+                final = route[2] + ((30 - route[1]) * route[3])
+                results.append(final)
+
+        for x in routes:
+            print(x)
+
+        print("======")
+
+    # print(max(results))
 
 
 # Process harder
