@@ -102,7 +102,7 @@ def processData(caves: nx.Graph):
 
 # Work with an elephant for 26 minutes
 def processMore(caves: nx.Graph):
-    routes = [[["AA", 0], ["AA", 0], 0, 0, 0, set(caves.nodes())]]
+    routes = [[[["AA"], 0], [["AA"], 0], 0, 0, 0, set(caves.nodes())]]
     routes[0][5].remove("AA")
     results = []
     maxtime = 26
@@ -123,39 +123,46 @@ def processMore(caves: nx.Graph):
             released = route[3] + (advance * route[4])
             flow = route[4]
             if me[1] == 0:
-                flow += caves.nodes[me[0]]["flow"]
+                flow += caves.nodes[me[0][-1]]["flow"]
             if ele[1] == 0:
-                flow += caves.nodes[ele[0]]["flow"]
+                flow += caves.nodes[ele[0][-1]]["flow"]
             # Check time
             if time >= maxtime:
                 results.append(route[3] + ((maxtime - route[2]) * route[4]))
             else:
                 if len(route[5]) > 0:
                     if ele[1] != 0:
-                        for node in getNextNode(caves, me[0], route[5]):
-                            path = [node, nx.shortest_path_length(caves, me[0], node, "weight") + 1]
+                        for node in getNextNode(caves, me[0][-1], route[5]):
+                            locs = copy.copy(me[0])
+                            locs.append(node)
+                            path = [locs, nx.shortest_path_length(caves, me[0][-1], node, "weight") + 1]
                             notopen = set(route[5] - {node})
                             routes.append([path, [ele[0], ele[1]], time, released, flow, notopen])
                     elif me[1] != 0:
-                        for node in getNextNode(caves, ele[0], route[5]):
-                            path = [node, nx.shortest_path_length(caves, ele[0], node, "weight") + 1]
+                        for node in getNextNode(caves, ele[0][-1], route[5]):
+                            locs = copy.copy(ele[0])
+                            locs.append(node)
+                            path = [locs, nx.shortest_path_length(caves, ele[0][-1], node, "weight") + 1]
                             notopen = set(route[5] - {node})
                             routes.append([[me[0], me[1]], path, time, released, flow, notopen])
                     else:
-                        for menode in getNextNode(caves, me[0], route[5]):
-                            for elenode in getNextNode(caves, ele[0], set(route[5] - {menode})):
-                                mepath = [menode, nx.shortest_path_length(caves, me[0], menode, "weight") + 1]
-                                elepath = [elenode, nx.shortest_path_length(caves, ele[0], elenode, "weight") + 1]
+                        for menode in getNextNode(caves, me[0][-1], route[5]):
+                            for elenode in getNextNode(caves, ele[0][-1], set(route[5] - {menode})):
+                                melocs = copy.copy(me[0])
+                                melocs.append(menode)
+                                mepath = [melocs, nx.shortest_path_length(caves, me[0][-1], menode, "weight") + 1]
+                                elelocs = copy.copy(ele[0])
+                                elelocs.append(elenode)
+                                elepath = [elelocs, nx.shortest_path_length(caves, ele[0][-1], elenode, "weight") + 1]
                                 notopen = set(route[5] - {menode} - {elenode})
                                 routes.append([mepath, elepath, time, released, flow, notopen])
                 else:
+                    print(me, ele, released, flow)
                     released += (maxtime - time) * flow
                     if me[1] > 0:
-                        released += (maxtime - time - me[1]) * (caves.nodes[me[0]]["flow"])
-                        print(flow + caves.nodes[me[0]]["flow"])
+                        released += (maxtime - time - me[1]) * (caves.nodes[me[0][-1]]["flow"])
                     if ele[1] > 0:
-                        released += (maxtime - time - ele[1]) * (caves.nodes[ele[0]]["flow"])
-                        print(flow + caves.nodes[ele[0]]["flow"])
+                        released += (maxtime - time - ele[1]) * (caves.nodes[ele[0][-1]]["flow"])
                     results.append(released)
 
     print(f"Part 2: {max(results)}")
