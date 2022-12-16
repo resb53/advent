@@ -47,16 +47,29 @@ def caveMap():
         for connect in combinations(G.neighbors(node), 2):
             if connect not in G.edges():
                 G.add_edge(connect[0], connect[1], weight=nx.shortest_path_length(G, connect[0], connect[1], "weight"))
-            else:
-                print(f"Check {connect}")
-        G.remove_node(node)
+            G.remove_node(node)
+
+    for connect in combinations(G.neighbors("AA"), 2):
+        if connect not in G.edges():
+            G.add_edge(connect[0], connect[1], weight=nx.shortest_path_length(G, connect[0], connect[1], "weight"))
 
     return G
 
 
+def getNextNode(G: nx.Graph, pos: str, todo: set):
+    nodes = set()
+    for node in G.neighbors(pos):
+        if node in todo:
+            nodes.add(node)
+    if len(nodes) == 0:
+        for node in todo:
+            nodes.add(node)
+    return nodes
+
+
 # Find route that releases the most pressure in 30 minutes
 def processData(caves: nx.Graph):
-    routes = [["AA", 0, 0, 0, set(caves.nodes())]]
+    routes = [[[["AA"], 0], 0, 0, 0, set(caves.nodes())]]
     routes[0][4].remove("AA")
     results = []
     maxtime = 30
@@ -65,20 +78,24 @@ def processData(caves: nx.Graph):
         previous = routes
         routes = []
         for route in previous:
-            if len(route[4]) > 0:
-                for node in route[4]:
-                    elapsed = nx.shortest_path_length(caves, route[0], node, "weight") + 1
-                    time = route[1] + elapsed
-                    if time > maxtime:
-                        results.append(route[2] + ((maxtime - route[1]) * route[3]))
-                    else:
-                        released = route[2] + route[3] * elapsed
-                        notopen = copy.deepcopy(route[4])
-                        notopen.remove(node)
-                        flow = route[3] + caves.nodes[node]["flow"]
-                        routes.append([node, time, released, flow, notopen])
-            else:
+            # Advance time till next valve opened
+            pos = route[0][0][-1]
+            time = route[1] + route[0][1]
+            released = route[2] + (route[3] * route[0][1])
+            flow = route[3] + caves.nodes[pos]["flow"]
+            # Check time
+            if time >= maxtime:
                 results.append(route[2] + ((maxtime - route[1]) * route[3]))
+            else:
+                if (len(route[4]) > 0):
+                    for node in getNextNode(caves, pos, route[4]):
+                        visits = copy.deepcopy(route[0][0])
+                        visits.append(node)
+                        path = [visits, nx.shortest_path_length(caves, pos, node, "weight") + 1]
+                        notopen = set(route[4] - {node})
+                        routes.append([path, time, released, flow, notopen])
+                else:
+                    results.append(released + ((maxtime - time) * flow))
 
     print(f"Part 1: {max(results)}")
 
@@ -168,7 +185,7 @@ def processMore(caves: nx.Graph):
                         routes.append([a, ["Done", maxtime], time, released, flow, set()])
                         routes.append([["Done", maxtime], b, time, released, flow, set()])
                     elif len(route[5]) == 0:
-                        results.append(released + ((maxtime - time - 1) * flow))
+                        results.append(released + ((maxtime - time) * flow))
 
     print(f"Part 2: {max(results)}")
 
@@ -181,7 +198,7 @@ def main():
     processData(caves)
 
     # Part 2
-    processMore(caves)
+    # processMore(caves)
 
 
 if __name__ == "__main__":
