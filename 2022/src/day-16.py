@@ -64,28 +64,18 @@ def processData(caves: nx.Graph):
     routes[0][4].remove("AA")
     results = []
 
-    for _ in range(2):
+    for _ in range(len(caves.nodes())):
         previous = routes
         routes = []
         for route in previous:
             change = False
-            for node in caves.neighbors(route[0][-1]):
-                if node in route[4]:
-                    change = True
-                    elapsed = nx.shortest_path_length(caves, route[0][-1], node) + 1
-                    time = route[1] + elapsed
-                    released = route[2] + route[3] * elapsed
-                    notopen = copy.deepcopy(route[4])
-                    notopen.remove(node)
-                    flow = route[3] + caves.nodes[node]["flow"]
-                    path = copy.deepcopy(route[0])
-                    path.append(node)
-                    routes.append([path, time, released, flow, notopen])
-            if not change:
-                for node in route[4]:
-                    change = True
-                    elapsed = nx.shortest_path_length(caves, route[0][-1], node) + 1
-                    time = route[1] + elapsed
+            for node in route[4]:
+                change = True
+                elapsed = nx.shortest_path_length(caves, route[0][-1], node, "weight") + 1
+                time = route[1] + elapsed
+                if time > 30:
+                    results.append(route[2] + ((30 - route[1]) * route[3]))
+                else:
                     released = route[2] + route[3] * elapsed
                     notopen = copy.deepcopy(route[4])
                     notopen.remove(node)
@@ -97,12 +87,12 @@ def processData(caves: nx.Graph):
                 final = route[2] + ((30 - route[1]) * route[3])
                 results.append(final)
 
-        for x in routes:
-            print(x)
+        # for x in routes:
+        #     print(x)
 
-        print("======")
+        # print("======")
 
-    # print(max(results))
+    print(max(results))
 
 
 # Process harder
