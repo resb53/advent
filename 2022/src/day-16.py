@@ -84,7 +84,7 @@ def processData(caves: nx.Graph):
 
 
 # Work with an elephant for 26 minutes
-def processMore(caves):
+def processMore(caves: nx.Graph):
     routes = [[["AA", 0], ["AA", 0], 0, 0, 0, set(caves.nodes())]]
     routes[0][5].remove("AA")
     results = []
@@ -113,20 +113,38 @@ def processMore(caves):
             else:
                 if ele[1] != 0:
                     if len(route[5]) > 0:
-                        for node in route[5]:
-                            notopen = copy.deepcopy(route[5])
-                            notopen.remove(node)
-                            path = [node, nx.shortest_path_length(caves, me[0], node, "weight") + 1]
-                            routes.append([path, ele, time, released, flow, notopen])
+                        done = False
+                        for node in caves.neighbors(me[0]):
+                            if node in route[5]:
+                                done = True
+                                notopen = copy.deepcopy(route[5])
+                                notopen.remove(node)
+                                path = [node, nx.shortest_path_length(caves, me[0], node, "weight") + 1]
+                                routes.append([path, ele, time, released, flow, notopen])
+                        if not done:
+                            for node in route[5]:
+                                notopen = copy.deepcopy(route[5])
+                                notopen.remove(node)
+                                path = [node, nx.shortest_path_length(caves, me[0], node, "weight") + 1]
+                                routes.append([path, ele, time, released, flow, notopen])
                     else:
                         routes.append([["Done", maxtime], ele, time, released, flow, set()])
                 elif me[1] != 0:
                     if len(route[5]) > 0:
-                        for node in route[5]:
-                            notopen = copy.deepcopy(route[5])
-                            notopen.remove(node)
-                            path = [node, nx.shortest_path_length(caves, ele[0], node, "weight") + 1]
-                            routes.append([me, path, time, released, flow, notopen])
+                        done = False
+                        for node in caves.neighbors(ele[0]):
+                            if node in route[5]:
+                                done = True
+                                notopen = copy.deepcopy(route[5])
+                                notopen.remove(node)
+                                path = [node, nx.shortest_path_length(caves, ele[0], node, "weight") + 1]
+                                routes.append([me, path, time, released, flow, notopen])
+                        if not done:
+                            for node in route[5]:
+                                notopen = copy.deepcopy(route[5])
+                                notopen.remove(node)
+                                path = [node, nx.shortest_path_length(caves, ele[0], node, "weight") + 1]
+                                routes.append([me, path, time, released, flow, notopen])
                     else:
                         routes.append([me, ["Done", maxtime], time, released, flow, set()])
                 else:
