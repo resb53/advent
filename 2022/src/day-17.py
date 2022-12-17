@@ -37,7 +37,24 @@ def generateShape():
         i += 1
 
 
-# Check system state
+# Check system state: LOOP: 100 - 1850
+# Maths:
+# Height after count 100 shapes: 152
+# (Gap 2796)
+# Height after count 1850 shapes: 2948
+# (Gap 2796)
+# Heigh after count 3600 shapes: 5744
+
+# 1000000000000 - (100 + 571428571 * 1750) = 650
+# => Height = 152 + 571428571 * 2796 + [count 750 - 152 = 1030] = 1597714285698
+
+# 2500 - (100 + 1 * 1750) = 650
+# => Height = 152 + 1 * 2796 + 1030 = 3978
+# 4250 - (100 + 2 * 1750) = 650
+# => Height = 152 + 2 * 2796 + 1030 = 6774
+# 6000 - (100 + 3 * 1750) = 650
+# => Height = 152 + 3 * 2796 + 1030 = 9570
+
 def checkState(floor, shape, wind):
     minHeight = min(floor)
     normaliseFloor = [x - minHeight for x in floor]
@@ -55,7 +72,7 @@ def dropShape(floor, stack, wind, shape):
     base = max(floor) * 1j + 4j
     (nextshape, shapestate) = next(shape)
     (nextblow, windstate) = next(wind)
-    checkState(floor, shapestate, windstate)
+    # checkState(floor, shapestate, windstate)
     falling = [x + base for x in nextshape]
     leftedge = min([int(x.real) for x in falling])
     rightedge = max([int(x.real) for x in falling])
@@ -135,7 +152,7 @@ def processData():
     wind = generateWind()
     shape = generateShape()
 
-    for count in range(2022):
+    for count in range(750):
         dropShape(floor, stack, wind, shape)
 
     print(max(floor))
