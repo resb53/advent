@@ -37,29 +37,37 @@ def generateShape():
 
 
 # Drop shape
-def dropShape(floor, wind, shape):
+def dropShape(floor, stack, wind, shape):
     base = max(floor) * 1j + 4j
     falling = [x + base for x in next(shape)]
     leftedge = min([int(x.real) for x in falling])
     rightedge = max([int(x.real) for x in falling])
 
     while True:
-        print(falling)
         # Wind blows
         blow = next(wind)
-        print(blow)
         if blow == "<":
             if leftedge > 0:
-                falling = [x - 1 for x in falling]
-                leftedge = min([int(x.real) for x in falling])
-                rightedge = max([int(x.real) for x in falling])
+                test = [x - 1 for x in falling]
+                collision = False
+                for block in test:
+                    if int(block.imag) in stack[int(block.real)]:
+                        collision = True
+                if not collision:
+                    falling = test
+                    leftedge = min([int(x.real) for x in falling])
+                    rightedge = max([int(x.real) for x in falling])
         else:
             if rightedge < 6:
-                falling = [x + 1 for x in falling]
-                leftedge = min([int(x.real) for x in falling])
-                rightedge = max([int(x.real) for x in falling])
-        print(falling)
-        print("v")
+                test = [x + 1 for x in falling]
+                collision = False
+                for block in test:
+                    if int(block.imag) in stack[int(block.real)]:
+                        collision = True
+                if not collision:
+                    falling = test
+                    leftedge = min([int(x.real) for x in falling])
+                    rightedge = max([int(x.real) for x in falling])
         # Block falls
         stops = False
         for x in falling:
@@ -78,7 +86,11 @@ def dropShape(floor, wind, shape):
                 newy = int(y.imag)
         floor[x] = newy
 
-    print(floor)
+    # Update stack
+    for x, s in enumerate(stack):
+        for y in falling:
+            if int(y.real) == x:
+                s.add(int(y.imag))
 
 
 # Parse the input file
@@ -95,12 +107,14 @@ def parseInput(inp):
 # For each pass, identify its seat
 def processData():
     floor = [0] * 7
+    stack = [{0}, {0}, {0}, {0}, {0}, {0}, {0}]
     wind = generateWind()
     shape = generateShape()
 
-    for count in range(3):
-        dropShape(floor, wind, shape)
+    for count in range(2022):
+        dropShape(floor, stack, wind, shape)
 
+    print(max(floor))
 
 
 # Process harder
