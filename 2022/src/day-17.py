@@ -21,6 +21,7 @@ shapes = [
 
 state = []
 
+
 # Wind generator
 def generateWind():
     i = 0
