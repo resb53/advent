@@ -71,12 +71,15 @@ def dropShape(floor, stack, wind, shape):
         # Block falls
         stops = False
         for x in falling:
-            if int(x.imag) == floor[int(x.real)] + 1:
+            if int(x.imag) - 1 in stack[int(x.real)]:
                 stops = True
         if stops:
             break
         else:
             falling = [x - 1j for x in falling]
+        for x in falling:
+            if int(x.imag) < 0:
+                sys.exit("Fallen through the floor.")
 
     # Update floor
     for x in range(len(floor)):
