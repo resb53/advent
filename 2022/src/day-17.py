@@ -19,12 +19,13 @@ shapes = [
     [2, 3, 2+1j, 3+1j]  # □
 ]
 
+state = []
 
 # Wind generator
 def generateWind():
     i = 0
     while True:
-        yield data[i % len(data)]
+        yield (data[i % len(data)], i % len(data))
         i += 1
 
 
@@ -32,20 +33,40 @@ def generateWind():
 def generateShape():
     i = 0
     while True:
-        yield shapes[i % len(shapes)]
+        yield (shapes[i % len(shapes)], i % len(shapes))
         i += 1
+
+
+# Check system state
+def checkState(floor, shape, wind):
+    minHeight = min(floor)
+    normaliseFloor = [x - minHeight for x in floor]
+    stuple = (shape, wind, normaliseFloor)
+    if stuple not in state:
+        state.append(stuple)
+    else:
+        old = state.index(stuple)
+        print(f"LOOP: {old} - {len(state)}")
+        state.append(stuple)
 
 
 # Drop shape
 def dropShape(floor, stack, wind, shape):
     base = max(floor) * 1j + 4j
-    falling = [x + base for x in next(shape)]
+    (nextshape, shapestate) = next(shape)
+    (nextblow, windstate) = next(wind)
+    checkState(floor, shapestate, windstate)
+    falling = [x + base for x in nextshape]
     leftedge = min([int(x.real) for x in falling])
     rightedge = max([int(x.real) for x in falling])
 
     while True:
         # Wind blows
-        blow = next(wind)
+        if nextblow is not None:
+            blow = nextblow
+            nextblow = None
+        else:
+            (blow, _) = next(wind)
         if blow == "<":
             if leftedge > 0:
                 test = [x - 1 for x in falling]
