@@ -84,7 +84,7 @@ class Factory():
 
 
 # Simulate 24 minutes of bot building geode harvesting fun
-def simulateBots(bp):
+def preOrdained(bp):
     rounds = 24
 
     # Specify Build order
@@ -113,10 +113,66 @@ def simulateBots(bp):
     return state.resources[3]
 
 
+def simulateBots(bp):
+    rounds = 24
+
+    states = [        # O  C  oB G    O  C  oB G
+        Factory("", 0, [0, 0, 0, 0], [1, 0, 0, 0], bp),
+        Factory("", 1, [0, 0, 0, 0], [1, 0, 0, 0], bp),
+    ]
+
+    for _ in range(rounds):
+        newstates = []
+
+        for state in states:
+            # Build next bot
+            built = state.build()
+
+            # Collect resources
+            state.accumulate()
+
+            # Complete builds
+            if built is not None:
+                state.complete()
+                # Update current state with next bot
+                constructs = chooseBot(state)
+                if len(constructs) > 0:
+                    state.target = constructs.pop(0)
+                    for construct in constructs:
+                        newstates.append(
+                            Factory(state.history, construct, state.resources, state.bots, bp),
+                        )
+            # print(state.history)
+
+        states.extend(newstates)
+
+    return max([x.resources[3] for x in states])
+
+
+def chooseBot(state: Factory):
+    choices = []
+    # Never more than 4 ore bots
+    if state.bots[0] < 4:
+        choices.append(0)
+    # Clay Bots
+    choices.append(1)
+    # Obsidian Bots
+    if state.bots[1] > 0:
+        choices.append(2)
+    if state.bots[2] > 0:
+        choices.append(3)
+
+    return choices
+
+
 # For each blueprint, run the building program
 def processData():
-    for blueprint in range(1, 2):
-        print(f"{blueprint}: {simulateBots(data[blueprint])}")
+    results = {}
+    for blueprint in data:
+        results[blueprint] = simulateBots(data[blueprint])
+        print(f"{blueprint}: {results[blueprint]}")
+
+    print(f"Part 1: {sum([x * results[x] for x in results])}")
 
 
 # Process harder
