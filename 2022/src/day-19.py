@@ -3,6 +3,7 @@
 import argparse
 import sys
 import re
+import copy
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -29,7 +30,7 @@ def parseInput(inp):
     for line in input_fh:
         match = re.match(robots, line)
         if match is not None:
-            data[match[1]] = [
+            data[int(match[1])] = [
                 [int(match[2])],  # Ore (Ore)
                 [int(match[3])],  # Clay (Ore)
                 [int(match[4]), int(match[5])],  # Obsidian (Ore, Clay)
@@ -41,8 +42,8 @@ class Factory():
     def __init__(self, past: str, target: int, res: list, bots: list, cost: list):
         self.history = past
         self.target = target
-        self.resources = res
-        self.bots = bots
+        self.resources = copy.copy(res)
+        self.bots = copy.copy(bots)
         self.cost = cost
 
     def __str__(self):
@@ -71,8 +72,6 @@ class Factory():
                 self.resources[0] -= self.cost[self.target][0]
                 self.resources[2] -= self.cost[self.target][1]
                 return self.target
-        else:
-            sys.exit("No target to build...")
         return None
 
     def complete(self):
@@ -88,32 +87,36 @@ class Factory():
 def simulateBots(bp):
     rounds = 24
 
+    # Specify Build order
+    buildOrder = [1, 1, 1, 2, 1, 2, 3, 3]
+
     # Run sim, BFS
-    states = {                               # O  C  oB G            O  C  oB G
-        Factory("", 0, [0, 0, 0, 0], [1, 0, 0, 0], bp)
-    }
+    #                                       O  C  oB G    O  C  oB G
+    state = Factory("", buildOrder.pop(0), [0, 0, 0, 0], [1, 0, 0, 0], bp)
+
     for _ in range(rounds):
-        for state in states:
-            # Build next robot
-            built = state.build()
+        # Build next robot
+        built = state.build()
 
-            # Collect resources
-            state.accumulate()
+        # Collect resources
+        state.accumulate()
 
-            # Complete builds
-            if built is not None:
-                state.complete()
-                # Update current state with new Ore Bot
-                state.target = 0
-                # Create new states for relevant other targets
+        # Complete builds
+        if built is not None:
+            state.complete()
+            # Update current state with next bot
+            if len(buildOrder) > 0:
+                state.target = buildOrder.pop(0)
 
-            print(state)
+        print(state)
+
+    return state.resources[3]
 
 
 # For each blueprint, run the building program
 def processData():
-    for blueprint in data:
-        simulateBots(data[blueprint])
+    for blueprint in range(1, 2):
+        print(f"{blueprint}: {simulateBots(data[blueprint])}")
 
 
 # Process harder
