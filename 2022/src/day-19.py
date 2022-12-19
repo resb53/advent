@@ -113,8 +113,11 @@ def preOrdained(bp):
     return state.resources[3]
 
 
-def simulateBots(bp):
-    rounds = 24
+def simulateBots(bp, part):
+    if part == 1:
+        rounds = 24
+    elif part == 2:
+        rounds = 32
 
     states = [        # O  C  oB G    O  C  oB G
         Factory("", 0, [0, 0, 0, 0], [1, 0, 0, 0], bp),
@@ -135,7 +138,7 @@ def simulateBots(bp):
             if built is not None:
                 state.complete()
                 # Update current state with next bot
-                constructs = chooseBot(state)
+                constructs = chooseBot(state, part)
                 if len(constructs) > 0:
                     state.target = constructs.pop(0)
                     for construct in constructs:
@@ -149,18 +152,31 @@ def simulateBots(bp):
     return max([x.resources[3] for x in states])
 
 
-def chooseBot(state: Factory):
+def chooseBot(state: Factory, part: int):
     choices = []
     # Never more than 4 ore bots
-    if state.bots[0] < 4:
-        choices.append(0)
-    # Clay Bots
-    choices.append(1)
-    # Obsidian Bots
-    if state.bots[1] > 0:
-        choices.append(2)
-    if state.bots[2] > 0:
-        choices.append(3)
+    if part == 1:
+        # Never more than 4 ore bots
+        if state.bots[0] < 4:
+            choices.append(0)
+        # Clay Bots
+        choices.append(1)
+        # Obsidian Bots
+        if state.bots[1] > 0:
+            choices.append(2)
+        if state.bots[2] > 0:
+            choices.append(3)
+    elif part == 2:
+        if state.bots[0] < 2:
+            choices.append(0)
+        # Clay Bots
+        if state.bots[1] < 7:
+            choices.append(1)
+        # Obsidian Bots
+        if state.bots[1] > 0 and state.bots[2] < 5:
+            choices.append(2)
+        if state.bots[2] > 0 and state.bots[3] < 9:
+            choices.append(3)
 
     return choices
 
@@ -169,7 +185,7 @@ def chooseBot(state: Factory):
 def processData():
     results = {}
     for blueprint in data:
-        results[blueprint] = simulateBots(data[blueprint])
+        results[blueprint] = simulateBots(data[blueprint], 1)
         print(f"{blueprint}: {results[blueprint]}")
 
     print(f"Part 1: {sum([x * results[x] for x in results])}")
@@ -177,7 +193,12 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    results = {}
+    for blueprint in data:
+        results[blueprint] = simulateBots(data[blueprint], 2)
+        print(f"{blueprint}: {results[blueprint]}")
+
+    print(f"Part 2: {sum([x * results[x] for x in results])}")
 
 
 def main():
