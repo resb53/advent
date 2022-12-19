@@ -63,7 +63,7 @@ def getNextNode(G: nx.Graph, pos: str, todo: set):
             nodes.add(node)
     for node in todo:
         # Always consider high scorers
-        if G.nodes[node]["flow"] > 17:
+        if G.nodes[node]["flow"] > 11:
             nodes.add(node)
     if len(nodes) == 0:
         for node in todo:
