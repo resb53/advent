@@ -37,6 +37,58 @@ def getEdges(blob):
     return edges
 
 
+def getAdjacent(seed, bounds):
+    adj = []
+    adj.append((seed[0] - 1, seed[1], seed[2]))
+    adj.append((seed[0] + 1, seed[1], seed[2]))
+    adj.append((seed[0], seed[1] - 1, seed[2]))
+    adj.append((seed[0], seed[1] + 1, seed[2]))
+    adj.append((seed[0], seed[1], seed[2] - 1))
+    adj.append((seed[0], seed[1], seed[2] + 1))
+
+    reduced = adj.copy()
+    for x in adj:
+        if (
+            x[0] < bounds[0] or x[0] > bounds[1] or
+            x[1] < bounds[2] or x[1] > bounds[3] or
+            x[2] < bounds[4] or x[2] > bounds[5]
+           ):
+            reduced.remove(x)
+
+    return reduced
+
+
+def fillWater():
+    minx = min([x[0] for x in data]) - 1
+    maxx = max([x[0] for x in data]) + 1
+    miny = min([y[1] for y in data]) - 1
+    maxy = max([y[1] for y in data]) + 1
+    minz = min([z[2] for z in data]) - 1
+    maxz = max([z[2] for z in data]) + 1
+    bounds = (minx, maxx, miny, maxy, minz, maxz)
+    coolSurface = 0
+
+    water = {(minx, miny, minz)}
+    spread = {(minx, miny, minz)}
+
+    while len(spread) > 0:
+        oldspread = spread
+        spread = set()
+        for drop in oldspread:
+            adj = getAdjacent(drop, bounds)
+            # Check if there is anything in the way
+            for x in adj:
+                if x not in water:
+                    if x in data:
+                        # We have a face between edge and water
+                        coolSurface += 1
+                    else:
+                        spread.add(x)
+                        water.add(x)
+
+    return coolSurface
+
+
 # For each cube, store it's edges
 def processData():
     outerEdges = set()
@@ -48,12 +100,12 @@ def processData():
             else:
                 outerEdges.remove(edge)
 
-    print(len(outerEdges))
+    print(f"Part 1: {len(outerEdges)}")
 
 
 # Process harder
 def processMore():
-    return False
+    print(f"Part 2: {fillWater()}")
 
 
 def main():
