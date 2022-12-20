@@ -20,13 +20,35 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.strip("\n"))
+        data.append(tuple(int(x) for x in line.strip("\n").split(",")))
 
 
-# For each pass, identify its seat
+def getEdges(blob):
+    (x, y, z) = blob
+    edges = []
+
+    edges.append(blob + (x + 1, y, z))
+    edges.append((x - 1, y, z) + blob)
+    edges.append(blob + (x, y + 1, z))
+    edges.append((x, y - 1, z) + blob)
+    edges.append(blob + (x, y, z + 1))
+    edges.append((x, y, z - 1) + blob)
+
+    return edges
+
+
+# For each cube, store it's edges
 def processData():
+    outerEdges = set()
+
     for element in data:
-        print(f"{element}")
+        for edge in getEdges(element):
+            if edge not in outerEdges:
+                outerEdges.add(edge)
+            else:
+                outerEdges.remove(edge)
+
+    print(len(outerEdges))
 
 
 # Process harder
