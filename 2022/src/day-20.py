@@ -49,7 +49,26 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    size = len(data)
+    mixed = deque([811589153 * x for x in data])
+    indices = deque(range(size))
+
+    for _ in range(10):
+        for i in range(size):
+            pos = indices.index(i)
+            # Rotate to target 0th element
+            mixed.rotate(-1 * pos)
+            indices.rotate(-1 * pos)
+            x = mixed.popleft()
+            indices.popleft()
+            # Rotate to relevent insert position
+            mixed.rotate(-1 * x)
+            indices.rotate(-1 * x)
+            mixed.appendleft(x)
+            indices.appendleft(i)
+
+    zeropos = mixed.index(0)
+    print(f"Part 1: {sum([mixed[(n + zeropos) % size] for n in (1000, 2000, 3000)])}")
 
 
 def main():
