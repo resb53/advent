@@ -39,7 +39,7 @@ def getAnswer(name, part):
             rhs = getAnswer(data[name][2], part)
 
             if name == "root" and part == 2:
-                return lhs == rhs
+                return (lhs < rhs, lhs > rhs)
             if data[name][1] == "+":
                 return lhs + rhs
             elif data[name][1] == "-":
@@ -57,10 +57,22 @@ def processData():
 
 # Process harder
 def processMore():
-    data["humn"] = 0
+    upper = 0
+    lower = -10000000000000
+    data["humn"] = int((upper - lower) / 2)
 
-    while not getAnswer("root", 2):
-        data["humn"] += 1
+    while (res := getAnswer("root", 2)) != (False, False):
+        cur = data["humn"]
+        if res[1] == True:
+            upper = cur
+            data["humn"] = int((upper + lower) / 2)
+        else:
+            lower = cur
+            data["humn"] = int((upper + lower) / 2)
+        if upper - lower == 1:
+            data["humn"] = upper
+        if data["humn"] == cur:
+            break
 
     print(f'Part 2: {data["humn"]}')
 
