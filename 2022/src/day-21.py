@@ -57,13 +57,13 @@ def processData():
 
 # Process harder
 def processMore():
-    upper = 0
-    lower = -10000000000000
-    data["humn"] = int((upper - lower) / 2)
+    upper = 10000000000000
+    lower = 0
+    data["humn"] = int((upper + lower) / 2)
 
     while (res := getAnswer("root", 2)) != (False, False):
         cur = data["humn"]
-        if res[1] == True:
+        if res[0] == True:
             upper = cur
             data["humn"] = int((upper + lower) / 2)
         else:
