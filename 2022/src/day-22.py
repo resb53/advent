@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import deque
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -9,14 +10,15 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-data = {}
+grid = {}
 instr = []
 bearing = {
-    1: 0, 
+    1: 0,
     1j: 1,
     -1: 2,
     -1j: 3
 }
+face = deque(bearing.keys())
 
 
 # Parse the input file
@@ -32,7 +34,7 @@ def parseInput(inp):
         if line.startswith(" ") or line.startswith(".") or line.startswith("#"):
             for i, x in enumerate(line):
                 if x == "." or x == "#":
-                    data[i + row * 1j] = x
+                    grid[i + row * 1j] = x
             row += 1
         elif len(line) > 0:
             current = ""
@@ -46,47 +48,73 @@ def parseInput(inp):
 
 
 # Check Input
-def printData():
-    maxx = max([int(x.real) for x in data]) 
-    maxy = max([int(y.imag) for y in data])
+def printGrid():
+    maxx = max([int(x.real) for x in grid])
+    maxy = max([int(y.imag) for y in grid])
     for y in range(maxy + 1):
         for x in range(maxx + 1):
-            if x + y * 1j in data:
-                print(data[x + y * 1j], end="")
+            if x + y * 1j in grid:
+                print(grid[x + y * 1j], end="")
             else:
                 print(" ", end="")
         print()
 
-    print(instr)
-
 
 # Move as per instruction
 def moveAlong(state, cmd):
+    for x in grid:
+        if grid[x] != "." and grid[x] != "#":
+            grid[x] = "."
     if type(cmd) == int:
         for _ in range(cmd):
+            grid[state[0]] = "■"
             if not unitMove(state):
                 break
+        print(cmd, state[1][0])
+        grid[state[0]] = "█"
+        printGrid()
+        _ = input("")
+
+    elif cmd == "R":
+        state[1].rotate(-1)
+    elif cmd == "L":
+        state[1].rotate(1)
 
 
 # Attempt to move one square
 def unitMove(state):
-    if sum(state) in data and data[sum(state)] == ".":
-        state[0] = sum(state)
+    target = state[0] + state[1][0]
+    if target not in grid:
+        target = wrapPos(state)
+
+    if grid[target] == ".":
+        state[0] = target
         return True
     else:
         return False
 
 
+# Find wrapped target
+def wrapPos(state):
+    if state[1][0] == 1:
+        return min([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j
+    elif state[1][0] == 1j:
+        return int(state[0].real) + min([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j
+    elif state[1][0] == -1:
+        return max([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j
+    elif state[1][0] == -1j:
+        return int(state[0].real) + max([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j
+
+
 # Walk through the grid following the instructions
 def processData():
-    pos = min([int(x.real) for x in data if int(x.imag) == 0]) + 0j
-    face = 1  # 1:R 1j:D -1:L -1j:U
+    pos = min([int(x.real) for x in grid if int(x.imag) == 0]) + 0j
     state = [pos, face]
 
-    # for cmd in instr:
-    moveAlong(state, instr[0])
+    for cmd in instr:
+        moveAlong(state, cmd)
 
-    print(state)
+    print(f"Part 1: {(int(state[0].imag) + 1) * 1000 + (int(state[0].real) + 1) * 4 + bearing[state[1][0]]}")
 
 
 # Process harder
