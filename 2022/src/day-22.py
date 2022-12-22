@@ -45,6 +45,7 @@ def parseInput(inp):
                     instr.append(int(current))
                     current = ""
                     instr.append(x)
+            instr.append(int(current))
 
 
 # Check Input
@@ -62,18 +63,10 @@ def printGrid():
 
 # Move as per instruction
 def moveAlong(state, cmd):
-    for x in grid:
-        if grid[x] != "." and grid[x] != "#":
-            grid[x] = "."
     if type(cmd) == int:
         for _ in range(cmd):
-            grid[state[0]] = "■"
             if not unitMove(state):
                 break
-        print(cmd, state[1][0])
-        grid[state[0]] = "█"
-        printGrid()
-        _ = input("")
 
     elif cmd == "R":
         state[1].rotate(-1)
