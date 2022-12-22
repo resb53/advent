@@ -62,10 +62,10 @@ def printGrid():
 
 
 # Move as per instruction
-def moveAlong(state, cmd):
+def moveAlong(state, cmd, part):
     if type(cmd) == int:
         for _ in range(cmd):
-            if not unitMove(state):
+            if not unitMove(state, part):
                 break
 
     elif cmd == "R":
@@ -75,10 +75,13 @@ def moveAlong(state, cmd):
 
 
 # Attempt to move one square
-def unitMove(state):
+def unitMove(state, part):
     target = state[0] + state[1][0]
     if target not in grid:
-        target = wrapPos(state)
+        if part == 1:
+            target = wrapPos(state)
+        else:
+            target = foldPos(state)
 
     if grid[target] == ".":
         state[0] = target
@@ -87,7 +90,7 @@ def unitMove(state):
         return False
 
 
-# Find wrapped target
+# Find wrapped target (Part 1)
 def wrapPos(state):
     if state[1][0] == 1:
         return min([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j
@@ -99,30 +102,37 @@ def wrapPos(state):
         return int(state[0].real) + max([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j
 
 
+# Find folded target (Part 2 - hardcode side positions, not general solution)
+def foldPos(state):
+    '''
+    Example sides(4):   Real input sides(50):
+        1                     1 2
+    4 3 2                     3
+        5 6                 5 4
+                            6
+    '''
+    
+
+
 # Walk through the grid following the instructions
-def processData():
+def processData(part):
     pos = min([int(x.real) for x in grid if int(x.imag) == 0]) + 0j
     state = [pos, face]
 
     for cmd in instr:
-        moveAlong(state, cmd)
+        moveAlong(state, cmd, part)
 
-    print(f"Part 1: {(int(state[0].imag) + 1) * 1000 + (int(state[0].real) + 1) * 4 + bearing[state[1][0]]}")
-
-
-# Process harder
-def processMore():
-    return False
+    print(f"Part {part}: {(int(state[0].imag) + 1) * 1000 + (int(state[0].real) + 1) * 4 + bearing[state[1][0]]}")
 
 
 def main():
     parseInput(args.input)
 
     # Part 1}
-    processData()
+    processData(1)
 
     # Part 2
-    processMore()
+    processData(2)
 
 
 if __name__ == "__main__":
