@@ -64,12 +64,19 @@ def moveElves():
             plan[elf] = pos
 
     # Move as planned
+    moves = 0
     freq = Counter(plan.values())
     for elf in range(len(grid)):
-        if freq[plan[elf]] == 1:
+        if freq[plan[elf]] == 1 and grid[elf] != plan[elf]:
             grid[elf] = plan[elf]
+            moves += 1
 
     order.rotate(-1)
+
+    if moves > 0:
+        return True
+    else:
+        return False
 
 
 # List of blocked directions for a given elf
@@ -122,7 +129,14 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    rounds = 10
+
+    while moveElves():
+        rounds += 1
+
+    rounds += 1
+
+    print(f"Part 2: {rounds}")
 
 
 def main():
