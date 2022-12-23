@@ -111,7 +111,6 @@ def foldPos(state):
         5 6                 5 4
                             6
     '''
-    
 
 
 # Walk through the grid following the instructions
