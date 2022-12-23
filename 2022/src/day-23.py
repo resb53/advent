@@ -53,7 +53,7 @@ def moveElves():
     # Prepare a move
     for elf, pos in enumerate(grid):
         neighbours = getNeighbours(pos)
-        if len(neighbours) != 0:
+        if len(neighbours) != 0 and len(neighbours) != 4:
             for dir in order:
                 if dir not in neighbours:
                     plan[elf] = (pos + dir)
