@@ -53,21 +53,17 @@ def moveElves():
     # Prepare a move
     for elf, pos in enumerate(grid):
         neighbours = getNeighbours(pos)
-        if len(neighbours) == 0:
-            plan[elf] = pos
-        else:
+        if len(neighbours) != 0:
             for dir in order:
                 if dir not in neighbours:
                     plan[elf] = (pos + dir)
                     break
-        if elf not in plan:
-            plan[elf] = pos
 
     # Move as planned
     moves = 0
     freq = Counter(plan.values())
-    for elf in range(len(grid)):
-        if freq[plan[elf]] == 1 and grid[elf] != plan[elf]:
+    for elf in plan:
+        if freq[plan[elf]] == 1:
             grid[elf] = plan[elf]
             moves += 1
 
