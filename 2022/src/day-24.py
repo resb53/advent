@@ -18,6 +18,7 @@ winds = {
     "<": -1,
     "^": -1j
 }
+elves = set([1])
 
 
 # Parse the input file
@@ -51,7 +52,9 @@ def printGrid():
     for y in range(bounds[1]):
         for x in range(bounds[0]):
             pos = x + y * 1j
-            if pos == 1 or pos == (bounds[0] - 2) + (bounds[1] - 1) * 1j:
+            if pos in elves:
+                print("E", end="")
+            elif pos == 1 or pos == (bounds[0] - 2) + (bounds[1] - 1) * 1j:
                 print(".", end="")
             elif y == 0 or y == bounds[1] - 1 or x == 0 or x == bounds[0] - 1:
                 print("#", end="")
@@ -80,28 +83,77 @@ def blowWinds():
         blizz[0] = newpos
 
 
-# For each pass, identify its seat
+# Move Elves
+def moveElves():
+    windpos = [x[0] for x in blizzs]
+    global elves
+    newelves = set()
+    for elf in elves:
+        newelves.update(availableMoves(elf, windpos))
+    elves = newelves
+
+
+# Find available moves
+def availableMoves(pos, windpos):
+    possible = [pos]
+    possible.extend([pos + x for x in winds.values()])
+
+    # Reverse order to pop from back without order changing
+    for i in range(len(possible) - 1, -1, -1):
+        x = int(possible[i].real)
+        y = int(possible[i].imag)
+        if (x == 1 and y == 0) or (x == (bounds[0] - 2) and y == (bounds[1] - 1)):
+            continue
+        elif y <= 0 or y >= bounds[1] - 1 or x <= 0 or x >= bounds[0] - 1:
+            possible.pop(i)
+        elif x + y * 1j in windpos:
+            possible.pop(i)
+
+    return possible
+
+
+# Get from A to B avoiding the wind
 def processData():
-    printGrid()
-    while True:
-        _ = input()
+    goal = (bounds[0] - 2) + (bounds[1] - 1) * 1j
+    minutes = 0
+
+    while goal not in elves:
+        minutes += 1
         blowWinds()
-        printGrid()
+        moveElves()
+        # printGrid()
+        # _ = input()
+
+    print(f"Part 1: {minutes}")
+
+    return minutes
 
 
-# Process harder
-def processMore():
-    return False
+# Process going back and to the end again
+def processMore(minutes):
+    global elves
+    elves = set([(bounds[0] - 2) + (bounds[1] - 1) * 1j])
+    goal = 1
+
+    while goal not in elves:
+        minutes += 1
+        blowWinds()
+        moveElves()
+
+    elves = set([1])
+    goal = (bounds[0] - 2) + (bounds[1] - 1) * 1j
+
+    while goal not in elves:
+        minutes += 1
+        blowWinds()
+        moveElves()
+
+    print(f"Part 2: {minutes}")
 
 
 def main():
     parseInput(args.input)
-
-    # Part 1
-    processData()
-
-    # Part 2
-    processMore()
+    processMore(processData())
 
 
 if __name__ == "__main__":
