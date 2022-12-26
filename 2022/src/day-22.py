@@ -19,6 +19,8 @@ bearing = {
     -1j: 3
 }
 face = deque(bearing.keys())
+maxx = 0
+maxy = 0
 
 
 # Parse the input file
@@ -28,6 +30,7 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
+    global maxx, maxy
     row = 0
     for line in input_fh:
         line = line.strip("\n")
@@ -47,11 +50,12 @@ def parseInput(inp):
                     instr.append(x)
             instr.append(int(current))
 
+    maxx = max([int(x.real) for x in grid])
+    maxy = max([int(y.imag) for y in grid])
+
 
 # Check Input
 def printGrid():
-    maxx = max([int(x.real) for x in grid])
-    maxy = max([int(y.imag) for y in grid])
     for y in range(maxy + 1):
         for x in range(maxx + 1):
             if x + y * 1j in grid:
@@ -77,14 +81,17 @@ def moveAlong(state, cmd, part):
 # Attempt to move one square
 def unitMove(state, part):
     target = state[0] + state[1][0]
+    rot = None
     if target not in grid:
         if part == 1:
-            target = wrapPos(state)
+            target, rot = wrapPos(state)
         else:
-            target = foldPos(state)
+            target, rot = foldPos(state)
 
     if grid[target] == ".":
         state[0] = target
+        if rot is not None:
+            state[1].rotate(rot)
         return True
     else:
         return False
@@ -93,13 +100,13 @@ def unitMove(state, part):
 # Find wrapped target (Part 1)
 def wrapPos(state):
     if state[1][0] == 1:
-        return min([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j
+        return min([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j, None
     elif state[1][0] == 1j:
-        return int(state[0].real) + min([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j
+        return int(state[0].real) + min([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j, None
     elif state[1][0] == -1:
-        return max([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j
+        return max([int(x.real) for x in grid if int(x.imag) == int(state[0].imag)]) + int(state[0].imag) * 1j, None
     elif state[1][0] == -1j:
-        return int(state[0].real) + max([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j
+        return int(state[0].real) + max([int(x.imag) for x in grid if int(x.real) == int(state[0].real)]) * 1j, None
 
 
 # Find folded target (Part 2 - hardcode side positions, not general solution)
@@ -107,10 +114,67 @@ def foldPos(state):
     '''
     Example sides(4):   Real input sides(50):
         1                     1 2
-    4 3 2                     3
-        5 6                 5 4
+    2 3 4                     3
+        5 6                 4 5
                             6
     '''
+    x = int(state[0].real)
+    y = int(state[0].imag)
+
+    # Move and turn depending on edge
+    # Top 1 to top 2
+    if x in range(8, 12) and y == 0:
+        pos = (11 - x) + 4j
+        rot = 2
+    elif x in range(0, 4) and y == 4:
+        pos = (11 - x) + 0j
+        rot = 2
+    # Right 1 to right 6
+    elif x == 11 and y in range(0, 4):
+        pos = 15 + (11 - y) * 1j
+        rot = 2
+    elif x == 15 and y in range(8, 12):
+        pos = 11 + (11 - y) * 1j
+        rot = 2
+    # Right 4 to top 6
+    elif x == 11 and y in range(4, 8):
+        pos = (19 - y) + 8j
+        rot = -1
+    elif x in range(12, 16) and y == 8:
+        pos = 11 + (19 - x) * 1j
+        rot = 1
+    # Bottom 6 to left 2
+    elif x in range(12, 16) and y == 11:
+        pos = 0 + (19 - x) * 1j
+        rot = 1
+    elif x == 0 and y in range(4, 8):
+        pos = (19 - x) + 11j
+        rot = -1
+    # Bottom 5 to bottom 2
+    elif x in range(8, 12) and y == 11:
+        pos = (11 - x) + 7j
+        rot = 2
+    elif x in range(0, 4) and y == 7:
+        pos = (11 - x) + 11j
+        rot = 2
+    # Left 5 to bottom 3
+    elif x == 8 and y in range(8, 12):
+        pos = (15 - y) + 7j
+        rot = -1
+    elif x in range(4, 8) and y == 7:
+        pos = 8 + (15 - x) * 1j
+        rot = 1
+    # Top 3 to left 1
+    elif x in range(4, 8) and y == 4:
+        pos = 8 + (x - 4) * 1j
+        rot = -1
+    elif x == 8 and y in range(0, 4):
+        pos = (y + 4) + 4j
+        rot = 1
+    else:
+        sys.exit(f"Fail: {state}")
+
+    return pos, rot
 
 
 # Walk through the grid following the instructions
