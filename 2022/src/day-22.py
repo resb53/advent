@@ -88,13 +88,16 @@ def unitMove(state, part):
         else:
             target, rot = foldPos(state)
 
-    if grid[target] == ".":
-        state[0] = target
-        if rot is not None:
-            state[1].rotate(rot)
-        return True
-    else:
-        return False
+    try:
+        if grid[target] == ".":
+            state[0] = target
+            if rot is not None:
+                state[1].rotate(rot)
+            return True
+        else:
+            return False
+    except KeyError as e:
+        sys.exit(f"{state[0]}: {e}")
 
 
 # Find wrapped target (Part 1)
@@ -122,6 +125,8 @@ def foldPos(state):
     y = int(state[0].imag)
 
     # Move and turn depending on edge
+    '''
+    # Test data
     # Top 1 to top 2
     if x in range(8, 12) and y == 0:
         pos = (11 - x) + 4j
@@ -170,6 +175,59 @@ def foldPos(state):
         rot = -1
     elif x == 8 and y in range(0, 4):
         pos = (y + 4) + 4j
+        rot = 1
+    else:
+        sys.exit(f"Fail: {state}")
+    '''
+
+    # Top 1 to left 6
+    if x in range(50, 100) and y == 0:
+        pos = 0 + (100 + x) * 1j
+        rot = -1
+    elif x == 0 and y in range(150, 200):
+        pos = (y - 100) + 0j
+        rot = 1
+    # Top 2 to bottom 6
+    elif x in range(100, 150) and y == 0:
+        pos = (x - 100) + 199j
+        rot = 0
+    elif x in range(0, 50) and y == 199:
+        pos = (x + 100) + 0j
+        rot = 0
+    # Right 2 to right 5
+    elif x == 149 and y in range(0, 50):
+        pos = 99 + (149 - y) * 1j
+        rot = 2
+    elif x == 99 and y in range(100, 149):
+        pos = 149 + (149 - y) * 1j
+        rot = 2
+    # Bottom 2 to right 3
+    elif x in range(100, 150) and y == 49:
+        pos = 99 + (x - 50) * 1j
+        rot = -1
+    elif x == 99 and y in range(50, 100):
+        pos = (y + 50) + 49j
+        rot = 1
+    # Bottom 5 to right 6
+    elif x in range(50, 100) and y == 149:
+        pos = 49 + (x + 100) * 1j
+        rot = -1
+    elif x == 49 and y in range(150, 200):
+        pos = (y - 100) + 149j
+        rot = 1
+    # Left 4 to left 1
+    elif x == 0 and y in range(100, 150):
+        pos = 50 + (149 - y) * 1j
+        rot = 2
+    elif x == 50 and y in range(0, 50):
+        pos = 0 + (149 - y) * 1j
+        rot = 2
+    # Top 4 to left 3
+    elif x in range(0, 50) and y == 100:
+        pos = 50 + (x + 50) * 1j
+        rot = -1
+    elif x == 50 and y in range(50, 100):
+        pos = (y - 50) + 100j
         rot = 1
     else:
         sys.exit(f"Fail: {state}")
