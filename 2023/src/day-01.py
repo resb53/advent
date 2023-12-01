@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import re
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -10,6 +11,9 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 data = []
+
+firstDigit = r'^.*?(\d)'
+lastDigit = r'^.*(\d)'
 
 
 # Parse the input file
@@ -25,8 +29,25 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def processData():
-    for element in data:
-        print(f"{element}")
+    total = 0
+
+    for line in data:
+        value = ''
+
+        if (getFirst := re.match(firstDigit, line)) is not None:
+            value += getFirst.group(1)
+        else:
+            sys.exit(f"Error: firstDigit not found in {line}.")
+
+        if (getLast := re.match(lastDigit, line)) is not None:
+            value += getLast.group(1)
+        else:
+            sys.exit(f"Error: firstDigit not found in {line}.")
+
+        # print(value)
+        total += int(value)
+
+    print(f"Part 1: {total}")
 
 
 # Process harder
