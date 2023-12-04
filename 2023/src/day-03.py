@@ -3,6 +3,7 @@
 import argparse
 import sys
 import re
+from numpy import prod
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -53,6 +54,21 @@ def processData():
     return total
 
 
+# Get full number from a single digit location
+def getNum(y, x):
+    num = data[y][x]  # No need to check this is a digit, done before
+    tmpx = x - 1
+    while data[y][tmpx].isdigit() and tmpx >= 0:
+        num = data[y][tmpx] + num
+        tmpx -= 1
+    tmpx = x + 1
+    while data[y][tmpx].isdigit() and tmpx < len(data[y]):
+        num += data[y][tmpx]
+        tmpx += 1
+
+    return int(num)
+
+
 # Calculate the gear ratios
 def processMore():
     total = 0
@@ -63,29 +79,33 @@ def processMore():
 
         # No stars at edge of data, limits ok
         for value in values:
-            minx = value.start() - 1
-            maxx = value.end()
-            miny = y - 1
-            maxy = y + 1
-
-            # Look for numbers tested data: no more than 2 by a star
-            borders = [data[miny][minx:maxx+1], line[minx], line[maxx], data[maxy][minx:maxx+1]]
-            count = 0
+            x = value.start()
             nums = []
-            if m := re.search(r'(\d)\D(\d)', borders[0]):
-                count += 2
-            elif m := re.search(r'(\d+)', borders[0]):
-                count += 1
-            if m := re.search(r'(\d)', borders[1]):
-                count += 1
-            if m := re.search(r'(\d)', borders[2]):
-                count += 1
-            if m := re.search(r'(\d)\D(\d)', borders[3]):
-                count += 2
-                nums.extend([m.group(1), m.group(2)])
-            elif m := re.search(r'(\d)', borders[3]):
-                count += 1
-            print(nums)
+
+            # Look for numbers - tested data: no more than 2 by a star
+            if data[y-1][x].isdigit():
+                nums.append(getNum(y-1, x))
+            else:
+                if data[y-1][x-1].isdigit():
+                    nums.append(getNum(y-1, x-1))
+                if data[y-1][x+1].isdigit():
+                    nums.append(getNum(y-1, x+1))
+            if data[y][x-1].isdigit():
+                nums.append(getNum(y, x-1))
+            if data[y][x+1].isdigit():
+                nums.append(getNum(y, x+1))
+            if data[y+1][x].isdigit():
+                nums.append(getNum(y+1, x))
+            else:
+                if data[y+1][x-1].isdigit():
+                    nums.append(getNum(y+1, x-1))
+                if data[y+1][x+1].isdigit():
+                    nums.append(getNum(y+1, x+1))
+
+            if len(nums) == 2:
+                total += prod(nums)
+
+    return total
 
 
 def main():
