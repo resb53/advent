@@ -32,7 +32,6 @@ def processData():
         values = re.finditer(r'\d+', line)
 
         for value in values:
-            # print(f"{value.group(0)}: {value.start()} {value.end()}")
             minx = value.start() - 1
             if minx < 0:
                 minx = 0
@@ -56,7 +55,37 @@ def processData():
 
 # Calculate the gear ratios
 def processMore():
-    return False
+    total = 0
+
+    # Find the gears
+    for y, line in enumerate(data):
+        values = re.finditer(r'\*', line)
+
+        # No stars at edge of data, limits ok
+        for value in values:
+            minx = value.start() - 1
+            maxx = value.end()
+            miny = y - 1
+            maxy = y + 1
+
+            # Look for numbers tested data: no more than 2 by a star
+            borders = [data[miny][minx:maxx+1], line[minx], line[maxx], data[maxy][minx:maxx+1]]
+            count = 0
+            nums = []
+            if m := re.search(r'(\d)\D(\d)', borders[0]):
+                count += 2
+            elif m := re.search(r'(\d+)', borders[0]):
+                count += 1
+            if m := re.search(r'(\d)', borders[1]):
+                count += 1
+            if m := re.search(r'(\d)', borders[2]):
+                count += 1
+            if m := re.search(r'(\d)\D(\d)', borders[3]):
+                count += 2
+                nums.extend([m.group(1), m.group(2)])
+            elif m := re.search(r'(\d)', borders[3]):
+                count += 1
+            print(nums)
 
 
 def main():
