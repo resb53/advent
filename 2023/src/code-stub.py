@@ -27,6 +27,7 @@ def parseInput(inp):
 def processData():
     for element in data:
         print(f"{element}")
+    return False
 
 
 # Process harder
@@ -38,10 +39,10 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    processData()
+    print(f"Part 1: {processData()}")
 
     # Part 2
-    processMore()
+    print(f"Part 2: {processMore()}")
 
 
 if __name__ == "__main__":
