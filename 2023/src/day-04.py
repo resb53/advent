@@ -28,16 +28,22 @@ def parseInput(inp):
         winners.append([int(x) for x in winner.split()])
 
 
+def countWins(id):
+    count = 0
+
+    for x in cards[id]:
+        if x in winners[id]:
+            count += 1
+
+    return count
+
+
 # For each pass, identify its seat
 def processData():
     score = 0
 
     for id in range(len(cards)):
-        count = 0
-
-        for x in cards[id]:
-            if x in winners[id]:
-                count += 1
+        count = countWins(id)
 
         if count > 0:
             score += 2 ** (count-1)
@@ -47,7 +53,15 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    scratchcards = [1] * len(cards)
+
+    for id in range(len(cards)):
+        copies = countWins(id)
+
+        for x in range(copies):
+            scratchcards[id + x + 1] += scratchcards[id]
+
+    return sum(scratchcards)
 
 
 def main():
