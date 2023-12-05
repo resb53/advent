@@ -58,11 +58,11 @@ def processData():
 def getNum(y, x):
     num = data[y][x]  # No need to check this is a digit, done before
     tmpx = x - 1
-    while data[y][tmpx].isdigit() and tmpx >= 0:
+    while tmpx >= 0 and data[y][tmpx].isdigit():
         num = data[y][tmpx] + num
         tmpx -= 1
     tmpx = x + 1
-    while data[y][tmpx].isdigit() and tmpx < len(data[y]):
+    while tmpx < len(data[y]) and data[y][tmpx].isdigit():
         num += data[y][tmpx]
         tmpx += 1
 
