@@ -38,7 +38,6 @@ def parseInput(inp):
 
 # Find corresponding next value
 def corresponds(id, level):
-    # print(f"Mapping {id} at level {level}...")
     for mapping in data[level]:
         dest, src, rng = mapping
 
@@ -60,17 +59,41 @@ def processData():
     return min(locations)
 
 
-# Processbut with seed ranges
-def processMore():
-    seedids = []
-    while len(seeds) > 0:
-        start, span = seeds.pop(0), seeds.pop(0)
-        seedids.extend(range(start, start+span))
+# Go backwards (opposite of corresponds)
+def disputes(id, level):
+    for mapping in data[level]:
+        dest, src, rng = mapping
 
-    locations = []
-    for seed in seedids:
-        locations.append(corresponds(seed, 0))
-    return min(locations)
+        if id >= dest and id < dest+rng:
+            id = id - dest + src
+            break
+
+    if level == 0:
+        return id
+    else:
+        return disputes(id, level-1)
+
+
+# Check if a value is a seed
+def checkSeeds(id):
+    c = 0
+    while c < len(seeds):
+        if id >= seeds[c] and id < (seeds[c] + seeds[c+1]):
+            return True
+        else:
+            c += 2
+    return False
+
+
+# Process backwards for seed ranges.
+def processMore():
+    id = 1
+
+    while not checkSeeds(disputes(id, 6)):
+        print(id, end="\r")
+        id += 1
+
+    return id
 
 
 def main():
