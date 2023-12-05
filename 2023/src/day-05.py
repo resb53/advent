@@ -2,7 +2,6 @@
 
 import argparse
 import sys
-from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -10,7 +9,8 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-data = defaultdict(list)
+data = []
+seeds = []
 
 
 # Parse the input file
@@ -20,29 +20,44 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
-    key = ""
     for line in input_fh:
         line = line.rstrip()
         if len(line) > 0:
             parts = line.split(":")
 
             if len(parts) > 1:
-                key = parts[0]
                 if len(parts[1]) != 0:
                     # Get the seeds, not the leading space
-                    data[key].extend(parts[1].split(" ")[1:])
+                    seeds.extend([int(x) for x in parts[1].split(" ")[1:]])
+                else:
+                    data.append([])
 
             else:
-                data[key].append(line.split(" "))
+                data[-1].append([int(x) for x in line.split(" ")])
 
-    print(data)
+
+# Find corresponding next value
+def corresponds(id, level):
+    # print(f"Mapping {id} at level {level}...")
+    for mapping in data[level]:
+        dest, src, rng = mapping
+
+        if id >= src and id < src+rng:
+            id = id - src + dest
+            break
+
+    if (level+1) >= len(data):
+        return id
+    else:
+        return corresponds(id, level+1)
 
 
 # Find lowest location number for any seed
 def processData():
-    for element in data:
-        print(f"{element}")
-    return False
+    locations = []
+    for seed in seeds:
+        locations.append(corresponds(seed, 0))
+    return min(locations)
 
 
 # Process harder
