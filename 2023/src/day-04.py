@@ -9,7 +9,8 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-data = []
+cards = []
+winners = []
 
 
 # Parse the input file
@@ -20,14 +21,28 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.strip("\n"))
+        line.rstrip()
+        data = line.split(": ")[1]
+        winner, card = data.split(" | ")
+        cards.append([int(x) for x in card.split()])
+        winners.append([int(x) for x in winner.split()])
 
 
 # For each pass, identify its seat
 def processData():
-    for element in data:
-        print(f"{element}")
-    return False
+    score = 0
+
+    for id in range(len(cards)):
+        count = 0
+
+        for x in cards[id]:
+            if x in winners[id]:
+                count += 1
+
+        if count > 0:
+            score += 2 ** (count-1)
+
+    return score
 
 
 # Process harder
