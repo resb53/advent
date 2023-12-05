@@ -47,7 +47,8 @@ def processData():
                 maxy = y
 
             # Look for symbols
-            borders = data[miny][minx:maxx+1] + line[minx] + line[maxx] + data[maxy][minx:maxx+1]
+            borders = data[miny][minx:maxx+1] + line[minx] \
+                + line[maxx] + data[maxy][minx:maxx+1]
             if re.search(r'[^\d\.]', borders):
                 total += int(value.group(0))
 

@@ -20,7 +20,7 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.rstrip())
+        data.append(line.strip("\n"))
 
 
 # For each pass, identify its seat
