@@ -60,9 +60,17 @@ def processData():
     return min(locations)
 
 
-# Process harder
+# Processbut with seed ranges
 def processMore():
-    return False
+    seedids = []
+    while len(seeds) > 0:
+        start, span = seeds.pop(0), seeds.pop(0)
+        seedids.extend(range(start, start+span))
+
+    locations = []
+    for seed in seedids:
+        locations.append(corresponds(seed, 0))
+    return min(locations)
 
 
 def main():
