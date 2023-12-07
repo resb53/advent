@@ -186,14 +186,16 @@ def parseInput(inp):
     for line in input_fh:
         cards, bet = line.rstrip().split()
         hand = Hand([Card(x) for x in cards])
-        hands.append([hand, bet])
+        hands.append([hand, int(bet)])
 
 
 # For each pass, identify its seat
 def processData():
-    for hand in hands:
-        print(f"{hand[1]}: {str(hand[0])}")
-    return False
+    winnings = 0
+    sorthands = sorted(hands)
+    for rank, hand in enumerate(sorthands):
+        winnings += (rank+1) * hand[1]
+    return winnings
 
 
 # Process harder
