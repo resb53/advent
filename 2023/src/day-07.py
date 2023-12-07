@@ -95,7 +95,7 @@ class Hand:
             self.type = "HC"
 
     def __str__(self):
-        return [str(x) for x in self.contents]
+        return str([str(x) for x in self.contents])
 
     def __lt__(self, other):
         if self.type != other.type:
@@ -184,13 +184,15 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.rstrip())
+        cards, bet = line.rstrip().split()
+        hand = Hand([Card(x) for x in cards])
+        hands.append([hand, bet])
 
 
 # For each pass, identify its seat
 def processData():
-    for element in data:
-        print(f"{element}")
+    for hand in hands:
+        print(f"{hand[1]}: {str(hand[0])}")
     return False
 
 
