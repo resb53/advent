@@ -47,9 +47,18 @@ def processData():
         steps += 1
 
 
-# Process harder
+# Move like a ghost
 def processMore():
-    return False
+    src = [x for x in network.keys() if x[-1] == "A"]
+    print(len(src))
+    steps = 0
+    for dirn in cycle(instr):
+        if len([x for x in src if x[-1] == "Z"]) == len(src):
+            return steps
+        for i, x in enumerate(src):
+            src[i] = network[x][dirn]
+        steps += 1
+    return steps
 
 
 def main():
