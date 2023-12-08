@@ -47,25 +47,52 @@ def processData():
         steps += 1
 
 
-# Move like a ghost
-def processMore():
+# Find loops in maze
+def getLoops():
     src = [x for x in network.keys() if x[-1] == "A"]
-    print(len(src))
+    loops = []
+    for node in src:
+        visits = set()
+        state = []
+        for dirn in cycle(enumerate(instr)):
+            if (dirn[0], node) in visits:
+                offset = state.index((dirn[0], node))
+                loops.append([
+                    offset,
+                    len(visits) - offset,
+                    [x - offset for x, n in enumerate(state) if n[1][-1] == "Z"]
+                ])
+                break
+            state.append((dirn[0], node))
+            if len(state) == 16344:
+                print(state[-1][1])
+            visits.add((dirn[0], node))
+            node = network[node][dirn[1]]
+    return loops
+
+
+# Move like a ghost: find individual... loops?
+def processMore():
+    # Offset, Periodicity, Steps to Z within period
+    # Testing on the full input there's only one Z for each path!
+    # SO, when (offset + c*(periodicity) + stepsToZ) works for int(c) >= 0, we're all at Z
+    loops = getLoops()
     steps = 0
-    for dirn in cycle(instr):
-        if len([x for x in src if x[-1] == "Z"]) == len(src):
-            return steps
-        for i, x in enumerate(src):
-            src[i] = network[x][dirn]
+    while True:
         steps += 1
-    return steps
+        zeds = 0
+        for (offset, period, stz) in loops:
+            if (steps - offset - stz[-1]) % period == 0:
+                zeds += 1
+        if zeds == len(loops):
+            return steps
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    # print(f"Part 1: {processData()}")
 
     # Part 2
     print(f"Part 2: {processMore()}")
