@@ -64,11 +64,39 @@ def getLoops():
                 ])
                 break
             state.append((dirn[0], node))
-            if len(state) == 16344:
-                print(state[-1][1])
             visits.add((dirn[0], node))
             node = network[node][dirn[1]]
     return loops
+
+
+def extGcd(a, b):
+    # Reference: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Pseudocode
+    # Reference: https://math.stackexchange.com/questions/2218763/
+    # how-to-find-lcm-of-two-numbers-when-one-starts-with-an-offset
+    old_r, r = a, b
+    old_s, s = 1, 0
+    old_t, t = 0, 1
+
+    while r:
+        quot, rem = divmod(old_r, r)
+        old_r, r = r, rem
+        old_s, s = s, old_s - quot * s
+        old_t, t = t, old_t - quot * t
+
+    return old_r, old_s, old_t
+
+
+def combineRotations(aprd, aoff, bprd, boff):
+    gcd, s, t = extGcd(aprd, bprd)
+    diff = aoff - boff
+    diffMult, diffRem = divmod(diff, gcd)
+    if diffRem:
+        raise ValueError("Will never synchronise.")
+
+    comb_prd = aprd // gcd * bprd
+    comb_off = (aoff - s * diffMult * aprd) % comb_prd
+
+    return comb_prd, comb_off
 
 
 # Move like a ghost: find individual... loops?
@@ -77,22 +105,29 @@ def processMore():
     # Testing on the full input there's only one Z for each path!
     # SO, when (offset + c*(periodicity) + stepsToZ) works for int(c) >= 0, we're all at Z
     loops = getLoops()
-    steps = 0
-    while True:
-        steps += 1
-        zeds = 0
-        for (offset, period, stz) in loops:
-            if (steps - offset - stz[-1]) % period == 0:
-                zeds += 1
-        if zeds == len(loops):
-            return steps
+
+    # Use Extended Euclidian
+    loop = loops.pop(0)
+    period, offset = loop[1], loop[0] + loop[2][-1]
+
+    while len(loops) > 0:
+        newloop = loops.pop(0)
+
+        period, offset = combineRotations(
+            period,
+            offset,
+            newloop[1],
+            newloop[0] + newloop[2][-1]
+        )
+
+    return period
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    # print(f"Part 1: {processData()}")
+    print(f"Part 1: {processData()}")
 
     # Part 2
     print(f"Part 2: {processMore()}")
