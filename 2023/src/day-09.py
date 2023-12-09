@@ -14,29 +14,6 @@ data = []
 coef = []
 
 
-# Parse the input file
-def parseInput(inp):
-    try:
-        input_fh = open(inp, 'r')
-    except IOError:
-        sys.exit("Unable to open input file: " + inp)
-
-    for line in input_fh:
-        data.append([int(x) for x in line.rstrip().split()])
-
-
-# Get set of gaps between values
-def getGaps(seq):
-    gaps = set()
-    newseq = []
-    for x in range(1, len(seq)):
-        y = seq[x] - seq[x-1]
-        gaps.add(y)
-        newseq.append(y)
-
-    return gaps, newseq
-
-
 # Get polynomial for the sequence -- in the end this was NOT needed, but fun to learn sympy!
 # https://stackoverflow.com/questions/56824622/finding-a-polynomial-formula-for-sequence-of-numbers
 def lagrange(yseq):
@@ -57,21 +34,32 @@ def lagrange(yseq):
     return result.all_coeffs()
 
 
-# For each sequence, find pattern
+# Parse the input file
+def parseInput(inp):
+    try:
+        input_fh = open(inp, 'r')
+    except IOError:
+        sys.exit("Unable to open input file: " + inp)
+
+    for line in input_fh:
+        data.append([int(x) for x in line.rstrip().split()])
+        coef.append(lagrange(data[-1]))
+        print(f"Processed {len(data)}...", end="\r")
+
+    print()
+
+
+# For each sequence, find next
 def processData():
     sumnext = 0
-    for n, seq in enumerate(data):
-        coeffs = lagrange(seq)
-        coef.append(coeffs)
-        nextx = len(seq) + 1
+    for n, coeffs in enumerate(coef):
+        nextx = len(data[n]) + 1
         value = 0
-        power = 0
-        for i in range(len(coeffs)-1, -1, -1):
-            value += coeffs[i] * nextx ** power
-            power += 1
-        print(f"Processed {n+1} / {len(data)}", end="\r")
+        power = len(coeffs) - 1
+        for c in coeffs:
+            value += c * nextx ** power
+            power -= 1
         sumnext += value
-    print()
 
     return sumnext
 
