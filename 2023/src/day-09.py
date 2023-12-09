@@ -41,8 +41,8 @@ def getGaps(seq):
 # https://stackoverflow.com/questions/56824622/finding-a-polynomial-formula-for-sequence-of-numbers
 def lagrange(yseq):
     x = symbols("x")
-    zeropoly = x - x
-    onepoly = zeropoly + 1
+    zeropoly = Poly(0, x)
+    onepoly = Poly(1, x)
     xseq = list(range(1, len(yseq) + 1))
 
     result = Poly(zeropoly, x)
