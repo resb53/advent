@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from sympy import symbols, Poly
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -10,6 +11,7 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 data = []
+coef = []
 
 
 # Parse the input file
@@ -35,28 +37,52 @@ def getGaps(seq):
     return gaps, newseq
 
 
+# Get polynomial for the sequence -- in the end this was NOT needed, but fun to learn sympy!
+# https://stackoverflow.com/questions/56824622/finding-a-polynomial-formula-for-sequence-of-numbers
+def lagrange(yseq):
+    x = symbols("x")
+    zeropoly = x - x
+    onepoly = zeropoly + 1
+    xseq = list(range(1, len(yseq) + 1))
+
+    result = Poly(zeropoly, x)
+    for j, (xj, yj) in enumerate(zip(xseq, yseq)):
+        # Build the j'th base polynomial
+        polyj = onepoly
+        for m, xm in enumerate(xseq):
+            if m != j:
+                polyj *= (x - xm) / (xj - xm)
+        # Add in the j'th polynomial
+        result += yj * polyj
+    return result.all_coeffs()
+
+
 # For each sequence, find pattern
 def processData():
-    for seq in data:
-        print(seq)
-        depth = 0
+    sumnext = 0
+    for n, seq in enumerate(data):
+        coeffs = lagrange(seq)
+        coef.append(coeffs)
+        nextx = len(seq) + 1
         value = 0
-        gaps, seq = getGaps(seq)
-        while True:
-            print(seq)
-            depth += 1
-            if len(gaps) == 1:
-                value = gaps.pop()
-                break
-            gaps, seq = getGaps(seq)
-        print(depth, value)
+        power = 0
+        for i in range(len(coeffs)-1, -1, -1):
+            value += coeffs[i] * nextx ** power
+            power += 1
+        print(f"Processed {n+1} / {len(data)}", end="\r")
+        sumnext += value
+    print()
 
-    return False
+    return sumnext
 
 
-# Process harder
+# Find for zero'th element
 def processMore():
-    return False
+    sumzero = 0
+    for coeffs in coef:
+        sumzero += coeffs[-1]
+
+    return sumzero
 
 
 def main():
