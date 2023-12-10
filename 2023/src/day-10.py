@@ -104,70 +104,55 @@ def processData(start):
     return traverseLoop(start)
 
 
-# Extend the grid
-def extendGrid():
-    bounds[0] += 1
-    bounds[1] += 1
-
-    for y in range(-1, bounds[1]+1):
-        grid[-1 + y * 1j] = "."
-        grid[bounds[0] + y * 1j] = "."
-
-    for x in range(-1, bounds[0]+1):
-        grid[x - 1j] = "."
-        grid[x + bounds[1] * 1j] = "."
-
-
-# Get neighbours of a grid location
-def getNeighbours(pos):
-    neighbours = []
-    for x in [-1j, 1-1j, 1, 1+1j, 1j, -1+1j, -1, -1-1j]:
-        if (pos + x).imag >= -1 and \
-           (pos + x).real <= bounds[0] and \
-           (pos + x).imag <= bounds[1] and \
-           (pos + x).real >= -1:
-            neighbours.append(pos + x)
-
-    return neighbours
-
-
-# Go through grid filling connected space
-def fillSpace(pos, filled, loop):
-    # Get pos neighbours in extended bounds
-    newfills = []
-    for tile in getNeighbours(pos):
-        if tile not in filled and tile not in loop:
-            filled.append(tile)
-            newfills.append(tile)
-    for tile in newfills:
-        fillSpace(tile, filled, loop)
-
-
 # Find the points enclosed by the loop
-# = Grid area - points not enclosed - points on the loop
-# extend bounds by 1 to ensure no trapped external areas
+# Work horizontally and count vertical intersections
 def processMore(loop):
-    extendGrid()
-    totalarea = (bounds[0] + 1) * (bounds[1] + 1)
-    beginfill = -1-1j
-    filled = [beginfill]
+    enclosed = 0
+    loopgrid = {}
 
-    fillSpace(beginfill, filled, loop)
-
-    # Print extended grid
-    for y in range(bounds[1]):
-        for x in range(bounds[0]):
+    # Create a grid with just the loop
+    for y in range(bounds[1] + 1):
+        for x in range(bounds[0] + 1):
             p = x + y * 1j
-            if p in filled:
-                print("X", end="")
+            if p in loop:
+                loopgrid[p] = grid[p]
+                # print(grid[p], end="")
             else:
-                print(grid[p], end="")
-        print()
+                loopgrid[p] = "."
+                # print(" ", end="")
+        # print()
 
-    # Remove extended edges
-    filledcount = len(filled) - (bounds[0] + 2) - (bounds[1] + 2)
+    # Stringify
+    for y in range(bounds[1] + 1):
+        stringy = ""
+        lastbend = ""
+        for x in range(bounds[0] + 1):
+            match loopgrid[x + y * 1j]:
+                case "|":
+                    stringy += "|"
+                case "L":
+                    lastbend = "L"
+                case "F":
+                    lastbend = "F"
+                case "7":
+                    if lastbend == "L":
+                        stringy += "|"
+                        lastbend = ""
+                case "J":
+                    if lastbend == "F":
+                        stringy += "|"
+                        lastbend = ""
+                case ".":
+                    stringy += "."
+        toggle = False
+        for ch in stringy:
+            if ch == "|":
+                toggle = not toggle
+            else:
+                if toggle:
+                    enclosed += 1
 
-    return totalarea - filledcount - len(loop)
+    return enclosed
 
 
 def main():
