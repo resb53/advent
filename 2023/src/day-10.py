@@ -81,22 +81,20 @@ def startShape(start):
     return None
 
 
-# Go around the loop, return distance of full loop
+# Go around the loop, return loop path
 def traverseLoop(start):
-    pos = start
+    loop = [start]
     dest = start + shapes[grid[start]][0]
-    count = 0
 
-    while dest != start:
-        count += 1
-        if dest + shapes[grid[dest]][0] != pos:
-            pos = dest
+    while dest != loop[0]:
+        if dest + shapes[grid[dest]][0] != loop[-1]:
+            loop.append(dest)
             dest = dest + shapes[grid[dest]][0]
         else:
-            pos = dest
+            loop.append(dest)
             dest = dest + shapes[grid[dest]][1]
 
-    return (count + 1) // 2
+    return loop
 
 
 # Find the loop and it's most distant point
@@ -106,19 +104,81 @@ def processData(start):
     return traverseLoop(start)
 
 
-# Process harder
-def processMore():
-    return False
+# Extend the grid
+def extendGrid():
+    bounds[0] += 1
+    bounds[1] += 1
+
+    for y in range(-1, bounds[1]+1):
+        grid[-1 + y * 1j] = "."
+        grid[bounds[0] + y * 1j] = "."
+
+    for x in range(-1, bounds[0]+1):
+        grid[x - 1j] = "."
+        grid[x + bounds[1] * 1j] = "."
+
+
+# Get neighbours of a grid location
+def getNeighbours(pos):
+    neighbours = []
+    for x in [-1j, 1-1j, 1, 1+1j, 1j, -1+1j, -1, -1-1j]:
+        if (pos + x).imag >= -1 and \
+           (pos + x).real <= bounds[0] and \
+           (pos + x).imag <= bounds[1] and \
+           (pos + x).real >= -1:
+            neighbours.append(pos + x)
+
+    return neighbours
+
+
+# Go through grid filling connected space
+def fillSpace(pos, filled, loop):
+    # Get pos neighbours in extended bounds
+    newfills = []
+    for tile in getNeighbours(pos):
+        if tile not in filled and tile not in loop:
+            filled.append(tile)
+            newfills.append(tile)
+    for tile in newfills:
+        fillSpace(tile, filled, loop)
+
+
+# Find the points enclosed by the loop
+# = Grid area - points not enclosed - points on the loop
+# extend bounds by 1 to ensure no trapped external areas
+def processMore(loop):
+    extendGrid()
+    totalarea = (bounds[0] + 1) * (bounds[1] + 1)
+    beginfill = -1-1j
+    filled = [beginfill]
+
+    fillSpace(beginfill, filled, loop)
+
+    # Print extended grid
+    for y in range(bounds[1]):
+        for x in range(bounds[0]):
+            p = x + y * 1j
+            if p in filled:
+                print("X", end="")
+            else:
+                print(grid[p], end="")
+        print()
+
+    # Remove extended edges
+    filledcount = len(filled) - (bounds[0] + 2) - (bounds[1] + 2)
+
+    return totalarea - filledcount - len(loop)
 
 
 def main():
     start = parseInput(args.input)
+    loop = processData(start)
 
     # Part 1
-    print(f"Part 1: {processData(start)}")
+    print(f"Part 1: {len(loop) // 2}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {processMore(loop)}")
 
 
 if __name__ == "__main__":
