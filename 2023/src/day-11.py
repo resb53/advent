@@ -77,7 +77,7 @@ def manhattan(a, b):
     return int(abs(a.real - b.real) + abs(a.imag - b.imag))
 
 
-# Calculate shortest manhatten distance between each galaxys
+# Calculate shortest manhattan distance between each galaxys
 def processData():
     expanded = expand(1)
     paths = 0
