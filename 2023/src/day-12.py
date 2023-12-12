@@ -39,25 +39,46 @@ def parseInput(inp):
 
 # Calculate number of arrangements for a given pattern
 def arrange(line, arr):
-    print(line, arr)
-    # Locate first possible location from left
-    poss = re.match(r"^\.*[?#]{" + str(arr[0]) + "}(?!#)", line)
-    # Distance to next considered point
-    seen = re.match(r"^\.*(?:#+|\?)", line)
+    # If nothing left to do, return a success
+    if len(arr) == 0:
+        if "#" in line:
+            return 0
+        else:
+            return 1
 
-    if poss is not None:
-        print(f"Poss: {poss[0]}")
-    if seen is not None:
-        print(f"Seen: {seen[0]}")
+    # print(line, arr)
 
-    return 1
+    # Locate first possible location match from left
+    poss = re.match(r"^\.*([?#]{" + str(arr[0]) + "})(?!#)", line)
+
+    # If no matches, make the first ? a . and try again.
+    if poss is None:
+        if "?" in line:
+            return arrange(line[line.index("?") + 1:], arr)
+        else:
+            return 0
+    else:
+        # Else make 2 paths, one with the first match taken, one with the next ? a .
+        # print(f"A: {line[len(poss[0]) + 1:]} {arr[1:]}")
+        patha = arrange(line[len(poss[0]) + 1:], arr[1:])
+        pathb = 0
+
+        if poss[1][0] == "?":
+            # print(f"B: {line[line.index('?') + 1:]} {arr}")
+            pathb = arrange(line[line.index("?") + 1:], arr)
+
+        return patha + pathb
 
 
 # For each line of spring, work out how many possible arrangements
 def processData():
     arrangements = 0
-    for element in data:
-        arrangements += arrange(element[0], element[1])
+    for i, element in enumerate(data):
+        print(element)
+        result = arrange(element[0], element[1])
+        print(f"{i}: {result}")
+        arrangements += result
+
     return arrangements
 
 
