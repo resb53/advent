@@ -11,25 +11,27 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 data = []
-poly = []
+coef = []
 
 
 # Get polynomial for the sequence -- in the end this was NOT needed, but fun to learn sympy!
 # https://stackoverflow.com/questions/56824622/finding-a-polynomial-formula-for-sequence-of-numbers
 def lagrange(yseq):
     x = symbols("x")
+    zeropoly = Poly(0, x)
+    onepoly = Poly(1, x)
     xseq = list(range(1, len(yseq) + 1))
 
-    result = Poly(0, x)
+    result = Poly(zeropoly, x)
     for j, (xj, yj) in enumerate(zip(xseq, yseq)):
         # Build the j'th base polynomial
-        polyj = Poly(1, x)
+        polyj = onepoly
         for m, xm in enumerate(xseq):
             if m != j:
                 polyj *= (x - xm) / (xj - xm)
         # Add in the j'th polynomial
         result += yj * polyj
-    return result
+    return result.all_coeffs()
 
 
 # Parse the input file
@@ -41,7 +43,7 @@ def parseInput(inp):
 
     for line in input_fh:
         data.append([int(x) for x in line.rstrip().split()])
-        poly.append(lagrange(data[-1]))
+        coef.append(lagrange(data[-1]))
         print(f"Processed {len(data)}...", end="\r")
 
     print()
@@ -50,16 +52,24 @@ def parseInput(inp):
 # For each sequence, find next
 def processData():
     sumnext = 0
-    for n, p in enumerate(poly):
-        sumnext += p(len(data[n]) + 1)
+    for n, coeffs in enumerate(coef):
+        nextx = len(data[n]) + 1
+        value = 0
+        power = len(coeffs) - 1
+        for c in coeffs:
+            value += c * nextx ** power
+            power -= 1
+        sumnext += value
+
     return sumnext
 
 
 # Find for zero'th element
 def processMore():
     sumzero = 0
-    for p in poly:
-        sumzero += p(0)
+    for coeffs in coef:
+        sumzero += coeffs[-1]
+
     return sumzero
 
 
