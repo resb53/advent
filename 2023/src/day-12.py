@@ -3,6 +3,7 @@
 import argparse
 import sys
 import re
+from functools import lru_cache
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -33,11 +34,12 @@ def parseInput(inp):
 
     for line in input_fh:
         (line, arr) = line.rstrip().split()
-        arr = [int(x) for x in arr.split(",")]
+        arr = tuple([int(x) for x in arr.split(",")])
         data.append([line, arr])
 
 
 # Calculate number of arrangements for a given pattern
+@lru_cache
 def arrange(line, arr):
     # If nothing left to do, return a success
     if len(arr) == 0:
@@ -81,9 +83,22 @@ def processData():
     return arrangements
 
 
-# Process harder
+# Extend line and pattern
+def extend(ele):
+    newline = "?".join([ele[0], ele[0], ele[0], ele[0], ele[0]])
+    newarr = ele[1] * 5
+
+    return newline, newarr
+
+
+# Process after unfolding 5 times
 def processMore():
-    return False
+    arrangements = 0
+    for element in data:
+        (newline, newarr) = extend(element)
+        arrangements += arrange(newline, newarr)
+
+    return arrangements
 
 
 def main():
