@@ -3,7 +3,7 @@
 import argparse
 import sys
 import re
-from functools import lru_cache
+from functools import cache
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -39,7 +39,7 @@ def parseInput(inp):
 
 
 # Calculate number of arrangements for a given pattern
-@lru_cache
+@cache
 def arrange(line, arr):
     # If nothing left to do, return a success
     if len(arr) == 0:
