@@ -46,25 +46,27 @@ def arrange(line, arr):
         else:
             return 1
 
-    print(line, arr)
-
     # Locate first possible location match from left
     poss = re.match(r"^\.*([?#]{" + str(arr[0]) + "})(?!#)", line)
 
-    # If no matches, make the first ? a . and try again.
+    # If no matches, and there's a ? before a #, make it a . and try again.
     if poss is None:
         if "?" in line:
-            return arrange(line[line.index("?") + 1:], arr)
+            if "#" in line:
+                if line.index("?") < line.index("#"):
+                    return arrange(line[line.index("?") + 1:], arr)
+                else:
+                    return 0
+            else:
+                return arrange(line[line.index("?") + 1:], arr)
         else:
             return 0
     else:
         # Else make 2 paths, one with the first match taken, one with the next ? a .
-        print(f"A: {line[len(poss[0]) + 1:]} {arr[1:]}")
         patha = arrange(line[len(poss[0]) + 1:], arr[1:])
         pathb = 0
 
         if poss[1][0] == "?":
-            print(f"B: {line[line.index('?') + 1:]} {arr}")
             pathb = arrange(line[line.index("?") + 1:], arr)
 
         return patha + pathb
@@ -73,10 +75,8 @@ def arrange(line, arr):
 # For each line of spring, work out how many possible arrangements
 def processData():
     arrangements = 0
-    for element in [data[71]]:
-        result = arrange(element[0], element[1])
-        print(result)
-        arrangements += result
+    for element in data:
+        arrangements += arrange(element[0], element[1])
 
     return arrangements
 
