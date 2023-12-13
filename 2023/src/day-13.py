@@ -24,7 +24,8 @@ def parseInput(inp):
     for line in input_fh:
         line = line.rstrip()
         if line == "":
-            data.append(shape)
+            bounds = (int(max([z.real for z in shape])), int(max([z.imag for z in shape])))
+            data.append([shape, bounds])
             shape = set()
             y = 0
         else:
@@ -32,11 +33,13 @@ def parseInput(inp):
                 if val == "#":
                     shape.add(complex(x, y))
             y += 1
-    data.append(shape)
+    bounds = (int(max([z.real for z in shape])), int(max([z.imag for z in shape])))
+    data.append([shape, bounds])
 
 
 # See if this is a true reflection
-def isReflection(shape, r, bounds):
+def isReflection(shabo, r):
+    shape, bounds = shabo[0:2]
     # Columns
     if r.imag == 0:
         for z in shape:
@@ -60,25 +63,26 @@ def isReflection(shape, r, bounds):
 
 
 # Find the best true reflection of the shape
-def reflectLine(shape, bounds, veto=None):
+def reflectLine(shabo, veto=None):
+    bounds = shabo[1]
     # Columns
     for x in range(1, bounds[0] + 1):
         if veto is not None:
             if x != veto:
-                if isReflection(shape, x, bounds):
+                if isReflection(shabo, x):
                     return x
         else:
-            if isReflection(shape, x, bounds):
+            if isReflection(shabo, x):
                 return x
 
     # Rows
     for y in [complex(0, z) for z in range(1, bounds[1] + 1)]:
         if veto is not None:
             if y != veto:
-                if isReflection(shape, y, bounds):
+                if isReflection(shabo, y):
                     return y
         else:
-            if isReflection(shape, y, bounds):
+            if isReflection(shabo, y):
                 return y
 
     return False
@@ -87,9 +91,9 @@ def reflectLine(shape, bounds, veto=None):
 # For each shape, find its reflection line (1 = between 0 and 1, etc.)
 def processData():
     score = 0
-    for shape in data:
-        bounds = (int(max([z.real for z in shape])), int(max([z.imag for z in shape])))
-        rp = reflectLine(shape, bounds)
+    for shabo in data:
+        rp = reflectLine(shabo)
+        shabo.append(rp)
         if rp.imag == 0:
             score += rp.real
         else:
@@ -98,8 +102,9 @@ def processData():
     return int(score)
 
 
-def reflectSmudge(shape, bounds):
-    old = reflectLine(shape, bounds)
+def reflectSmudge(shabo) -> complex:
+    shape, bounds = shabo[0:2]
+    old = shabo[2]
 
     for y in range(bounds[1] + 1):
         for x in range(bounds[0] + 1):
@@ -110,21 +115,23 @@ def reflectSmudge(shape, bounds):
             else:
                 tempShape.add(complex(x, y))
 
-            rp = reflectLine(tempShape, bounds, veto=old)
+            rp = reflectLine([tempShape, bounds], veto=old)
             if rp is not False:
                 return rp
+
+    return 0
 
 
 # Find a (new?) reflection with a single smudge
 def processMore():
     score = 0
     for shape in data:
-        bounds = (int(max([z.real for z in shape])), int(max([z.imag for z in shape])))
-        rp = reflectSmudge(shape, bounds)
-        if rp.imag == 0:
-            score += rp.real
-        else:
-            score += 100 * rp.imag
+        rp = reflectSmudge(shape)
+        if rp != 0:
+            if rp.imag == 0:
+                score += rp.real
+            else:
+                score += 100 * rp.imag
 
     return int(score)
 
