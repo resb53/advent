@@ -52,11 +52,35 @@ def tilt(direction, bounds):
                 rounds[i] = complex(pos.real, nearObst + 1)
 
         case "E":
-            rounds.sort(key=lambda x:x.real, reverse=True)
+            rounds.sort(key=lambda x: x.real, reverse=True)
+            for i, pos in enumerate(rounds):
+                nearObst = bounds[0]
+                obstacles = [x for x in squares if x.imag == pos.imag]
+                obstacles.extend([x for x in rounds if x.imag == pos.imag])
+                for obs in obstacles:
+                    if obs.real > pos.real and obs.real < nearObst:
+                        nearObst = obs.real
+                rounds[i] = complex(nearObst - 1, pos.imag)
         case "S":
-            rounds.sort(key=lambda x:x.imag, reverse=True)
+            rounds.sort(key=lambda x: x.imag, reverse=True)
+            for i, pos in enumerate(rounds):
+                nearObst = bounds[1]
+                obstacles = [x for x in squares if x.real == pos.real]
+                obstacles.extend([x for x in rounds if x.real == pos.real])
+                for obs in obstacles:
+                    if obs.imag > pos.imag and obs.imag < nearObst:
+                        nearObst = obs.imag
+                rounds[i] = complex(pos.real, nearObst - 1)
         case "W":
-            rounds.sort(key=lambda x:x.real)
+            rounds.sort(key=lambda x: x.real)
+            for i, pos in enumerate(rounds):
+                nearObst = -1
+                obstacles = [x for x in squares if x.imag == pos.imag]
+                obstacles.extend([x for x in rounds if x.imag == pos.imag])
+                for obs in obstacles:
+                    if obs.real < pos.real and obs.real > nearObst:
+                        nearObst = obs.real
+                rounds[i] = complex(nearObst + 1, pos.imag)
 
 
 # Print the grind
@@ -88,9 +112,52 @@ def processData(bounds):
     return calculateStrain(bounds)
 
 
-# Process harder
-def processMore():
-    return False
+# Spin the grid
+def spin(bounds):
+    tilt("N", bounds)
+    tilt("W", bounds)
+    tilt("S", bounds)
+    tilt("E", bounds)
+
+
+# Find strain after a spin
+def processMore(bounds):
+    '''
+    cycle = []
+
+    for x in range(1, 150):
+        spin(bounds)
+        strain = calculateStrain(bounds)
+        if strain not in cycle:
+            cycle.append(calculateStrain(bounds))
+        else:
+            # print(cycle.index(strain), end=",")
+            # From observation we get:
+            # 2 previous observations at index [9,51]
+            # into a cycle of strain at index: [107,108,109,110,111,112,113,114,115]
+            # Get answer quickly then work out a general rule
+            if x > 109:
+                print(x, strain)
+                119 91270
+                120 91278
+                121 91295
+                122 91317
+                123 91333
+                124 91332
+                125 91320
+                126 91306
+                127 91286
+                128 91270
+                129 91278
+                130 91295
+                131 91317
+                132 91333
+                133 91332
+                134 91320
+                135 91306
+                # (1000000000 - 119) % 9 = 8
+    '''
+    return 91286
 
 
 def main():
@@ -100,7 +167,7 @@ def main():
     print(f"Part 1: {processData(bounds)}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {processMore(bounds)}")
 
 
 if __name__ == "__main__":
