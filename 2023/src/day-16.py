@@ -115,9 +115,41 @@ def processData():
     return lightLevel()
 
 
-# Process harder
+# Reset the light grid
+def resetLight():
+    for k in light.keys():
+        light[k] = ""
+
+
+# Try all starting positions
 def processMore():
-    return False
+    maxCharge = 0
+    for x in range(bounds[0]):
+        resetLight()
+        propagate(complex(x, -1), "S")
+        strength = lightLevel()
+        if strength > maxCharge:
+            maxCharge = strength
+    for x in range(bounds[0]):
+        resetLight()
+        propagate(complex(x, bounds[1]), "N")
+        strength = lightLevel()
+        if strength > maxCharge:
+            maxCharge = strength
+    for y in range(bounds[1]):
+        resetLight()
+        propagate(complex(-1, y), "E")
+        strength = lightLevel()
+        if strength > maxCharge:
+            maxCharge = strength
+    for y in range(bounds[1]):
+        resetLight()
+        propagate(complex(bounds[0], y), "W")
+        strength = lightLevel()
+        if strength > maxCharge:
+            maxCharge = strength
+
+    return maxCharge
 
 
 def main():
