@@ -18,6 +18,7 @@ compass = {
     "S": 1j,
     "W": -1
 }
+sys.setrecursionlimit(5000)
 
 
 # Parse the input file
@@ -58,45 +59,45 @@ def printLight():
 def propagate(pos, dir):
     tar = pos + compass[dir]
     if tar.real > -1 and tar.real < bounds[0] and tar.imag > -1 and tar.imag < bounds[1]:
-        match grid[tar]:
-            case ".":
-                if dir not in light[tar]:
+        if dir not in light[tar]:
+            match grid[tar]:
+                case ".":
                     light[tar] += dir
                     propagate(tar, dir)
-            case "|":
-                light[tar] = "X"
-                if dir in "EW":
-                    propagate(tar, "N")
-                    propagate(tar, "S")
-                else:
-                    propagate(tar, dir)
-            case "-":
-                light[tar] = "X"
-                if dir in "NS":
-                    propagate(tar, "W")
-                    propagate(tar, "E")
-                else:
-                    propagate(tar, dir)
-            case "/":
-                light[tar] = "X"
-                if dir == "N":
-                    propagate(tar, "E")
-                elif dir == "E":
-                    propagate(tar, "N")
-                elif dir == "S":
-                    propagate(tar, "W")
-                elif dir == "W":
-                    propagate(tar, "S")
-            case "\\":
-                light[tar] = "X"
-                if dir == "N":
-                    propagate(tar, "W")
-                elif dir == "E":
-                    propagate(tar, "S")
-                elif dir == "S":
-                    propagate(tar, "E")
-                elif dir == "W":
-                    propagate(tar, "N")
+                case "|":
+                    light[tar] += dir
+                    if dir in "EW":
+                        propagate(tar, "N")
+                        propagate(tar, "S")
+                    else:
+                        propagate(tar, dir)
+                case "-":
+                    light[tar] += dir
+                    if dir in "NS":
+                        propagate(tar, "W")
+                        propagate(tar, "E")
+                    else:
+                        propagate(tar, dir)
+                case "/":
+                    light[tar] += dir
+                    if dir == "N":
+                        propagate(tar, "E")
+                    elif dir == "E":
+                        propagate(tar, "N")
+                    elif dir == "S":
+                        propagate(tar, "W")
+                    elif dir == "W":
+                        propagate(tar, "S")
+                case "\\":
+                    light[tar] += dir
+                    if dir == "N":
+                        propagate(tar, "W")
+                    elif dir == "E":
+                        propagate(tar, "S")
+                    elif dir == "S":
+                        propagate(tar, "E")
+                    elif dir == "W":
+                        propagate(tar, "N")
 
 
 # Calculate the current light level
