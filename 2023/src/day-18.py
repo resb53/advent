@@ -2,7 +2,6 @@
 
 import argparse
 import sys
-from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,14 +10,13 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 data = []
-grid = defaultdict(int)
+grid = []
 compass = {
     "U": -1j,
     "R": 1,
     "D": 1j,
     "L": -1
 }
-sys.setrecursionlimit(100000)
 
 
 # Parse the input file
@@ -30,83 +28,59 @@ def parseInput(inp):
 
     for line in input_fh:
         vals = line.rstrip().split()
-        vals[1] = int(vals[1])
-        vals[2] = vals[2].strip("(#)")
-        data.append(vals)
+        data.append([vals[0], int(vals[1]), vals[2].strip("(#)")])
 
 
-# Dig according to the plan
-def dig(pos, plan):
+# Dig edges of plan
+def dig(plan):
+    start = 0
     for instr in plan:
-        (drn, length, _) = instr
-        for _ in range(length):
-            pos += compass[drn]
-            grid[pos] += 1
+        drn = instr[0]
+        length = instr[1]
+        dest = start + length * compass[drn]
+        grid.append((start, dest))
+        start = dest
 
 
-# Get boundaries of the grid
-def getBounds():
-    return [
-        min([int(x.real) for x in grid.keys()]),
-        max([int(x.real) for x in grid.keys()]),
-        min([int(y.imag) for y in grid.keys()]),
-        max([int(y.imag) for y in grid.keys()])
-    ]
+# Showlace area (Gauss) https://www.theoremoftheday.org/GeometryAndTrigonometry/Shoelace/TotDShoelace.pdf
+def shoelace():
+    dblarea = 0
+    for edge in grid:
+        dblarea += edge[0].real * edge[1].imag - edge[1].real * edge[0].imag
+    area = dblarea / 2
 
+    # Add the edges (inclusive)
+    edges = 0
+    for edge in grid:
+        edges += abs(edge[1] - edge[0])
+    area += edges/2 + 1
 
-# Dig adjacent undug tiles
-def digAround(pos):
-    around = []
-    for x in [-1j, 1-1j, 1, 1+1j, 1j, -1+1j, -1, -1-1j]:
-        if pos + x not in grid:
-            around.append(pos + x)
-    if len(around) > 0:
-        for x in around:
-            grid[x] += 1
-            digAround(x)
-
-
-# Fill in the perimeter
-def floodFill():
-    # Find a start within the perimeter
-    bounds = getBounds()
-    pointer = None
-    for row in range(bounds[2], bounds[3] + 1):
-        points = [x for x in grid.keys() if x.imag == row]
-        if len(points) == 2:
-            points.sort(key=lambda x: x.real)
-            pointer = points[0] + 1
-            break
-    # Get all spaces around the start within the perimeter
-    grid[pointer] += 1
-    digAround(pointer)
-
-
-# Print the grid
-def printGrid():
-    bounds = getBounds()
-    for y in range(bounds[2], bounds[3] + 1):
-        for x in range(bounds[0], bounds[1] + 1):
-            p = complex(x, y)
-            if p in grid and grid[p] > 0:
-                print(grid[p], end="")
-            else:
-                print(" ", end="")
-        print()
+    return area
 
 
 # Get digger to dig following a set of instructions
 def processData():
-    pos = 0
-    grid[pos] += 1
-    dig(pos, data)
-    floodFill()
-    return len(grid.keys())
+    dig(data)
+    return int(shoelace())
 
 
-# Process harder
+# Dig with the colour codes!
 def processMore():
-    return False
+    grid.clear()
+    cdig = []
+    drn = {
+        "0": "R",
+        "1": "D",
+        "2": "L",
+        "3": "U"
+    }
+    for vals in data:
+        hexlen = int(vals[2][0:5], 16)
+        hexdrn = vals[2][5]
+        cdig.append([drn[hexdrn], hexlen])
+
+    dig(cdig)
+    return int(shoelace())
 
 
 def main():
