@@ -18,6 +18,7 @@ compass = {
     "D": 1j,
     "L": -1
 }
+sys.setrecursionlimit(100000)
 
 
 # Parse the input file
@@ -43,19 +44,52 @@ def dig(pos, plan):
             grid[pos] += 1
 
 
-# Print the grid
-def printGrid():
-    bounds = [
+# Get boundaries of the grid
+def getBounds():
+    return [
         min([int(x.real) for x in grid.keys()]),
         max([int(x.real) for x in grid.keys()]),
         min([int(y.imag) for y in grid.keys()]),
         max([int(y.imag) for y in grid.keys()])
     ]
+
+
+# Dig adjacent undug tiles
+def digAround(pos):
+    around = []
+    for x in [-1j, 1-1j, 1, 1+1j, 1j, -1+1j, -1, -1-1j]:
+        if pos + x not in grid:
+            around.append(pos + x)
+    if len(around) > 0:
+        for x in around:
+            grid[x] += 1
+            digAround(x)
+
+
+# Fill in the perimeter
+def floodFill():
+    # Find a start within the perimeter
+    bounds = getBounds()
+    pointer = None
+    for row in range(bounds[2], bounds[3] + 1):
+        points = [x for x in grid.keys() if x.imag == row]
+        if len(points) == 2:
+            points.sort(key=lambda x: x.real)
+            pointer = points[0] + 1
+            break
+    # Get all spaces around the start within the perimeter
+    grid[pointer] += 1
+    digAround(pointer)
+
+
+# Print the grid
+def printGrid():
+    bounds = getBounds()
     for y in range(bounds[2], bounds[3] + 1):
         for x in range(bounds[0], bounds[1] + 1):
             p = complex(x, y)
             if p in grid and grid[p] > 0:
-                print("█", end="")
+                print(grid[p], end="")
             else:
                 print(" ", end="")
         print()
@@ -66,8 +100,8 @@ def processData():
     pos = 0
     grid[pos] += 1
     dig(pos, data)
-    printGrid()
-    return False
+    floodFill()
+    return len(grid.keys())
 
 
 # Process harder
