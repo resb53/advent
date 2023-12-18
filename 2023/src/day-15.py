@@ -23,22 +23,57 @@ def parseInput(inp):
         data.extend(line.rstrip().split(","))
 
 
+# Calculate hash of a string
+def strhash(string):
+    strhash = 0
+    for c in string:
+        strhash += ord(c)
+        strhash *= 17
+        strhash %= 256
+
+    return strhash
+
+
 # Sum the hashes of the lines
 def processData():
     hashsum = 0
     for x in data:
-        linehash = 0
-        for c in x:
-            linehash += ord(c)
-            linehash *= 17
-            linehash %= 256
-        hashsum += linehash
+        hashsum += strhash(x)
     return hashsum
 
 
 # Insert the lenses using HASHMAP
 def processMore():
-    return False
+    boxes = [[] for _ in range(256)]
+    for x in data:
+        if "-" in x:
+            remove = None
+            label = x[:-1]
+            boxid = strhash(label)
+            for j, lens in enumerate(boxes[boxid]):
+                if lens[0] == label:
+                    remove = j
+            if remove is not None:
+                boxes[boxid].pop(remove)
+        else:
+            replace = None
+            label, value = x.split("=")
+            boxid = strhash(label)
+            for j, lens in enumerate(boxes[boxid]):
+                if lens[0] == label:
+                    replace = j
+            if replace is not None:
+                boxes[boxid][replace][1] = int(value)
+            else:
+                boxes[boxid].append([label, int(value)])
+
+    # Calculate focussing power
+    power = 0
+    for i, box in enumerate(boxes):
+        for j, lens in enumerate(box):
+            p = (i + 1) * (j + 1) * lens[1]
+            power += p
+    return power
 
 
 def main():
