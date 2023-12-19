@@ -125,7 +125,7 @@ def processRanges(ranges):
 # Find acceptable ranges of machine parts
 def processMore():
     ranges = [{
-        "d": "qqz",
+        "d": "in",
         "x": [1, 4000],
         "m": [1, 4000],
         "a": [1, 4000],
