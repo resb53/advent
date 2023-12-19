@@ -3,6 +3,7 @@
 import argparse
 import sys
 import re
+from copy import deepcopy
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -64,7 +65,7 @@ def testPart(part):
     return check
 
 
-# For each pass, identify its seat
+# Process machine parts
 def processData():
     ratings = 0
     for x in data:
@@ -74,9 +75,64 @@ def processData():
     return ratings
 
 
-# Process harder
+# Process all possible ranges
+def processRanges(ranges):
+    results = []
+    while len(ranges) > 0:
+        newranges = []
+        for r in ranges:
+            for step in instr[r["d"]]:
+                if type(step) is list:
+                    newr = deepcopy(r)
+                    if step[1] == "<":
+                        if r[step[0]][1] > step[2]:
+                            newr["d"] = step[3]
+                            newr[step[0]][1] = step[2] - 1
+                            newranges.append(newr)
+                        if r[step[0]][0] < step[2]:
+                            r[step[0]][0] = step[2]
+                    else:
+                        if r[step[0]][0] < step[2]:
+                            newr["d"] = step[3]
+                            newr[step[0]][0] = step[2] + 1
+                            newranges.append(newr)
+                        if r[step[0]][1] > step[2]:
+                            r[step[0]][1] = step[2]
+                else:
+                    r["d"] = step
+            newranges.append(r)
+        ranges = []
+        for r in newranges:
+            if r["d"] == "R":
+                continue
+            elif r["d"] == "A":
+                results.append(r)
+            else:
+                ranges.append(r)
+
+    # Combine results
+    combs = 0
+    for r in results:
+        c = 1
+        for v in "xmas":
+            x = r[v][1] - r[v][0] + 1
+            c *= x
+        combs += c
+
+    return combs
+
+
+# Find acceptable ranges of machine parts
 def processMore():
-    return False
+    ranges = [{
+        "d": "qqz",
+        "x": [1, 4000],
+        "m": [1, 4000],
+        "a": [1, 4000],
+        "s": [1, 4000]
+    }]
+
+    return processRanges(ranges)
 
 
 def main():
