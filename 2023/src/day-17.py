@@ -3,6 +3,7 @@
 import argparse
 import sys
 from heapq import heappop, heappush
+from numpy import complex64 as npcomplex
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -10,8 +11,14 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
+
+# Implement wrapper for numpy complex numbers
+def nplex(r, i):
+    return npcomplex(complex(r, i))
+
+
 weights = {}
-moves = [1, 1j, -1, -1j]
+moves = [nplex(1, 0), nplex(0, 1), nplex(-1, 0), nplex(0, -1)]
 
 
 # Parse the input file
@@ -25,7 +32,7 @@ def parseInput(inp):
     for line in input_fh:
         line = line.rstrip()
         for x, val in enumerate(line):
-            weights[complex(x, y)] = int(val)
+            weights[nplex(x, y)] = int(val)
         y += 1
 
 
@@ -43,27 +50,31 @@ def shortestPaths(start, bounds):
             newstraights = straights
             if move == drn:
                 newstraights += 1
+            elif move == -drn:
+                continue
             else:
                 newstraights = 1
             if newstraights > 3:
                 continue
             newheat = heat + weights[newpos]
-            if newpos not in distances or (move, newstraights) not in distances[newpos]:
+            if newpos not in distances:
                 distances[newpos] = {(move, newstraights): newheat}
                 heappush(pq, (newheat, newpos, move, newstraights))
-            elif newheat < distances[newpos][(move, newstraights)]:
+            elif (move, newstraights) not in distances[newpos] or newheat < distances[newpos][(move, newstraights)]:
                 distances[newpos][(move, newstraights)] = newheat
                 heappush(pq, (newheat, newpos, move, newstraights))
 
-    print(distances)
+    # for x in range(0, bounds[0]+1):
+    #     for y in range(0, bounds[1]+1):
+    #         print(f"{nplex(x, y)}: {distances[nplex(x, y)]}")
 
-    return False
+    return min(distances[nplex(bounds[0], bounds[1])].values())
 
 
 # For each pass, identify its seat
 def processData():
-    start = 0
-    bounds = (max([x.real for x in weights.keys()]), max([y.imag for y in weights.keys()]))
+    start = nplex(0, 0)
+    bounds = (int(max([x.real for x in weights.keys()])), int(max([y.imag for y in weights.keys()])))
     return shortestPaths(start, bounds)
 
 
