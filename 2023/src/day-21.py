@@ -40,7 +40,7 @@ def parseInput(inp):
 
 
 # Plots reachable by 64 steps, track odd/even count, but only process leading edge
-def processData(start, moves):
+def processData(start, moves, inf=False):
     pos = set([start])
     prev = set()
     evens = 1
@@ -50,7 +50,10 @@ def processData(start, moves):
         rem = set()
         for p in pos:
             for newp in [p + x for x in dirs]:
-                if newp in plots:
+                check = newp
+                if inf:
+                    check = complex(int(newp.real) % bounds[0], int(newp.imag) % bounds[1])
+                if check in plots:
                     if newp not in prev:
                         prev.add(p)
                         newpos.add(newp)
@@ -73,11 +76,6 @@ def processData(start, moves):
         return evens
 
 
-# Process with an infinite grid
-def processMore(start, moves):
-    return False
-
-
 def main():
     start = parseInput(args.input)
 
@@ -85,7 +83,7 @@ def main():
     print(f"Part 1: {processData(start, 64)}")
 
     # Part 2
-    print(f"Part 2: {processMore(start, 26501365)}")
+    print(f"Part 2: {processData(start, 5000, inf=True)}")
 
 
 if __name__ == "__main__":
