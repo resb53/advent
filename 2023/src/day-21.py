@@ -39,29 +39,43 @@ def parseInput(inp):
     return start
 
 
-def incrementPositions(pos: set) -> set:
-    newpos = set()
-    for p in pos:
-        for newp in [p + x for x in dirs]:
-            if newp in plots:
-                newpos.add(newp)
-    return newpos
-
-
-# Plots reachable by 64 steps
+# Plots reachable by 64 steps, track odd/even count, but only process leading edge
 def processData(start, moves):
     pos = set([start])
-    for _ in range(moves):
-        pos = incrementPositions(pos)
-    return len(pos)
+    prev = set()
+    evens = 1
+    odds = 0
+    for n in range(moves):
+        newpos = set()
+        rem = set()
+        for p in pos:
+            for newp in [p + x for x in dirs]:
+                if newp in plots:
+                    if newp not in prev:
+                        prev.add(p)
+                        newpos.add(newp)
+                    else:
+                        rem.add(newp)
+        for x in newpos:
+            if (n + 1) % 2 == 1:
+                odds += 1
+            else:
+                evens += 1
+        pos = newpos
+        if len(pos) == 0:
+            break
+        for x in rem:
+            prev.remove(x)
+
+    if moves % 2 == 1:
+        return odds
+    else:
+        return evens
 
 
-# Process harder
+# Process with an infinite grid
 def processMore(start, moves):
-    pos = set([start])
-    for _ in range(moves):
-        pos = incrementPositions(pos)
-    return len(pos)
+    return False
 
 
 def main():
