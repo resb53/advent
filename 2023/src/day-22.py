@@ -53,35 +53,45 @@ def parseInput(inp):
 
 # Drop bricks like Tetris
 def tetris():
-    while True:
-        drop = []
-        for brick in bricks:
-            droppable = True
-            if brick[-1] == "v":
-                if complex(bricks[brick][0][0], bricks[brick][0][1]) in stack[bricks[brick][0][2] - 1]:
-                    droppable = False
-            else:
+    print(stack)
+    ordered_bricks = list(bricks.keys())
+    ordered_bricks.sort(key=lambda x: bricks[x][0][2])
+    for brick in ordered_bricks:
+        # print(f"{brick}: {bricks[brick]}")
+        drop = 0
+        if brick[-1] == "v":
+            for z in range(bricks[brick][0][2] - 1, 0, -1):
+                # print(f"Checking {(bricks[brick][0][0], bricks[brick][0][1], z)}...")
+                if complex(bricks[brick][0][0], bricks[brick][0][1]) in stack[z]:
+                    drop = bricks[brick][0][2] - z - 1
+                    break
+        else:
+            for z in range(bricks[brick][0][2] - 1, 0, -1):
                 for pos in bricks[brick]:
-                    if pos[2] == 1 or complex(pos[0], pos[1]) in stack[pos[2] - 1]:
-                        droppable = False
-            if droppable:
-                drop.append(brick)
-
-        if len(drop) == 0:
-            return
-
-        for brick in drop:
+                    # print(f"Checking {(pos[0], pos[1], z)}...")
+                    if complex(pos[0], pos[1]) in stack[z]:
+                        drop = pos[2] - z - 1
+                        break
+                else:
+                    continue
+                break
+        # print(f"Drop: {drop}")
+        if drop > 0:
             newbrick = []
             for pos in bricks[brick]:
-                newbrick.append((pos[0], pos[1], pos[2] - 1))
+                newbrick.append((pos[0], pos[1], pos[2] - drop))
                 stack[pos[2]].pop(complex(pos[0], pos[1]))
-                stack[pos[2] - 1][complex(pos[0], pos[1])] = brick
+                stack[pos[2] - drop][complex(pos[0], pos[1])] = brick
             bricks[brick] = newbrick
+            # print(f"Dropped to: {bricks[brick]}")
 
 
 # Identify number of bricks that can be safely disintegrated
 def processData():
     tetris()
+    print(stack)
+    for x in bricks:
+        print(f"{x}: {bricks[x]}")
     return False
 
 
