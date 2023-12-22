@@ -45,7 +45,7 @@ def parseInput(inp):
                         for y in range(min((start[i], finish[i])), max((start[i], finish[i])) + 1):
                             stack[start[2]][complex(start[0], y)] = name
                             bricks[name].append((start[0], y, start[2]))
-                    case 2:
+                    case 2:  # Vertical
                         for z in range(min((start[i], finish[i])), max((start[i], finish[i])) + 1):
                             stack[z][complex(start[0], start[1])] = name + "v"
                             bricks[name + "v"].append((start[0], start[1], z))
@@ -53,7 +53,7 @@ def parseInput(inp):
 
 # Drop bricks like Tetris
 def tetris():
-    print(stack)
+    # print(stack)
     ordered_bricks = list(bricks.keys())
     ordered_bricks.sort(key=lambda x: bricks[x][0][2])
     for brick in ordered_bricks:
@@ -86,13 +86,54 @@ def tetris():
             # print(f"Dropped to: {bricks[brick]}")
 
 
+# Work through bricks to see if they are the only support for another. Return count of those that don't
+def zappable():
+    # print(stack)
+    zap = 0
+    for brick in bricks:
+        # print(f"{brick}: {bricks[brick]}")
+        if brick[-1] == "v":
+            if complex(bricks[brick][-1][0], bricks[brick][-1][1]) not in stack[bricks[brick][-1][2] + 1]:
+                zap += 1
+        else:
+            supporting = []
+            for pos in bricks[brick]:
+                if complex(pos[0], pos[1]) in stack[pos[2] + 1]:
+                    supporting.append(stack[pos[2] + 1][complex(pos[0], pos[1])])
+            if len(supporting) == 0:
+                zap += 1
+            else:
+                # print(f"Supporting: {supporting}")
+                zappable = True
+                for suspended in supporting:
+                    # print(f"{suspended} supported by: {getSupports(suspended)}")
+                    if len(getSupports(suspended)) == 1:
+                        zappable = False
+                        break
+                if zappable:
+                    # print("Zap!")
+                    zap += 1
+
+    return zap
+
+
+# Get supports for a given block
+def getSupports(block):
+    supports = []
+    if block[-1] == "v":
+        if complex(bricks[block][0][0], bricks[block][0][1]) in stack[bricks[block][0][2] - 1]:
+            supports.append(stack[bricks[block][0][2] - 1][complex(bricks[block][0][0], bricks[block][0][1])])
+    else:
+        for pos in bricks[block]:
+            if complex(pos[0], pos[1]) in stack[pos[2] - 1]:
+                supports.append(stack[pos[2] - 1][complex(pos[0], pos[1])])
+    return supports
+
+
 # Identify number of bricks that can be safely disintegrated
 def processData():
     tetris()
-    print(stack)
-    for x in bricks:
-        print(f"{x}: {bricks[x]}")
-    return False
+    return zappable()
 
 
 # Process harder
