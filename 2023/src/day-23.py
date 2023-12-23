@@ -11,7 +11,7 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 G = nx.DiGraph()
-sys.setrecursionlimit(20000)
+sys.setrecursionlimit(100000)
 
 
 # Parse the input file
@@ -101,9 +101,22 @@ def processData(start, finish):
     return longest
 
 
-# Process harder
-def processMore():
-    return False
+# With reverse slopes
+def processMore(start, finish):
+    # Setup edges
+    adj = [-1j, 1, 1j, -1]
+    for node in G:
+        for move in adj:
+            if node + move in G:
+                G.add_edge(node, node + move)
+                G.add_edge(node + move, node)
+
+    # Traverse
+    routes = []
+    route = []
+    getRoutes(start, finish, route, routes)
+
+    return max([len(x) for x in routes])
 
 
 def main():
@@ -113,7 +126,7 @@ def main():
     print(f"Part 1: {processData(start, finish)}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {processMore(start, finish)}")
 
 
 if __name__ == "__main__":
