@@ -151,10 +151,14 @@ def processData():
         if len(brick.suspends) == 0:
             count += 1
         else:
+            # EVERY suspended brick must be supported by more than this brick
+            releasable = True
             for sus in brick.suspends:
-                if len(sus.supports) > 1:
-                    count += 1
+                if len(sus.supports) == 1:
+                    releasable = False
                     break
+            if releasable:
+                count += 1
     return count
 
 
