@@ -49,7 +49,18 @@ def getIntersect(a: Hail, b: Hail):
         x0 = (b.xyline[1] - a.xyline[1]) / (a.xyline[0] - b.xyline[0])
         y0 = (a.xyline[1] * b.xyline[0] - b.xyline[1] * a.xyline[0]) / (a.xyline[0] - b.xyline[0])
 
-        return (x0, y0)
+        # Check future/past
+        when = "future"
+        if a.vel[0] > 0 and x0 < a.pos[0]:
+            when = "past"
+        elif a.vel[0] < 0 and x0 > a.pos[0]:
+            when = "past"
+        elif b.vel[0] > 0 and x0 < b.pos[0]:
+            when = "past"
+        elif b.vel[0] < 0 and x0 > b.pos[0]:
+            when = "past"
+
+        return (x0, y0, when)
     else:
         return None
 
@@ -74,7 +85,7 @@ def processData():
     count = 0
     for a, b in combinations(hailstones, 2):
         i = getIntersect(a, b)
-        if i is not None and \
+        if i is not None and i[2] == "future" and \
             i[0] >= 200000000000000 and i[0] <= 400000000000000 and \
                 i[1] >= 200000000000000 and i[1] <= 400000000000000:
             count += 1
