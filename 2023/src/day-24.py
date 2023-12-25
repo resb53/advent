@@ -16,8 +16,8 @@ hailstones = []
 
 class Hail():
     def __init__(self, pos, vel):
-        self.pos = np.array(pos)
-        self.vel = np.array(vel)
+        self.pos = pos
+        self.vel = vel
         self.xyline = self.xytraj()
 
     def __str__(self):
@@ -76,8 +76,8 @@ def parseInput(inp):
     for line in input_fh:
         line = line.rstrip()
         pos, vel = line.split(" @ ")
-        pos = tuple([int(x) for x in pos.split(", ")])
-        vel = tuple([int(x) for x in vel.split(", ")])
+        pos = np.array([int(x) for x in pos.split(", ")])
+        vel = np.array([int(x) for x in vel.split(", ")])
         hailstones.append(Hail(pos, vel))
 
 
@@ -138,7 +138,7 @@ def processMore():
     # Solve linear algebra
     solution = solveLin(a, b, c)
 
-    return sum([round(x) for x in solution])
+    return sum([round(x) for x in solution[0:3]])
 
 
 def main():
