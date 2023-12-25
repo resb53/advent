@@ -140,7 +140,7 @@ def parseInput(inp):
         brick.update()
 
 
-# For each pass, identify its seat
+# Identify which bricks are safe to be disintegrated
 def processData():
     bricks.sort()
     for brick in bricks:
@@ -162,9 +162,30 @@ def processData():
     return count
 
 
-# Process harder
+# Return which blocks will fall if this one were to go
+def willfall(brick, destroyed):
+    newdestroy = set()
+    for x in brick.suspends:
+        supps = x.supports.copy()
+        for y in x.supports:
+            if y in destroyed:
+                supps.remove(y)
+        if len(supps) == 0:
+            destroyed.add(x)
+            newdestroy.add(x)
+    for x in newdestroy:
+        willfall(x, destroyed)
+
+
+# Identify which bricks would cause the biggest chain reaction
 def processMore():
-    return False
+    chain = defaultdict(list)
+    for brick in bricks:
+        destroy = set([brick])
+        willfall(brick, destroy)
+        destroy.remove(brick)
+        chain[brick].extend(destroy)
+    return sum([len(x) for x in chain.values()])
 
 
 def main():
