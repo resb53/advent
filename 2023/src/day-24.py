@@ -3,6 +3,7 @@
 import argparse
 import sys
 from itertools import combinations
+import numpy as np
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -15,8 +16,8 @@ hailstones = []
 
 class Hail():
     def __init__(self, pos, vel):
-        self.pos = pos
-        self.vel = vel
+        self.pos = np.array(pos)
+        self.vel = np.array(vel)
         self.xyline = self.xytraj()
 
     def __str__(self):
@@ -92,9 +93,52 @@ def processData():
     return count
 
 
+# Solve Linear Algebra with numpy
+def solveLin(a, b, c):
+    A = np.array(
+        [
+            [b.vel[1] - a.vel[1], a.vel[0] - b.vel[0], 0, a.pos[1] - b.pos[1], b.pos[0] - a.pos[0], 0],
+            [c.vel[1] - a.vel[1], a.vel[0] - c.vel[0], 0, a.pos[1] - c.pos[1], c.pos[0] - a.pos[0], 0],
+            [b.vel[2] - a.vel[2], 0, a.vel[0] - b.vel[0], a.pos[2] - b.pos[2], 0, b.pos[0] - a.pos[0]],
+            [c.vel[2] - a.vel[2], 0, a.vel[0] - c.vel[0], a.pos[2] - c.pos[2], 0, c.pos[0] - a.pos[0]],
+            [0, b.vel[2] - a.vel[2], a.vel[1] - b.vel[1], 0, a.pos[2] - b.pos[2], b.pos[1] - a.pos[1]],
+            [0, c.vel[2] - a.vel[2], a.vel[1] - c.vel[1], 0, a.pos[2] - c.pos[2], c.pos[1] - a.pos[1]],
+        ]
+    )
+
+    x = [
+        (a.pos[1] * a.vel[0] - b.pos[1] * b.vel[0]) - (a.pos[0] * a.vel[1] - b.pos[0] * b.vel[1]),
+        (a.pos[1] * a.vel[0] - c.pos[1] * c.vel[0]) - (a.pos[0] * a.vel[1] - c.pos[0] * c.vel[1]),
+        (a.pos[2] * a.vel[0] - b.pos[2] * b.vel[0]) - (a.pos[0] * a.vel[2] - b.pos[0] * b.vel[2]),
+        (a.pos[2] * a.vel[0] - c.pos[2] * c.vel[0]) - (a.pos[0] * a.vel[2] - c.pos[0] * c.vel[2]),
+        (a.pos[2] * a.vel[1] - b.pos[2] * b.vel[1]) - (a.pos[1] * a.vel[2] - b.pos[1] * b.vel[2]),
+        (a.pos[2] * a.vel[1] - c.pos[2] * c.vel[1]) - (a.pos[1] * a.vel[2] - c.pos[1] * c.vel[2]),
+    ]
+
+    return np.linalg.solve(A, x)
+
+
 # Process harder
 def processMore():
-    return False
+    # Use 3 linearly independant hailstones
+    a = hailstones[0]
+    b = None
+    c = None
+    next = 1
+    for i, x in enumerate(hailstones[next:]):
+        if (a.vel / x.vel).ptp() != 0:
+            b = x
+            next += i + 1
+            break
+    for x in hailstones[next:]:
+        if (a.vel / x.vel).ptp() != 0 and (b.vel / x.vel).ptp() != 0:
+            c = x
+            break
+
+    # Solve linear algebra
+    solution = solveLin(a, b, c)
+
+    return sum([round(x) for x in solution])
 
 
 def main():
