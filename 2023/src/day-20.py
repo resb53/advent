@@ -158,12 +158,12 @@ def processData():
         # print("===============")
         pulses[False] += 1
         switches["broadcaster"].receive(False)
-        nextswitches = set(switches["broadcaster"].send())
+        nextswitches = switches["broadcaster"].send()
         while len(nextswitches) > 0:
             # print("---------------")
-            iterate = set()
+            iterate = []
             for switch in nextswitches:
-                iterate.update(switch.send())
+                iterate.extend(switch.send())
             nextswitches = iterate
     return prod(list(pulses.values()))
 
