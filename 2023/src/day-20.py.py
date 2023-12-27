@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import Counter
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,6 +12,7 @@ args = parser.parse_args()
 
 switches = {}
 connections = {}
+pulses = Counter()
 
 
 class Switch():
@@ -37,12 +39,16 @@ class Switch():
         self.outputs.append(output)
 
     def receive(self, signal, source):
-        print(f"{self.name} received {"low" if not signal else "high"} from {source}")
+        # print(f"{self.name} received {"low" if not signal else "high"} from {source}")
+        pass
 
     def send(self):
-        print(f"{self.name} -{"low" if not self.state else "high"}-> {self.outputs}")
+        if len(self.outputs) > 0:
+            print(f"{self.name} -{"low" if not self.state else "high"}-> {self.outputs}")
         for switch in self.outputs:
+            pulses[self.state] += 1
             switch.receive(self.state, self)
+        return self.outputs
 
 
 class Broadcast(Switch):
@@ -55,7 +61,6 @@ class Broadcast(Switch):
 
     def receive(self, signal):
         self.state = signal
-        self.send()
 
 
 class Flip(Switch):
@@ -72,7 +77,6 @@ class Flip(Switch):
         else:
             if not signal:
                 self.state = not self.state
-                self.send()
 
 
 class Conj(Switch):
@@ -97,10 +101,8 @@ class Conj(Switch):
             for x in self.memory:
                 if not x:
                     self.state = True
-                    self.send()
                     return
             self.state = False
-            self.send()
 
 
 # Parse the input file
@@ -139,11 +141,18 @@ def parseInput(inp):
 
 # For each pass, identify its seat
 def processData():
-    for s in switches:
-        print(f"{s} ({switches[s].type}): {switches[s].inputs} -> {switches[s].outputs}")
-
-    switches["broadcaster"].receive(False)
-    return False
+    for _ in range(4):
+        print("===============")
+        pulses[False] += 1
+        switches["broadcaster"].receive(False)
+        nextswitches = set(switches["broadcaster"].send())
+        while len(nextswitches) > 0:
+            print("---------------")
+            iterate = set()
+            for switch in nextswitches:
+                iterate.update(switch.send())
+            nextswitches = iterate
+    return pulses
 
 
 # Process harder
