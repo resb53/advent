@@ -3,6 +3,7 @@
 import argparse
 import sys
 from collections import Counter
+from numpy import prod
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -22,6 +23,7 @@ class Switch():
         self.state = None
         self.inputs = []
         self.outputs = []
+        self.sending = False
 
     def __str__(self):
         return self.name
@@ -43,12 +45,16 @@ class Switch():
         pass
 
     def send(self):
-        if len(self.outputs) > 0:
-            print(f"{self.name} -{"low" if not self.state else "high"}-> {self.outputs}")
-        for switch in self.outputs:
-            pulses[self.state] += 1
-            switch.receive(self.state, self)
-        return self.outputs
+        if (self.sending):
+            # if len(self.outputs) > 0:
+            # print(f"{self.name} -{"low" if not self.state else "high"}-> {self.outputs}")
+            for switch in self.outputs:
+                pulses[self.state] += 1
+                switch.receive(self.state, self)
+            self.sending = False
+            return self.outputs
+        else:
+            return []
 
 
 class Broadcast(Switch):
@@ -58,9 +64,11 @@ class Broadcast(Switch):
         self.state = False
         self.inputs = None
         self.outputs = []
+        self.sending = False
 
     def receive(self, signal):
         self.state = signal
+        self.sending = True
 
 
 class Flip(Switch):
@@ -70,6 +78,7 @@ class Flip(Switch):
         self.state = False  # Off = low pulse
         self.inputs = []
         self.outputs = []
+        self.sending = False
 
     def receive(self, signal, source):
         if source not in self.inputs:
@@ -77,6 +86,7 @@ class Flip(Switch):
         else:
             if not signal:
                 self.state = not self.state
+                self.sending = True
 
 
 class Conj(Switch):
@@ -87,6 +97,7 @@ class Conj(Switch):
         self.memory = []
         self.inputs = []
         self.outputs = []
+        self.sending = False
 
     def addInput(self, input):
         self.inputs.append(input)
@@ -101,8 +112,10 @@ class Conj(Switch):
             for x in self.memory:
                 if not x:
                     self.state = True
+                    self.sending = True
                     return
             self.state = False
+            self.sending = True
 
 
 # Parse the input file
@@ -134,25 +147,25 @@ def parseInput(inp):
         for output in connections[source]:
             if output not in switches:
                 switches[output] = Switch(output)
-                print(f"Output: {output}")
+                # print(f"Output: {output}")
             switches[output].addInput(switches[source])
             switches[source].addOutput(switches[output])
 
 
 # For each pass, identify its seat
 def processData():
-    for _ in range(4):
-        print("===============")
+    for _ in range(1000):
+        # print("===============")
         pulses[False] += 1
         switches["broadcaster"].receive(False)
         nextswitches = set(switches["broadcaster"].send())
         while len(nextswitches) > 0:
-            print("---------------")
+            # print("---------------")
             iterate = set()
             for switch in nextswitches:
                 iterate.update(switch.send())
             nextswitches = iterate
-    return pulses
+    return prod(list(pulses.values()))
 
 
 # Process harder
