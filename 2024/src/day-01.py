@@ -27,7 +27,7 @@ def parseInput(inp):
         rhs.append(int(right))
 
 
-# For each pass, identify its seat
+# For each list, identify the difference score
 def processData():
     # Sort Arrays
     lhs.sort()
@@ -39,9 +39,12 @@ def processData():
     return total
 
 
-# Process harder
+# Process using the new method
 def processMore():
-    return False
+    total = 0
+    for x in lhs:
+        total += x * rhs.count(x)
+    return total
 
 
 def main():
