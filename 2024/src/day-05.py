@@ -13,7 +13,7 @@ args = parser.parse_args()
 befores = defaultdict(list)
 afters = defaultdict(list)
 books = []
-
+incorrect = []
 
 # Parse the input file
 def parseInput(inp):
@@ -39,6 +39,8 @@ def processData():
         if validate_book(book):
             mid = len(book) // 2
             summid += book[mid]
+        else:
+            incorrect.append(book)
 
     return summid
 
@@ -58,9 +60,29 @@ def validate_book(book):
     return True
 
 
-# Process harder
+# Reorder the pages of the incorrect books
 def processMore():
-    return False
+    summid = 0
+    for book in incorrect:
+        summid += reorder(book)
+
+    return summid
+
+
+# Reorder an incorrect books pages
+def reorder(book):
+    pages = [x for x in book]
+    for page in pages:
+        # If page must precede others, find leftest one it must precede
+        if page in befores:
+            for x in book:
+                if x in befores[page]:
+                    book.remove(page)
+                    book.insert(book.index(x), page)
+                    break
+    # Mid or reordered book:
+    mid = len(book) // 2
+    return book[mid]
 
 
 def main():
