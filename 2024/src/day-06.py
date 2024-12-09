@@ -74,19 +74,51 @@ def processData(guard):
     return False
 
 
-# Process harder
-def processMore():
-    return False
+# Find all potential obstacle positions that create loops
+def processMore(origin):
+    # Obstacles can only be on visited squares to have an impact, but can't be on the origial square
+    visited.remove(origin[0])
+    loops = 0
+
+    for x in visited:
+        newgrid = grid.copy()
+        newgrid[x] = "#"
+        guard = origin.copy()
+        tracked = set([tuple(guard)])
+
+        while (int(guard[0].real) >= 0 and int(guard[0].real) <= maxv[0]
+               and int(guard[0].imag) >= 0 and int(guard[0].imag) <= maxv[1]):
+            newpos = guard[0] + guard[1]
+            if newpos in newgrid:
+                if newgrid[newpos] == '.':
+                    guard[0] = newpos
+                    if tuple(guard) in tracked:
+                        loops += 1
+                        break
+                    else:
+                        tracked.add(tuple(guard))
+                else:
+                    guard[1] = di[(di.index(guard[1]) + 1) % 4]
+                    if tuple(guard) in tracked:
+                        loops += 1
+                        break
+                    else:
+                        tracked.add(tuple(guard))
+            else:
+                break
+
+    return loops
 
 
 def main():
     gd = parseInput(args.input)
+    origin = gd.copy()
 
     # Part 1
     print(f"Part 1: {processData(gd)}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {processMore(origin)}")
 
 
 if __name__ == "__main__":
