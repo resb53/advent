@@ -13,6 +13,7 @@ args = parser.parse_args()
 data = []
 instr = []
 instregex = r"mul\((\d{1,3})\,(\d{1,3})\)"
+condregex = re.compile(r"(?:mul\((\d{1,3})\,(\d{1,3})\)|do\(\)|don\'t\(\))")
 
 # Parse the input file
 def parseInput(inp):
@@ -35,9 +36,22 @@ def processData():
     return total
 
 
-# Process harder
+# Re-process the input, including conditional statements
 def processMore():
-    return False
+    capture = True
+    total = 0
+    for line in data:
+        matches =  re.finditer(condregex, line)
+        for x in matches:
+            if x.lastindex == None:
+                if x[0] == "do()":
+                    capture = True
+                else:
+                    capture = False
+            else:
+                if capture:
+                    total += int(x[1]) * int(x[2])
+    return total
 
 
 def main():
