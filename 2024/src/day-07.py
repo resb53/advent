@@ -43,14 +43,22 @@ def calculate(vals, ops):
     for i in range(1, len(vals)):
         if ops[i-1] == "S":
             lhs += vals[i]
-        else:
+        elif ops[i-1] == "M":
             lhs *= vals[i]
+        else:
+            lhs = int(str(lhs) + str(vals[i]))
     return lhs
 
 
-# Process harder
+# Process with concatenation
 def processMore():
-    return False
+    total = 0
+    for target, values in data:
+        for ops in product("SMC", repeat=len(values) - 1):
+            if calculate(values, ops) == target:
+                total += target
+                break
+    return total
 
 
 def main():
