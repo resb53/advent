@@ -14,6 +14,7 @@ args = parser.parse_args()
 grid = {}
 antennas = defaultdict(list)
 antinodes = defaultdict(set)
+harmonics = defaultdict(set)
 maxv = []
 
 
@@ -57,9 +58,20 @@ def processData():
     return len(antinodes)
 
 
-# Process harder
+# Antinodes for all aligned points
 def processMore():
-    return False
+    for freq in antennas:
+        for pair in combinations(antennas[freq], 2):
+            diff = pair[0] - pair[1]
+            loc = pair[0]
+            while loc in grid:
+                harmonics[loc].add(freq)
+                loc += diff
+            loc = pair[1]
+            while loc in grid:
+                harmonics[loc].add(freq)
+                loc -= diff
+    return len(harmonics)
 
 
 def main():
