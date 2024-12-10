@@ -13,6 +13,7 @@ data = []
 files = []  # (start, length) - id is pos in array
 space = []  # (startpos, length)
 
+
 # Parse the input file
 def parseInput(inp):
     try:
