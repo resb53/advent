@@ -36,11 +36,14 @@ def parseInput(inp):
 # For each trailhead, identify how many summits can be reached
 def processData():
     total = 0
+    rating = 0
     for start in theads:
         summits = Counter()
         follow(start, summits)
         total += len(summits)
-    return total
+        for peak in summits:
+            rating += summits[peak]
+    return total, rating
 
 
 # Recursively follow the trail
@@ -64,19 +67,15 @@ def printGrid():
         print()
 
 
-# Process harder
-def processMore():
-    return False
-
-
 def main():
     parseInput(args.input)
+    p1, p2 = processData()
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    print(f"Part 1: {p1}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {p2}")
 
 
 if __name__ == "__main__":
