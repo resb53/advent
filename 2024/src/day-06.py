@@ -44,7 +44,7 @@ def parseInput(inp):
                 grid[x + y * 1j] = val
         y += 1
 
-    maxv[0] = x
+    maxv[0] = x + 1
     maxv[1] = y
 
     return guard
