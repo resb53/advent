@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 
+# Before improvements to part 1:
+# Part 1: Time taken: 27.102 seconds
+# Part 2: Time taken: 4.523 seconds
+
+# After improvements to part 1:
+# Part 1: Time taken: 0.013 seconds
+# Part 2: Time taken: 4.065 seconds
+
 import argparse
 import sys
+import time
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,10 +20,23 @@ args = parser.parse_args()
 
 data = []
 files = []  # (start, length) - id is pos in array
+compacted = []  # (id, start, length)
 space = []  # (startpos, length)
 
 
+# Time functions in script
+def perf(func):
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, *kwargs)
+        end = time.perf_counter()
+        print(f"Time taken: {end - start:.3f} seconds")
+        return result
+    return wrapper
+
+
 # Parse the input file
+@perf
 def parseInput(inp):
     try:
         input_fh = open(inp, 'r')
@@ -24,53 +46,70 @@ def parseInput(inp):
     for line in input_fh:
         digits = [int(x) for x in line.rstrip()]
         free = False
-        id = 0
         pos = 0
         for x in digits:
             if not free:
-                data.extend([id] * x)
                 files.append((pos, x))
-                pos += x
-                free = not free
-                id += 1
+                compacted.append((len(files)-1, pos, x))
             else:
-                data.extend(["."] * x)
                 space.append((pos, x))
-                pos += x
-                free = not free
+            pos += x
+            free = not free
 
 
 # Move blocks to leftmost free space, and calculate resulting checksum
+@perf
 def processData():
-    lastblock, firstspace = updateStatus()
-    while lastblock > firstspace:
-        data[firstspace] = data[lastblock]
-        data[lastblock] = "."
-        lastblock, firstspace = updateStatus()
-    return checksum(data)
-
-
-# Update current status
-def updateStatus():
-    for i in range(len(data)-1, -1, -1):
-        if data[i] != ".":
-            lastblock = i
+    shrink = []  # (id, length)
+    fillers = files.copy()
+    pos = 0
+    blocks = sum([x[2] for x in compacted])
+    for file in compacted:
+        if pos >= blocks:
             break
-    firstspace = data.index(".")
+        gap = file[1] - pos
+        if gap == 0:
+            shrink.append((file[0], fillers[file[0]][1]))
+            pos += fillers[file[0]][1]
+        else:
+            shrink.extend(fillgap(gap, fillers))
+            pos += gap
+            if pos >= blocks:
+                break
+            shrink.append((file[0], fillers[file[0]][1]))
+            pos += fillers[file[0]][1]
+    return checksum(shrink)
 
-    return lastblock, firstspace
+
+# Calculate blocks to fill the gap
+def fillgap(size, fillers):
+    newblocks = []
+    for i in range(len(fillers)-1, -1, -1):
+        if fillers[i][1] <= size:
+            newblocks.append((i, fillers[i][1]))
+            size -= fillers[i][1]
+            fillers.pop(i)
+        else:
+            fillers[i] = (fillers[i][0], fillers[i][1] - size)
+            newblocks.append((i, size))
+            size = 0
+        if size == 0:
+            return newblocks
 
 
-# Get checksum of filesystem
+# Calculate checksm for compressed filesystem
 def checksum(fs):
     total = 0
-    for i, x in enumerate(fs):
-        if x != ".":
-            total += i * x
+    loc = 0
+    for x in fs:
+        for _ in range(x[1]):
+            total += loc * x[0]
+            loc += 1
     return total
 
 
 # Move full files, not just blocks
+@perf
 def processMore():
     for id in range(len(files)-1, -1, -1):
         start, size = files[id]
@@ -109,7 +148,7 @@ def blockcheck(fs):
     total = 0
     for id, file in enumerate(fs):
         loc, size = file
-        for x in range(size):
+        for _ in range(size):
             total += loc * id
             loc += 1
     return total
