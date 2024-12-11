@@ -20,7 +20,6 @@ args = parser.parse_args()
 
 data = []
 files = []  # (start, length) - id is pos in array
-compacted = []  # (id, start, length)
 space = []  # (startpos, length)
 
 
@@ -44,13 +43,11 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        digits = [int(x) for x in line.rstrip()]
         free = False
         pos = 0
-        for x in digits:
+        for x in [int(x) for x in line.rstrip()]:
             if not free:
                 files.append((pos, x))
-                compacted.append((len(files)-1, pos, x))
             else:
                 space.append((pos, x))
             pos += x
@@ -63,38 +60,35 @@ def processData():
     shrink = []  # (id, length)
     fillers = files.copy()
     pos = 0
-    blocks = sum([x[2] for x in compacted])
-    for file in compacted:
-        if pos >= blocks:
-            break
-        gap = file[1] - pos
+    i = 0
+    blocks = sum([x[1] for x in files])
+    while pos < blocks:
+        gap = files[i][0] - pos
         if gap == 0:
-            shrink.append((file[0], fillers[file[0]][1]))
-            pos += fillers[file[0]][1]
+            shrink.append((i, fillers[i][1]))
+            pos += fillers[i][1]
+            i += 1
         else:
             shrink.extend(fillgap(gap, fillers))
             pos += gap
-            if pos >= blocks:
-                break
-            shrink.append((file[0], fillers[file[0]][1]))
-            pos += fillers[file[0]][1]
     return checksum(shrink)
 
 
 # Calculate blocks to fill the gap
 def fillgap(size, fillers):
     newblocks = []
-    for i in range(len(fillers)-1, -1, -1):
+    i = len(fillers) - 1
+    while size > 0:
         if fillers[i][1] <= size:
             newblocks.append((i, fillers[i][1]))
             size -= fillers[i][1]
             fillers.pop(i)
+            i -= 1
         else:
             fillers[i] = (fillers[i][0], fillers[i][1] - size)
             newblocks.append((i, size))
             size = 0
-        if size == 0:
-            return newblocks
+    return newblocks
 
 
 # Calculate checksm for compressed filesystem
