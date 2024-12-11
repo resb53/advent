@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import Counter
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -24,25 +25,29 @@ def parseInput(inp):
 
 
 # For each blink, update the stones
-def processData(n, stones):
+def processData(n):
+    stones = Counter()
+    for stone in data:
+        stones[stone] += 1
     for i in range(1, n+1):
         stones = blink(stones)
-    return len(stones)
+    return sum(stones.values())
 
 
 # Carry out stone operations for a blink
 def blink(stones):
-    newstones = []
+    newstones = Counter()
     for stone in stones:
         if stone == 0:
-            newstones.append(1)
+            newstones[1] += stones[0]
         elif len(str(stone)) % 2 == 0:
             hl = len(str(stone)) // 2
             a = int(str(stone)[0:hl])
             b = int(str(stone)[hl:])
-            newstones.extend([a, b])
+            newstones[a] += stones[stone]
+            newstones[b] += stones[stone]
         else:
-            newstones.append(stone * 2024)
+            newstones[stone * 2024] += stones[stone]
     return newstones
 
 
@@ -50,10 +55,10 @@ def main():
     parseInput(args.input)
 
     # Part 1
-    print(f"Part 1: {processData(25, data)}")
+    print(f"Part 1: {processData(25)}")
 
     # Part 2
-    # print(f"Part 2: {processData(75, data)}")
+    print(f"Part 2: {processData(75)}")
 
 
 if __name__ == "__main__":
