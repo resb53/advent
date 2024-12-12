@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from collections import defaultdict
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -39,11 +40,15 @@ def printGrid():
 # Calculate the cost of fencing each region
 def processData():
     regions = separateRegions()
-    total = 0
-    # Calculate cost of fencing all regions
+    # Calculate cost of fencing in all regions
+    p1 = 0
     for region in regions:
-        total += region["perimeter"] * len(region["region"])
-    return total
+        p1 += len(region["fencing"]) * len(region["region"])
+    # Calculate cost of fencing in all regions with discounts applied
+    p2 = 0
+    for region in regions:
+        p2 += calculateSides(region["fencing"]) * len(region["region"])
+    return p1, p2
 
 
 # Split up the distinct region in the grid
@@ -52,7 +57,7 @@ def separateRegions():
     field = [x for x in grid.items()]
     while len(field) > 0:
         loc, target = field[0]
-        region = {"perimeter": 0, "region": set()}
+        region = {"fencing": set(), "region": set()}
         expandRegion(region, loc, target)
         regions.append(region)
         for x in region["region"]:
@@ -69,23 +74,41 @@ def expandRegion(region, pos, type):
         if pos + neighbour in grid and grid[pos + neighbour] == type:
             expandRegion(region, pos + neighbour, type)
         else:
-            region["perimeter"] += 1
+            # Position fencing between tiles, but nearer to the inside of the field
+            region["fencing"].add(pos + (neighbour / 4))
     return region
 
 
-# Process harder
-def processMore():
-    return False
+# Calculate how many sides of fencing are in a region
+def calculateSides(fencing):
+    sides = defaultdict(list)
+    count = 0
+    for pos in fencing:
+        x = pos.real
+        y = pos.imag
+        if x == int(x):
+            sides[y * 1j].append(int(x))
+        else:
+            sides[x].append(int(y))
+    for row in sides:
+        sides[row].sort()
+        last = -2
+        for pos in sides[row]:
+            if pos != last + 1:
+                count += 1
+            last = pos
+    return count
 
 
 def main():
     parseInput(args.input)
+    p1, p2 = processData()
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    print(f"Part 1: {p1}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {p2}")
 
 
 if __name__ == "__main__":
