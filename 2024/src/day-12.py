@@ -9,7 +9,8 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-data = []
+grid = {}
+maxv = []
 
 
 # Parse the input file
@@ -19,15 +20,57 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
+    y = 0
     for line in input_fh:
-        data.append(line.rstrip())
+        for x, val in enumerate(line.rstrip()):
+            grid[x + 1j * y] = val
+        y += 1
+    maxv.extend([x + 1, y])
 
 
-# For each pass, identify its seat
+# Print the grid
+def printGrid():
+    for y in range(maxv[1]):
+        for x in range(maxv[0]):
+            print(grid[x + 1j * y], end="")
+        print()
+
+
+# Calculate the cost of fencing each region
 def processData():
-    for element in data:
-        print(f"{element}")
-    return False
+    regions = separateRegions()
+    total = 0
+    # Calculate cost of fencing all regions
+    for region in regions:
+        total += region["perimeter"] * len(region["region"])
+    return total
+
+
+# Split up the distinct region in the grid
+def separateRegions():
+    regions = []  # List of dicts with perimeters and sets, each containing the grid locations for that region
+    field = [x for x in grid.items()]
+    while len(field) > 0:
+        loc, target = field[0]
+        region = {"perimeter": 0, "region": set()}
+        expandRegion(region, loc, target)
+        regions.append(region)
+        for x in region["region"]:
+            field.remove((x, target))
+    return regions
+
+
+# Expand current region from starting seed
+def expandRegion(region, pos, type):
+    if pos in region["region"]:
+        return region
+    region["region"].add(pos)
+    for neighbour in [1, 1j, -1, -1j]:
+        if pos + neighbour in grid and grid[pos + neighbour] == type:
+            expandRegion(region, pos + neighbour, type)
+        else:
+            region["perimeter"] += 1
+    return region
 
 
 # Process harder
