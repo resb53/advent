@@ -3,8 +3,9 @@
 import argparse
 import sys
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 from math import prod
+from copy import deepcopy
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -37,7 +38,7 @@ def parseInput(inp):
 
 # Predict movement of the robots
 def processData():
-    p1robots = robots.copy()
+    p1robots = deepcopy(robots)
     moveRobots(p1robots, 100)
     return quadrantise(p1robots)
 
@@ -76,7 +77,7 @@ def quadrantise(rbts):
 # Find the Easter Egg
 def processMore():
     t = 0
-    p2robots = robots.copy()
+    p2robots = deepcopy(robots)
     # Find time when there are more than one line of 10 or more parallel robots
     while True:
         grid = moveRobots(p2robots, 1)
@@ -84,12 +85,21 @@ def processMore():
         poss = grid.keys()
         lines = Counter()
 
+        rowstarts = defaultdict(list)
         for p in poss:
-            row = followRight(grid, p, 9)
+            row = followRight(grid, p, 10)
             if row:
+                rowstarts[p[1]].append(p[0])
                 lines[p[1]] += 1
 
         if len(lines.keys()) > 1:
+            # Print JUST the Easter Egg
+            miny = min(lines.keys())
+            maxy = max(lines.keys())
+            minx = min(rowstarts[miny])
+            maxx = max(rowstarts[miny]) + 10
+            printGrid(grid, minx, miny, maxx, maxy)
+            # Return the Answer
             return t
 
 
@@ -107,9 +117,9 @@ def followRight(grid, p, length):
 
 
 # Print grid
-def printGrid(grid):
-    for y in range(maxv[1]):
-        for x in range(maxv[0]):
+def printGrid(grid, minx, miny, maxx, maxy):
+    for y in range(miny, maxy+1):
+        for x in range(minx, maxx+1):
             if (x, y) in grid:
                 print(str(grid[(x, y)]), end="")
             else:
@@ -124,11 +134,7 @@ def main():
     print(f"Part 1: {processData()}")
 
     # Part 2
-    eggtime = processMore()
-    print(f"Part 2: {eggtime}")
-
-    # Print result
-    printGrid(moveRobots(robots, eggtime))
+    print(f"Part 2: {processMore()}")
 
 
 if __name__ == "__main__":
