@@ -30,7 +30,6 @@ def parseInput(inp):
 
     instread = False
     y = 0
-    pos = -1-1j
 
     for line in input_fh:
         line = line.rstrip()
@@ -55,6 +54,28 @@ def parseInput(inp):
     pos2 = embiggenGrid()
 
     return pos1, pos2
+
+
+# Enlarge the grid for part 2
+def embiggenGrid():
+    pos = -1-1j
+    for y in range(maxv[1]):
+        for x in range(maxv[0]):
+            if grid[x + 1j * y] == "#":
+                biggrid[2 * x + 1j * y] = "#"
+                biggrid[2 * x + 1 + 1j * y] = "#"
+            elif grid[x + 1j * y] == "O":
+                biggrid[2 * x + 1j * y] = "["
+                biggrid[2 * x + 1 + 1j * y] = "]"
+            elif grid[x + 1j * y] == ".":
+                biggrid[2 * x + 1j * y] = "."
+                biggrid[2 * x + 1 + 1j * y] = "."
+            elif grid[x + 1j * y] == "@":
+                biggrid[2 * x + 1j * y] = "@"
+                pos = 2 * x + 1j * y
+                biggrid[2 * x + 1 + 1j * y] = "."
+
+    return pos
 
 
 # Print the grid
@@ -83,10 +104,6 @@ def moveRobot(pos, dirn):
     newpos = pos + dirn
     if grid[newpos] == "#":
         return pos
-    elif grid[newpos] == ".":
-        grid[pos] = "."
-        grid[newpos] = "@"
-        return newpos
     elif grid[newpos] == "O":
         if shiftBoxes(newpos, dirn):
             grid[pos] = "."
@@ -94,6 +111,10 @@ def moveRobot(pos, dirn):
             return newpos
         else:
             return pos
+    elif grid[newpos] == ".":
+        grid[pos] = "."
+        grid[newpos] = "@"
+        return newpos
     else:
         sys.exit(f"Unexpected object on grid: {grid[newpos]}")
 
@@ -104,10 +125,10 @@ def shiftBoxes(pos, dirn):
     if grid[newpos] == "#":
         return False
     elif grid[newpos] == "O":
-        if not shiftBoxes(newpos, dirn):
-            return False
-        else:
+        if shiftBoxes(newpos, dirn):
             return True
+        else:
+            return False
     elif grid[newpos] == ".":
         grid[newpos] = "O"
         return True
@@ -118,31 +139,121 @@ def shiftBoxes(pos, dirn):
 # Process harder
 def processMore(pos):
     maxv[0] *= 2
+    print("Initial state:")
     printGrid(biggrid)
-    print(f"Pos: {pos}")
-    return False
+    print()
+    for op in instr:
+        pos = wideMoveRobot(pos, op)
+        print(f"Move {op}:")
+        printGrid(biggrid)
+        print()
+    # Calculate GPS
+    total = 0
+    return total
 
 
-# Enlarge the grid for part 2
-def embiggenGrid():
-    pos = -1-1j
-    for y in range(maxv[1]):
-        for x in range(maxv[0]):
-            if grid[x + 1j * y] == "#":
-                biggrid[2 * x + 1j * y] = "#"
-                biggrid[2 * x + 1 + 1j * y] = "#"
-            elif grid[x + 1j * y] == "O":
-                biggrid[2 * x + 1j * y] = "["
-                biggrid[2 * x + 1 + 1j * y] = "]"
-            elif grid[x + 1j * y] == ".":
-                biggrid[2 * x + 1j * y] = "."
-                biggrid[2 * x + 1 + 1j * y] = "."
-            elif grid[x + 1j * y] == "@":
-                biggrid[2 * x + 1j * y] = "@"
-                pos = 2 * x + 1j * y
-                biggrid[2 * x + 1 + 1j * y] = "."
+# Move the robot, and impacted boxes
+def wideMoveRobot(pos, dirn):
+    newpos = pos + dirn
+    if biggrid[newpos] == "#":
+        return pos
+    elif biggrid[newpos] == "[":
+        box = [newpos, newpos+1]
+        if wideShiftBoxes(box, dirn):
+            biggrid[pos] = "."
+            biggrid[newpos] = "@"
+            return newpos
+        else:
+            return pos
+    elif biggrid[newpos] == "]":
+        box = [newpos-1, newpos]
+        if wideShiftBoxes(box, dirn):
+            biggrid[pos] = "."
+            biggrid[newpos] = "@"
+            return newpos
+        else:
+            return pos
+    elif biggrid[newpos] == ".":
+        biggrid[pos] = "."
+        biggrid[newpos] = "@"
+        return newpos
 
-    return pos
+
+# Iteratively move adjacent boxes
+def wideShiftBoxes(box, dirn):
+    newbox = [p+dirn for p in box]
+
+    # Horizontal
+    if dirn.imag == 0:
+        if dirn == -1:
+            newpos = newbox[0]
+        elif dirn == 1:
+            newpos = newbox[1]
+
+        if biggrid[newpos] == "#":
+            return False
+        elif (biggrid[newpos] == "[") or (biggrid[newpos] == "]"):
+            nextbox = [p+dirn for p in newbox]
+            if wideShiftBoxes(nextbox, dirn):
+                biggrid[newbox[0]] = "["
+                biggrid[newbox[1]] = "]"
+                return True
+            else:
+                return False
+        elif biggrid[newpos] == ".":
+            biggrid[newbox[0]] = "["
+            biggrid[newbox[1]] = "]"
+            return True
+    # Vertical
+    elif dirn.real == 0:
+        if (biggrid[newbox[0]] == "#") or (biggrid[newbox[1]] == "#"):
+            return False
+        elif (biggrid[newbox[0]] == "[") and (biggrid[newbox[1]] == "]"):
+            if wideShiftBoxes(newbox, dirn):
+                biggrid[newbox[0]] = "["
+                biggrid[newbox[1]] = "]"
+                biggrid[box[0]] = "."
+                biggrid[box[1]] = "."
+                return True
+            else:
+                return False
+        elif (biggrid[newbox[0]] == "]") and (biggrid[newbox[1]] == "."):
+            nextbox = [p-1 for p in newbox]
+            if wideShiftBoxes(nextbox, dirn):
+                biggrid[newbox[0]] = "["
+                biggrid[newbox[1]] = "]"
+                biggrid[box[0]] = "."
+                biggrid[box[1]] = "."
+                return True
+            else:
+                return False
+        elif (biggrid[newbox[0]] == ".") and (biggrid[newbox[1]] == "["):
+            nextbox = [p+1 for p in newbox]
+            if wideShiftBoxes(nextbox, dirn):
+                biggrid[newbox[0]] = "["
+                biggrid[newbox[1]] = "]"
+                biggrid[box[0]] = "."
+                biggrid[box[1]] = "."
+                return True
+            else:
+                return False
+        elif (biggrid[newbox[0]] == "]") and (biggrid[newbox[1]] == "["):
+            leftbox = [p-1 for p in newbox]
+            rightbox = [p+1 for p in newbox]
+            if wideShiftBoxes(leftbox, dirn) and wideShiftBoxes(rightbox, dirn):
+                biggrid[newbox[0]] = "["
+                biggrid[newbox[1]] = "]"
+                biggrid[box[0]] = "."
+                biggrid[box[1]] = "."
+                return True
+            else:
+                return False
+        elif (biggrid[newbox[0]] == ".") and (biggrid[newbox[1]] == "."):
+            biggrid[newbox[0]] = "["
+            biggrid[newbox[1]] = "]"
+            biggrid[box[0]] = "."
+            biggrid[box[1]] = "."
+            return True
 
 
 def main():
