@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from queue import LifoQueue
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -139,8 +140,14 @@ def shiftBoxes(pos, dirn):
 # Process harder
 def processMore(pos):
     maxv[0] *= 2
-    for op in instr:
+    print("Initial State:")
+    printGrid(biggrid)
+    print()
+    for n, op in enumerate(instr):
         pos = wideMoveRobot(pos, op)
+        print(f"Move {n+1}: {op}:")
+        printGrid(biggrid)
+        print()
     # Calculate GPS
     total = 0
     for p in biggrid:
@@ -237,6 +244,37 @@ def wideShiftBoxes(box, dirn):
         elif (biggrid[newbox[0]] == "]") and (biggrid[newbox[1]] == "["):
             leftbox = [p-1 for p in newbox]
             rightbox = [p+1 for p in newbox]
+            # DEBUG - This is not enough. Queue all boxes to move, and only move any if ALL can move, else one half can
+            # move without the other:
+            # Move 48: (-0-1j):
+            # #########################
+            # #......................##
+            # #............##........##
+            # #......[][]..[][]......##
+            # #.......[]....[].......##
+            # #........[]..[]........##
+            # #.........[][].........##
+            # #..........[]..........##
+            # #...........@..........##
+            # #......................##
+            # #......................##
+            # #......................##
+            # #########################
+            # Move 49: (-0-1j):
+            # #########################
+            # #......................##
+            # #......[][]..##........##
+            # #.......[]...[][]......##
+            # #........[]...[].......##
+            # #.........[].[]........##
+            # #...........[].........##
+            # #..........[]..........##
+            # #...........@..........##
+            # #......................##
+            # #......................##
+            # #......................##
+            # #########################
+
             if wideShiftBoxes(leftbox, dirn) and wideShiftBoxes(rightbox, dirn):
                 biggrid[newbox[0]] = "["
                 biggrid[newbox[1]] = "]"
