@@ -10,7 +10,7 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 grid = {}
-biggrid  = {}
+biggrid = {}
 maxv = []
 instr = []
 dirn = {
@@ -141,20 +141,11 @@ def processMore(pos):
     maxv[0] *= 2
     for op in instr:
         pos = wideMoveRobot(pos, op)
-    printGrid(biggrid)
     # Calculate GPS
     total = 0
     for p in biggrid:
         if biggrid[p] == "[":
-            if int(p.imag) < (maxv[1] / 2):
-                y = int(p.imag)
-            else:
-                y = maxv[1] - int(p.imag) - 1
-            if int(p.real) < (maxv[0] / 2):
-                x = int(p.real)
-            else:
-                x = maxv[0] - int(p.real) - 2
-            total += 100 * y + x
+            total += 100 * int(p.imag) + int(p.real)
     return total
 
 
