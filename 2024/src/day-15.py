@@ -2,7 +2,6 @@
 
 import argparse
 import sys
-from queue import LifoQueue
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -140,14 +139,8 @@ def shiftBoxes(pos, dirn):
 # Process harder
 def processMore(pos):
     maxv[0] *= 2
-    print("Initial State:")
-    printGrid(biggrid)
-    print()
     for n, op in enumerate(instr):
         pos = wideMoveRobot(pos, op)
-        print(f"Move {n+1}: {op}:")
-        printGrid(biggrid)
-        print()
     # Calculate GPS
     total = 0
     for p in biggrid:
@@ -159,19 +152,24 @@ def processMore(pos):
 # Move the robot, and impacted boxes
 def wideMoveRobot(pos, dirn):
     newpos = pos + dirn
+    shift = set()
     if biggrid[newpos] == "#":
         return pos
     elif biggrid[newpos] == "[":
-        box = [newpos, newpos+1]
-        if wideShiftBoxes(box, dirn):
+        box = (newpos, newpos+1)
+        shift.add(box)
+        if wideShiftBoxes(box, dirn, shift):
+            execShiftBoxes(shift, dirn)
             biggrid[pos] = "."
             biggrid[newpos] = "@"
             return newpos
         else:
             return pos
     elif biggrid[newpos] == "]":
-        box = [newpos-1, newpos]
-        if wideShiftBoxes(box, dirn):
+        box = (newpos-1, newpos)
+        shift.add(box)
+        if wideShiftBoxes(box, dirn, shift):
+            execShiftBoxes(shift, dirn)
             biggrid[pos] = "."
             biggrid[newpos] = "@"
             return newpos
@@ -184,8 +182,8 @@ def wideMoveRobot(pos, dirn):
 
 
 # Iteratively move adjacent boxes
-def wideShiftBoxes(box, dirn):
-    newbox = [p+dirn for p in box]
+def wideShiftBoxes(box, dirn, sq: set):
+    newbox = tuple([p+dirn for p in box])
 
     # Horizontal
     if dirn.imag == 0:
@@ -197,98 +195,66 @@ def wideShiftBoxes(box, dirn):
         if biggrid[newpos] == "#":
             return False
         elif (biggrid[newpos] == "[") or (biggrid[newpos] == "]"):
-            nextbox = [p+dirn for p in newbox]
-            if wideShiftBoxes(nextbox, dirn):
-                biggrid[newbox[0]] = "["
-                biggrid[newbox[1]] = "]"
+            nextbox = tuple([p+dirn for p in newbox])
+            sq.add(nextbox)
+            if wideShiftBoxes(nextbox, dirn, sq):
                 return True
             else:
                 return False
         elif biggrid[newpos] == ".":
-            biggrid[newbox[0]] = "["
-            biggrid[newbox[1]] = "]"
             return True
     # Vertical
     elif dirn.real == 0:
         if (biggrid[newbox[0]] == "#") or (biggrid[newbox[1]] == "#"):
             return False
         elif (biggrid[newbox[0]] == "[") and (biggrid[newbox[1]] == "]"):
-            if wideShiftBoxes(newbox, dirn):
-                biggrid[newbox[0]] = "["
-                biggrid[newbox[1]] = "]"
-                biggrid[box[0]] = "."
-                biggrid[box[1]] = "."
+            sq.add(newbox)
+            if wideShiftBoxes(newbox, dirn, sq):
                 return True
             else:
                 return False
         elif (biggrid[newbox[0]] == "]") and (biggrid[newbox[1]] == "."):
-            nextbox = [p-1 for p in newbox]
-            if wideShiftBoxes(nextbox, dirn):
-                biggrid[newbox[0]] = "["
-                biggrid[newbox[1]] = "]"
-                biggrid[box[0]] = "."
-                biggrid[box[1]] = "."
+            nextbox = tuple([p-1 for p in newbox])
+            sq.add(nextbox)
+            if wideShiftBoxes(nextbox, dirn, sq):
                 return True
             else:
                 return False
         elif (biggrid[newbox[0]] == ".") and (biggrid[newbox[1]] == "["):
-            nextbox = [p+1 for p in newbox]
-            if wideShiftBoxes(nextbox, dirn):
-                biggrid[newbox[0]] = "["
-                biggrid[newbox[1]] = "]"
-                biggrid[box[0]] = "."
-                biggrid[box[1]] = "."
+            nextbox = tuple([p+1 for p in newbox])
+            sq.add(nextbox)
+            if wideShiftBoxes(nextbox, dirn, sq):
                 return True
             else:
                 return False
         elif (biggrid[newbox[0]] == "]") and (biggrid[newbox[1]] == "["):
-            leftbox = [p-1 for p in newbox]
-            rightbox = [p+1 for p in newbox]
-            # DEBUG - This is not enough. Queue all boxes to move, and only move any if ALL can move, else one half can
-            # move without the other:
-            # Move 48: (-0-1j):
-            # #########################
-            # #......................##
-            # #............##........##
-            # #......[][]..[][]......##
-            # #.......[]....[].......##
-            # #........[]..[]........##
-            # #.........[][].........##
-            # #..........[]..........##
-            # #...........@..........##
-            # #......................##
-            # #......................##
-            # #......................##
-            # #########################
-            # Move 49: (-0-1j):
-            # #########################
-            # #......................##
-            # #......[][]..##........##
-            # #.......[]...[][]......##
-            # #........[]...[].......##
-            # #.........[].[]........##
-            # #...........[].........##
-            # #..........[]..........##
-            # #...........@..........##
-            # #......................##
-            # #......................##
-            # #......................##
-            # #########################
-
-            if wideShiftBoxes(leftbox, dirn) and wideShiftBoxes(rightbox, dirn):
-                biggrid[newbox[0]] = "["
-                biggrid[newbox[1]] = "]"
-                biggrid[box[0]] = "."
-                biggrid[box[1]] = "."
-                return True
+            leftbox = tuple([p-1 for p in newbox])
+            rightbox = tuple([p+1 for p in newbox])
+            sq.add(leftbox)
+            if wideShiftBoxes(leftbox, dirn, sq):
+                sq.add(leftbox)
+                if wideShiftBoxes(rightbox, dirn, sq):
+                    sq.add(rightbox)
+                    return True
             else:
                 return False
         elif (biggrid[newbox[0]] == ".") and (biggrid[newbox[1]] == "."):
-            biggrid[newbox[0]] = "["
-            biggrid[newbox[1]] = "]"
-            biggrid[box[0]] = "."
-            biggrid[box[1]] = "."
             return True
+
+
+def execShiftBoxes(sq: set, dirn):
+    vacated = set()
+    for box in sq:
+        vacated.update(box)
+    for box in sq:
+        newbox = [x + dirn for x in box]
+        for pos in newbox:
+            if pos in vacated:
+                vacated.remove(pos)
+        biggrid[newbox[0]] = "["
+        biggrid[newbox[1]] = "]"
+    for pos in vacated:
+        biggrid[pos] = "."
 
 
 def main():
