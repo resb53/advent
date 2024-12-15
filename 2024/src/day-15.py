@@ -92,9 +92,9 @@ def processData(pos):
         pos = moveRobot(pos, op)
     # Calculate GPS
     total = 0
-    for pos in grid:
-        if grid[pos] == "O":
-            total += 100 * int(pos.imag) + int(pos.real)
+    for p in grid:
+        if grid[p] == "O":
+            total += 100 * int(p.imag) + int(p.real)
 
     return total
 
@@ -139,16 +139,22 @@ def shiftBoxes(pos, dirn):
 # Process harder
 def processMore(pos):
     maxv[0] *= 2
-    print("Initial state:")
-    printGrid(biggrid)
-    print()
     for op in instr:
         pos = wideMoveRobot(pos, op)
-        print(f"Move {op}:")
-        printGrid(biggrid)
-        print()
+    printGrid(biggrid)
     # Calculate GPS
     total = 0
+    for p in biggrid:
+        if biggrid[p] == "[":
+            if int(p.imag) < (maxv[1] / 2):
+                y = int(p.imag)
+            else:
+                y = maxv[1] - int(p.imag) - 1
+            if int(p.real) < (maxv[0] / 2):
+                x = int(p.real)
+            else:
+                x = maxv[0] - int(p.real) - 2
+            total += 100 * y + x
     return total
 
 
