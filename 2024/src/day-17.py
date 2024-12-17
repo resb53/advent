@@ -48,22 +48,18 @@ def combo(val):
 
 # Begin instructions
 def adv(arg):
-    print("ADV: ", end="")
     registers["A"] = registers["A"] // (2 ** combo(arg))
 
 
 def bxl(arg):
-    print("BXL: ", end="")
     registers["B"] = registers["B"] ^ arg
 
 
 def bst(arg):
-    print("BST: ", end="")
     registers["B"] = combo(arg) % 8
 
 
 def jnz(arg):
-    print("JNZ: ", end="")
     if registers["A"] == 0:
         return None
     else:
@@ -71,22 +67,18 @@ def jnz(arg):
 
 
 def bxc(arg):
-    print("BXC: ", end="")
     registers["B"] = registers["B"] ^ registers["C"]
 
 
 def out(arg):
-    print("OUT: ", end="")
     output.append(combo(arg) % 8)
 
 
 def bdv(arg):
-    print("BDV: ", end="")
     registers["B"] = registers["A"] // (2 ** combo(arg))
 
 
 def cdv(arg):
-    print("CDV: ", end="")
     registers["C"] = registers["A"] // (2 ** combo(arg))
 
 
@@ -98,8 +90,6 @@ def processData():
     pnt = 0
     print(f"Executing: {instructions}")
     while pnt < len(instructions):
-        print(f"Pnt: {pnt} - ({instructions[pnt]})")
-        print(f"Reg: {registers} -> ", end="")
         if instructions[pnt] == 3:
             jump = op[instructions[pnt]](instructions[pnt+1])
             if jump is not None:
@@ -109,13 +99,46 @@ def processData():
         else:
             op[instructions[pnt]](instructions[pnt+1])
             pnt += 2
-        print(registers)
     return ",".join([str(x) for x in output])
 
 
-# Process harder
+# Find proper initialisation for A
 def processMore():
-    return False
+    a = -1
+    success = False
+    while True:
+        if success:
+            if len(output) == len(instructions):
+                match = True
+                for i in range(len(instructions)):
+                    if output[i] != instructions[i]:
+                        match = False
+                        break
+                if match:
+                    return a
+        # Try next
+        a += 1
+        pnt = 0
+        print(f"Testing with A={a}", end="\r")
+        registers["A"] = a
+        registers["B"] = 0
+        registers["C"] = 0
+        output.clear()
+
+        while pnt < len(instructions):
+            if instructions[pnt] == 3:
+                jump = op[instructions[pnt]](instructions[pnt+1])
+                if jump is not None:
+                    pnt = jump
+                else:
+                    pnt += 2
+            else:
+                op[instructions[pnt]](instructions[pnt+1])
+                pnt += 2
+            success = True
+            if len(output) > len(instructions):
+                success = False
+                break
 
 
 def main():
