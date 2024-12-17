@@ -86,9 +86,8 @@ op = [adv, bxl, bst, jnz, bxc, out, bdv, cdv]
 
 
 # Run the 3-bit program
-def processData():
+def runInstructions():
     pnt = 0
-    print(f"Executing: {instructions}")
     while pnt < len(instructions):
         if instructions[pnt] == 3:
             jump = op[instructions[pnt]](instructions[pnt+1])
@@ -99,56 +98,62 @@ def processData():
         else:
             op[instructions[pnt]](instructions[pnt+1])
             pnt += 2
-    return ",".join([str(x) for x in output])
 
 
 # Find proper initialisation for A
-def processMore():
-    a = -1
-    success = False
-    while True:
-        if success:
-            if len(output) == len(instructions):
-                match = True
-                for i in range(len(instructions)):
-                    if output[i] != instructions[i]:
-                        match = False
-                        break
-                if match:
-                    return a
-        # Try next
-        a += 1
-        pnt = 0
-        print(f"Testing with A={a}", end="\r")
-        registers["A"] = a
+
+# Big steps through each digit, getting smaller as we close in on the true value.
+# 1 digit: 1st: 1, Step: 1, End: 7
+# 2 digit: 1st: 8, Step: 8, End: 63
+# 3 digit: 1st: 64, Step: 64, End: 511
+# 4 digit: 1st: 512, etc -- Octals!
+
+def findRegister():
+    #     1111111
+    #     6543210987654321
+    a = 0o1000000000000000
+    inc = 15  # **8
+
+    for x in range(a, 8**(inc+1), 8**inc):
+        registers["A"] = x
         registers["B"] = 0
         registers["C"] = 0
         output.clear()
+        runInstructions()
 
-        while pnt < len(instructions):
-            if instructions[pnt] == 3:
-                jump = op[instructions[pnt]](instructions[pnt+1])
-                if jump is not None:
-                    pnt = jump
-                else:
-                    pnt += 2
-            else:
-                op[instructions[pnt]](instructions[pnt+1])
-                pnt += 2
-            success = True
-            if len(output) > len(instructions):
-                success = False
-                break
+        if output[inc] == instructions[inc]:
+            stepThrough(x, inc-1)
+
+
+# Recursively increment next most significant figure
+def stepThrough(start, inc):
+    matches = []
+    for x in range(start, start + 8**(inc+1), 8**inc):
+        registers["A"] = x
+        registers["B"] = 0
+        registers["C"] = 0
+        output.clear()
+        runInstructions()
+
+        if output[inc] == instructions[inc]:
+            matches.append(x)
+
+    if inc > 0:
+        for option in matches:
+            stepThrough(option, inc-1)
+    else:
+        print(f"Part 2: {min(matches)}")
 
 
 def main():
     parseInput(args.input)
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    runInstructions()
+    print(f"Part 1: {",".join([str(x) for x in output])}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    findRegister()
 
 
 if __name__ == "__main__":
