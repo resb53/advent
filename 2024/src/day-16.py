@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-from copy import deepcopy
+import networkx as nx
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -11,13 +11,7 @@ parser.add_argument('input', metavar='input', type=str,
 args = parser.parse_args()
 
 grid = {}
-maxv = []
-ops = {
-    "^": 1,
-    "<": 1000,
-    ">": 1000
-}
-compass = [-1j, 1, 1j, -1]
+bounds = []
 
 
 # Parse the input file
@@ -33,75 +27,83 @@ def parseInput(inp):
         for x, val in enumerate(line):
             grid[x + 1j * y] = val
             if val == "S":
-                s = x + 1j * y
+                start = x + 1j * y
+                grid[x + 1j * y] = "."
+            elif val == "E":
+                end = x + 1j * y
+                grid[x + 1j * y] = "."
         y += 1
-    maxv.extend([x+1, y])
 
-    return s
+    bounds.extend([x+1, y])
+
+    return start, end
 
 
 # Print the grid
 def printGrid():
-    for y in range(maxv[1]):
-        for x in range(maxv[0]):
+    for y in range(bounds[1]):
+        for x in range(bounds[0]):
             print(grid[x + 1j * y], end="")
         print()
 
 
-# Explore routes through the maze
-def processData(start):
-    routes = [["", [(start, 1)], 0]]  # Actions, Locations([pos, bearing]), Score
-    completed = []
-    c = 0
-    while len(routes) > 0:
-        newroutes = []
-        for route in routes:
-            for action in ops:
-                if len(route[0]) > 0:
-                    if action in "<>":
-                        if route[0][-1] in "<>":
-                            continue
-                advance(deepcopy(route), action, newroutes, completed)
-        routes = deepcopy(newroutes)
-        c += 1
-        print(f"Processing {c} turns, tracking {len(routes)} routes...", end="\r")
-        # print(f"After {c} moves:")
-        # for x in routes:
-        #     print(x)
-        # print("Completed:")
-        # for x in completed:
-        #     print(x)
-        # print()
+# Build graph and find lowest cost way to reach the end.
+def processData(start, end):
+    G = nx.Graph()
+    visited = set()
+    exploreFromNode(G, start, visited)
+    nodes = [start, end]
+    for x in G.nodes:
+        connections = len(list(G.neighbors(x)))
+        if connections != 2:
+            nodes.append(x)
 
-    return min([x[2] for x in completed])
+    cost = 0
+    for route in nx.all_simple_paths(G, start, end):
+        weight = routeWeight(route)
+        if cost == 0:
+            cost = weight
+        elif weight < cost:
+            cost = weight
+
+    return cost
 
 
-# Advance reindeer a single move
-def advance(route, action, routes, completed):
-    route[0] += action
-    pos = route[1][-1]
-    match action:
-        case "^":
-            newpos = (pos[0]+pos[1], pos[1])
-        case "<":
-            newpos = (pos[0], compass[(compass.index(pos[1]) - 1) % 4])
-        case ">":
-            newpos = (pos[0], compass[(compass.index(pos[1]) + 1) % 4])
-    # Check newpos is valid:
-    # Don't go into a wall
-    if grid[newpos[0]] == "#":
+# Find connected nodes
+def exploreFromNode(G: nx.Graph, pos, visited):
+    if pos in visited:
         return
-    # Don't turn twice in a row (handled in calling function)
-    # Don't revisit a location with the same bearing unless you've just turned on the spot
-    elif newpos[0] in [x for x in route[1][0]] and action == "^":
-        return
-    else:
-        route[1].append(newpos)
-        route[2] += ops[action]
-        if grid[newpos[0]] == "E":
-            completed.append(route)
+    visited.add(pos)
+    for dir in [1, 1j, -1, -1j]:
+        if grid[pos + dir] == ".":
+            G.add_edge(pos, pos + dir)
+            exploreFromNode(G, pos + dir, visited)
+
+
+# Calculate the weight of a completed route
+def routeWeight(route: list) -> int:
+    weight = 0
+    dir = 1
+    lst = route[0]
+    for nxt in route[1:]:
+        if nxt - lst == dir:
+            weight += 1
+            lst = nxt
         else:
-            routes.append(route)
+            weight += 1001
+            dir = nxt - lst
+            lst = nxt
+
+    return weight
+
+
+# Calculate number of neighbours that are .
+def neighbours(p):
+    n = 0
+    for dir in [1, 1j, -1, -1j]:
+        if grid[p + dir] == ".":
+            n += 1
+    return n
 
 
 # Process harder
@@ -110,10 +112,10 @@ def processMore():
 
 
 def main():
-    start = parseInput(args.input)
+    s, e = parseInput(args.input)
 
     # Part 1
-    print(f"Part 1: {processData(start)}")
+    print(f"Part 1: {processData(s, e)}")
 
     # Part 2
     print(f"Part 2: {processMore()}")
