@@ -27,54 +27,45 @@ def parseInput(inp):
         x, y = line.split(",")
         data.append(int(x) + 1j * int(y))
 
-    # Build the grid too
-    for y in range(0, bounds[1]+1):
-        for x in range(0, bounds[0]+1):
-            grid[x + 1j * y] = "."
-
-
-# Print the grid
-def printGrid():
-    for y in range(0, bounds[1]+1):
-        for x in range(0, bounds[0]+1):
-            print(grid[x + 1j * y], end="")
-        print()
-
 
 # Simulate 1024 bytes, and find the shortest path
 def processData():
-    for pos in data[0:1024]:
-        grid[pos] = "#"
-
-    # Build graph
     G = nx.Graph()
-    for pos in grid:
-        if grid[pos] == '.':
-            addEdges(G, pos)
+    for y in range(0, bounds[1]+1):
+        for x in range(0, bounds[0]+1):
+            pos = x + 1j * y
+            for dir in [1, 1j, -1, -1j]:
+                if inBounds(pos + dir):
+                    G.add_edge(pos, pos + dir)
 
-    return len(nx.shortest_path(G, 0, bounds[0] + 1j * bounds[1])) - 1
+    for corrupt in data[0:1024]:
+        G.remove_node(corrupt)
+
+    print(f"Part 1: {len(nx.shortest_path(G, 0, bounds[0] + 1j * bounds[1])) - 1}")
+
+    for corrupt in data[1024:]:
+        G.remove_node(corrupt)
+        try:
+            nx.shortest_path(G, 0, bounds[0] + 1j * bounds[1])
+        except nx.exception.NetworkXNoPath:
+            answer = ",".join([str(int(corrupt.real)), str(int(corrupt.imag))])
+            print(f"Part 2: {answer}")
+            break
 
 
-# Find edges for the graph
-def addEdges(G: nx.Graph, node):
-    for dir in [1, 1j, -1, -1j]:
-        if node + dir in grid and grid[node + dir] == ".":
-            G.add_edge(node, node + dir)
-
-
-# Process harder
-def processMore():
+# Check if position is in bounds
+def inBounds(p):
+    x = int(p.real)
+    y = int(p.imag)
+    if x >= 0 and x <= bounds[0]:
+        if y >= 0 and y <= bounds[1]:
+            return True
     return False
 
 
 def main():
     parseInput(args.input)
-
-    # Part 1
-    print(f"Part 1: {processData()}")
-
-    # Part 2
-    print(f"Part 2: {processMore()}")
+    processData()
 
 
 if __name__ == "__main__":
