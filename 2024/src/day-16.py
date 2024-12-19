@@ -3,6 +3,9 @@
 import argparse
 import sys
 import networkx as nx
+from itertools import combinations
+
+sys.setrecursionlimit(5000)
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -58,15 +61,18 @@ def processData(start, end):
         if connections != 2:
             nodes.append(x)
 
-    cost = 0
-    for route in nx.all_simple_paths(G, start, end):
-        weight = routeWeight(route)
-        if cost == 0:
-            cost = weight
-        elif weight < cost:
-            cost = weight
+    # Collapse to a simpler graph
+    C = nx.Graph()
+    C.add_nodes_from(nodes)
+    for pair in combinations(nodes, 2):
+        route = nx.shortest_path(G, pair[0], pair[1])
+        if spanningRoute(route, nodes):
+            continue
+        C.add_edge(pair[0], pair[1], weight=routeWeight(route))
 
-    return cost
+    print(nx.shortest_path(C, start, end, weight="weight"))
+
+    return nx.shortest_path_length(C, start, end, weight="weight")
 
 
 # Find connected nodes
@@ -78,6 +84,17 @@ def exploreFromNode(G: nx.Graph, pos, visited):
         if grid[pos + dir] == ".":
             G.add_edge(pos, pos + dir)
             exploreFromNode(G, pos + dir, visited)
+
+
+# Return true if this route>2 spans additional nodes
+def spanningRoute(route, nodes):
+    if len(route) == 2:
+        return False
+    else:
+        for x in route[1:-2]:
+            if x in nodes:
+                return True
+    return False
 
 
 # Calculate the weight of a completed route
