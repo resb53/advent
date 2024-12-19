@@ -43,34 +43,33 @@ def parseInput(inp):
 def processData():
     possible = 0
     for pattern in data:
-        print(f"Pattern: {pattern}")
-        if pattern[0] in options:
-            combinations = [[]]
-            # Pattern, char in pattern, base, possible combinations, current combination
-            createPattern(pattern, 1, options[pattern[0]], combinations, 0)
-            if len(combinations) > 0:
-                possible += 1
+        combinations = []
+        addNewTowel(list(pattern), [], combinations)
+        if len(combinations) > 0:
+            possible += 1
     return possible
 
 
-# For a pattern iterate through options recursively
-def createPattern(pattern, i, base, combs, c):
-    print(f"Create: {(pattern, i, base.keys())}")
-    if i > len(pattern) - 1:
-        if "." in base:
-            return
+def addNewTowel(pattern, explore, combs):
+    pattern = pattern.copy()
+    explore = explore.copy()
+    if pattern[0] in options:
+        char = pattern.pop(0)
+        explore.append(char)
+        extendPattern(pattern, options[char], explore, combs)
 
-    char = pattern[i]
-    print(f"Char: {char}")
-    if "." in base:
-        # Start a new towel
-        if char in options:
-            combs[c].append("char")
-            createPattern(pattern, i, options[char], combs, c)
-    if char in base:
-        createPattern(pattern, i + 1, base[char], combs)
-    else:
-        return
+
+def extendPattern(pattern, base, explore, combs):
+    if len(pattern) == 0 and "." in base:
+        combs.append(explore)
+    elif len(pattern) > 0:
+        if "." in base:
+            if len(pattern) > 0:
+                addNewTowel(pattern, explore, combs)
+        if pattern[0] in base:
+            char = pattern.pop(0)
+            explore[-1] += char
+            extendPattern(pattern, base[char], explore, combs)
 
 
 # Process harder
