@@ -40,13 +40,18 @@ def parseInput(inp):
 
 
 # Identify if it's possible to make each pattern from the towels
+# Alternatively, drop this approach entirely and just concatenante strings, may be better.
 def processData():
     possible = 0
     for pattern in data:
+        print(f"Checking {pattern}", end="")
         combinations = []
         addNewTowel(list(pattern), [], combinations)
         if len(combinations) > 0:
             possible += 1
+            print(" ✓")
+        else:
+            print(" ✗")
     return possible
 
 
