@@ -45,7 +45,27 @@ def processData():
 
 # Process harder
 def processMore():
-    return False
+    dial = 50
+    count = 0
+
+    for instr in data:
+        print(instr)
+        if instr[0] == "R":
+            dial = dial + instr[1]
+            count += dial // 100
+            dial = dial % 100
+        else:
+            if dial == 0:
+                count -= 1
+            dial = dial - instr[1]
+            count += abs(dial // 100)
+            dial = dial % 100
+            if dial == 0:
+                count += 1
+
+        print([dial, count])
+
+    return count
 
 
 def main():
