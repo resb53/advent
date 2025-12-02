@@ -35,7 +35,33 @@ def checkInvalid(x):
         return 0
 
 
-# For each pass, identify its seat
+# Generator divisors of the length of code
+def generateDivisors(n):
+    for i in range(1, int(n**0.5) + 1):
+        if n % i == 0:
+            yield i
+            if i != n // i:
+                yield n // i
+
+
+# Check for a pattern indicating a more complex invalid code
+def checkComplex(x):
+    for d in generateDivisors(len(x)):
+        if d != len(x):
+            units = [x[i:i+d] for i in range(0, len(x), d)]
+            # Compare all other units with the first
+            matches = True
+            for chk in units[1:]:
+                if chk != units[0]:
+                    matches = False
+                    break
+            if matches:
+                return int(x)
+
+    return 0
+
+
+# For each range find invalid codes
 def processData():
     sum_invalids = 0
 
@@ -48,9 +74,15 @@ def processData():
     return sum_invalids
 
 
-# Process harder
+# For each range find complex codes
 def processMore():
-    return False
+    sum_complex = 0
+
+    for rng in data:
+        for x in range(int(rng[0]), int(rng[1])+1):
+            sum_complex += checkComplex(str(x))
+
+    return sum_complex
 
 
 def main():

@@ -26,7 +26,7 @@ def parseInput(inp):
         data.append([dir, dist])
 
 
-# For each pass, identify its seat
+# Turn the dial, count 0s
 def processData():
     dial = 50
     count = 0
@@ -43,7 +43,7 @@ def processData():
     return count
 
 
-# Process harder
+# Turn the dial, count times passing 0
 def processMore():
     dial = 50
     count = 0
