@@ -20,14 +20,32 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.rstrip())
+        line = line.rstrip()
+        for rng in line.split(","):
+            data.append(rng.split("-"))
+
+
+# Check for a pattern indicating an invalid code
+def checkInvalid(x):
+    a, b = x[:len(x)//2], x[len(x)//2:]
+
+    if a == b:
+        return int(x)
+    else:
+        return 0
 
 
 # For each pass, identify its seat
 def processData():
-    for element in data:
-        print(f"{element}")
-    return False
+    sum_invalids = 0
+
+    for rng in data:
+        for x in range(int(rng[0]), int(rng[1])+1):
+            x = str(x)
+            if len(x) % 2 != 1:
+                sum_invalids += checkInvalid(x)
+
+    return sum_invalids
 
 
 # Process harder
