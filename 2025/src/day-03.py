@@ -35,6 +35,24 @@ def pairBatteries(batteries: list, n: int) -> int:
     return None
 
 
+# Find highest value for n batteries
+def nBatteries(batteries: list, n: int, val: str):
+    if n > 0:
+        end = len(batteries)
+        if n > 1:
+            end = -1*(n-1)
+        target = batteries[0:end]
+        m = max(target)
+        val += str(m)
+        pos = batteries.index(m)
+        newBatteries = batteries[pos+1:]
+
+        return nBatteries(newBatteries, n-1, val)
+
+    else:
+        return int(val)
+
+
 # Turn on exactly 2 batteries, maximise joltage
 def processData():
     joltage = 0
@@ -52,9 +70,13 @@ def processData():
     return joltage
 
 
-# Process harder
+# Process for 12 batteries per row
 def processMore():
-    return False
+    joltage = 0
+    for row in data:
+        joltage += nBatteries(row, 12, "")
+
+    return joltage
 
 
 def main():
