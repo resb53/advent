@@ -20,14 +20,36 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.rstrip())
+        data.append([int(x) for x in line.rstrip()])
 
 
-# For each pass, identify its seat
+# Find highest pairing of batteries without changing order
+def pairBatteries(batteries: list, n: int) -> int:
+    if n in batteries:
+        # Leftmost pos of n:
+        pos = batteries.index(n)
+        if pos < len(batteries) - 1:
+            two = max(batteries[pos+1:])
+            return int(str(n) + str(two))
+
+    return None
+
+
+# Turn on exactly 2 batteries, maximise joltage
 def processData():
-    for element in data:
-        print(f"{element}")
-    return False
+    joltage = 0
+    for row in data:
+        # Look for 9s, find highest to the right
+        n = 9
+        while n >= 0:
+            check = pairBatteries(row, n)
+            if check is not None:
+                joltage += check
+                break
+            else:
+                n -= 1
+
+    return joltage
 
 
 # Process harder
