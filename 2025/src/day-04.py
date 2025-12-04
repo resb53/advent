@@ -9,7 +9,6 @@ parser.add_argument('input', metavar='input', type=str,
                     help='Input data file.')
 args = parser.parse_args()
 
-grid = {}
 bounds = []
 adj = [
     -1-1j, -1j, 1-1j,
@@ -25,6 +24,7 @@ def parseInput(inp):
     except IOError:
         sys.exit("Unable to open input file: " + inp)
 
+    grid = {}
     y = 0
     for line in input_fh:
         x = 0
@@ -36,9 +36,19 @@ def parseInput(inp):
 
     bounds.extend([x, y])
 
+    return grid
+
+
+# Print Grid
+def printGrid(grid):
+    for y in range(bounds[1]):
+        for x in range(bounds[0]):
+            print(grid[x + y * 1j], end="")
+        print()
+
 
 # Find adjacent rolls
-def getAdjacent(pos):
+def getAdjacent(grid: dict, pos: int) -> int:
     rolls = 0
 
     for i in adj:
@@ -50,30 +60,50 @@ def getAdjacent(pos):
     return rolls
 
 
-# Find how many paper rolls can be accessed
-def processData():
+# Remove available rolls
+def removeRolls(grid: dict, remove: bool):
     count = 0
+    newgrid = grid.copy()
+
     for pos in grid:
         if grid[pos] == "@":
-            if getAdjacent(pos) < 4:
+            if getAdjacent(grid, pos) < 4:
                 count += 1
+                newgrid[pos] = "."
+            else:
+                newgrid[pos] = "@"
+
+    if remove:
+        return newgrid, count
+
+    return grid, count
+
+
+# Find how many paper rolls can be accessed
+def processData(grid):
+    return removeRolls(grid, False)[1]
+
+
+# Repeat until no more rolls can be accessed
+def processMore(grid):
+    count = 0
+    grid, removed = removeRolls(grid, True)
+
+    while removed != 0:
+        count += removed
+        grid, removed = removeRolls(grid, True)
 
     return count
 
 
-# Process harder
-def processMore():
-    return False
-
-
 def main():
-    parseInput(args.input)
+    grid = parseInput(args.input)
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    print(f"Part 1: {processData(grid)}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {processMore(grid)}")
 
 
 if __name__ == "__main__":
