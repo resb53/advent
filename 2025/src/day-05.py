@@ -66,9 +66,8 @@ def collapseRanges(ranges):
 
 
 # Count fresh ingredients
-def processData(ranges):
+def processData(rng):
     count = 0
-    rng = collapseRanges(ranges)
 
     for x in data:
         fresh = False
@@ -82,19 +81,24 @@ def processData(ranges):
     return count
 
 
-# Process harder
-def processMore(ranges):
-    return False
+# Find all possible fresh IDs
+def processMore(rng):
+    count = 0
+
+    for r in rng:
+        count += (r[1] - r[0] + 1)
+
+    return count
 
 
 def main():
-    ranges = parseInput(args.input)
+    rng = collapseRanges(parseInput(args.input))
 
     # Part 1
-    print(f"Part 1: {processData(ranges)}")
+    print(f"Part 1: {processData(rng)}")
 
     # Part 2
-    print(f"Part 2: {processMore(ranges)}")
+    print(f"Part 2: {processMore(rng)}")
 
 
 if __name__ == "__main__":
