@@ -92,7 +92,7 @@ def processMore():
     calc.append(val)
     calc[-1].insert(0, sign)
 
-    # Flip, trip and calculate
+    # Flip, strip and calculate
     for x in calc:
         equ = []
         for val in x[1:]:
