@@ -22,12 +22,17 @@ def parseInput(inp):
         sys.exit("Unable to open input file: " + inp)
 
     for line in input_fh:
-        data.append(line.rstrip().split())
+        data.append(line.strip("\n"))
 
 
 # Flip Data
-def flipdata(d):
+def flipdata(inp):
+    d = []
+    for x in inp:
+        d.append(x.split())
+
     flipped = []
+
     maxn = len(d) - 1
 
     for i in range(len(d[0])):
@@ -58,9 +63,49 @@ def processData():
     return grandtotal
 
 
-# Process harder
+# Do real cephlapod maths
 def processMore():
-    return False
+    grandtotal = 0
+
+    calc = []
+    maxn = len(data) - 1
+
+    val = []
+    sign = ""
+    for i in range(len(data[0])):
+        num = ""
+        for n in range(maxn, -1, -1):
+            if n == maxn:
+                if data[n][i] in ["+", "*"]:
+                    if sign == "":
+                        sign = data[n][i]
+                    else:
+                        calc.append(val)
+                        calc[-1].insert(0, sign)
+
+                        val = []
+                        sign = data[n][i]
+            else:
+                num += data[n][i]
+        val.append(num)
+
+    calc.append(val)
+    calc[-1].insert(0, sign)
+
+    # Flip, trip and calculate
+    for x in calc:
+        equ = []
+        for val in x[1:]:
+            num = val[::-1].strip()
+            if len(num) > 0:
+                equ.append(int(num))
+
+        if x[0] == "+":
+            grandtotal += sum(equ)
+        else:
+            grandtotal += prod(equ)
+
+    return grandtotal
 
 
 def main():
