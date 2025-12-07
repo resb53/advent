@@ -66,7 +66,7 @@ def processData(g):
     return split
 
 
-# Process harder
+# Count Tachyon beam paths through the field
 def processMore(g):
     grid = g.copy()
 
