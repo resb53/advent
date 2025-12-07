@@ -26,10 +26,7 @@ def parseInput(inp):
         x = 0
         line = line.rstrip()
         for char in line:
-            if char == ".":
-                grid[x + y * 1j] = 0
-            else:
-                grid[x + y * 1j] = char
+            grid[x + y * 1j] = char
             x += 1
         y += 1
 
@@ -55,14 +52,12 @@ def processData(grid):
 
     for y in range(1, bounds[1]):
         for x in range(bounds[0]):
-            if grid[x + y * 1j] == 0 and grid[x + (y-1) * 1j] in ["S", 1]:
-                grid[x + y * 1j] = 1
-            if grid[x + y * 1j] == "^" and grid[x + (y-1) * 1j] == 1:
+            if grid[x + y * 1j] != "^" and grid[x + (y-1) * 1j] in ["S", "|"]:
+                grid[x + y * 1j] = "|"
+            elif grid[x + y * 1j] == "^" and grid[x + (y-1) * 1j] == "|":
                 split += 1
-                grid[x-1 + y * 1j] = 1
-                grid[x+1 + y * 1j] = 1
-
-    printGrid(grid)
+                grid[x-1 + y * 1j] = "|"
+                grid[x+1 + y * 1j] = "|"
 
     return split
 
