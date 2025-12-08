@@ -53,8 +53,10 @@ def connectCircuits(circuits, pair):
         circuits.pop(b)
 
 
-# Find shortest distance between points, connect the first 1000
+# Find shortest distance between points, connect the first 1000, then continue with part 2
 def processData():
+    part1 = None
+    part2 = None
     distances = {}
     circuits = [[x] for x in data]
 
@@ -65,27 +67,25 @@ def processData():
     for pair in sorted(distances, key=distances.get):
         connectCircuits(circuits, pair)
         n += 1
-        if n >= 1000:
+        if n == 1000:
+            circuits.sort(key=lambda x: len(x), reverse=True)
+            part1 = prod([len(x) for x in circuits[0:3]])
+        if len(circuits) == 1:
+            part2 = pair[0][0] * pair[1][0]
             break
 
-    circuits.sort(key=lambda x: len(x), reverse=True)
-
-    return prod([len(x) for x in circuits[0:3]])
-
-
-# Process harder
-def processMore():
-    return False
+    return part1, part2
 
 
 def main():
     parseInput(args.input)
+    part1, part2 = processData()
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    print(f"Part 1: {part1}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {part2}")
 
 
 if __name__ == "__main__":
