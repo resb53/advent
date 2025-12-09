@@ -3,6 +3,7 @@
 import argparse
 import sys
 from itertools import combinations
+from shapely import Polygon
 
 # Check correct usage
 parser = argparse.ArgumentParser(description="Parse some data.")
@@ -30,30 +31,38 @@ def getArea(a, b):
     return (abs(a[0] - b[0]) + 1) * (abs(a[1] - b[1]) + 1)
 
 
-# For pair of red tiles find the largest rectangle area
+# Get rectangle polygon for pair of tiles
+def getRect(a, b):
+    return Polygon([a, (a[0], b[1]), b, (b[0], a[1])])
+
+
+# For pair of red tiles find the largest rectangle area. For part 2 ensure they're entirely within the perimeter.
 def processData():
-    largest = 0
+    part1 = 0
+    part2 = 0
+    perimeter = Polygon(data)
+
     for pair in combinations(data, 2):
         area = getArea(pair[0], pair[1])
-        if area > largest:
-            largest = area
+        rect = getRect(pair[0], pair[1])
+        if area > part1:
+            part1 = area
+        if perimeter.contains(rect):
+            if area > part2:
+                part2 = area
 
-    return largest
-
-
-# Process harder
-def processMore():
-    return False
+    return part1, part2
 
 
 def main():
     parseInput(args.input)
+    part1, part2 = processData()
 
     # Part 1
-    print(f"Part 1: {processData()}")
+    print(f"Part 1: {part1}")
 
     # Part 2
-    print(f"Part 2: {processMore()}")
+    print(f"Part 2: {part2}")
 
 
 if __name__ == "__main__":
