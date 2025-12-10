@@ -29,7 +29,7 @@ def parseInput(inp):
         target = chunks[0][1:-1].replace(".", "0").replace("#", "1")
         goal = int(target[::-1], 2)
 
-        jolt = tuple([int(x) for x in chunks[-1][1:-1].split(",")])
+        jolt = [int(x) for x in chunks[-1][1:-1].split(",")][::-1]
 
         switches = []
 
@@ -77,9 +77,44 @@ def processData():
     return presses
 
 
+# Update joltage for a button press
+def updateJoltage(state, button):
+    newstate = deepcopy(state)
+    for i, x in enumerate(f"{{0:0{len(state[0])}b}}".format(button)):
+        newstate[0][i] += int(x)
+    newstate[1].append(button)
+
+    return newstate
+
+
 # Process harder
 def processMore():
-    return False
+    presses = 0
+
+    for machine in data:
+        curStates = [[[0] * len(machine[2]), []]]
+
+        while len(curStates) > 0:
+            newStates = []
+
+            for state in curStates:
+                for switch in machine[1]:
+                    newState = updateJoltage(state, switch)
+
+                    valid = True
+                    for i, joltage in enumerate(newState[0]):
+                        if joltage > machine[2][i]:
+                            valid = False
+
+                    if valid:
+                        if newState[0] == machine[2]:
+                            presses += len(newState[1])
+                        else:
+                            newStates.append(newState)
+
+            curStates = newStates
+
+    return presses
 
 
 def main():
